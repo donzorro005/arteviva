@@ -72,6 +72,18 @@ footer{text-align:center;padding:2rem 1rem;font-family:"Cormorant Garamond",seri
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .item.card .nm{flex:none;text-align:center}
 .item.card .btn{width:100%}
+.items.szgrid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));align-items:start}
+.item.pc{display:block;padding:0}
+.item.pc summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.7rem;padding:.55rem .7rem}
+.item.pc summary::-webkit-details-marker{display:none}
+.item.pc summary::after{content:"+";margin-left:auto;font-size:1.4rem;line-height:1}
+.item.pc[open] summary::after{content:"\2212"}
+.item.pc summary:focus-visible{outline:3px solid var(--blue);outline-offset:-3px;border-radius:14px}
+.szs{border-top:1px solid var(--line);padding:.4rem .7rem .6rem}
+.sz{display:flex;align-items:center;gap:.6rem;padding:.45rem 0}
+.sz+.sz{border-top:1px dashed var(--line)}
+.sz .lb{flex:1;line-height:1.25}
+.sz .btn{padding:.4rem .9rem;font-size:.95rem}
 [hidden]{display:none!important}
 .promo{border:2px solid var(--ink);border-radius:22px;padding:2rem 1.5rem;text-align:center;box-shadow:6px 8px 0 var(--ink);background:var(--bg)}
 .promo p{max-width:48ch;margin:.5rem auto 1.5rem;color:var(--muted)}
@@ -185,11 +197,13 @@ show(0);
 var WA="50663579829",MONEDA="₡";
 var CATS=[
 {n:"Paquetes de relajación",d:"Pieza de yeso, pinceles y pinturas listos para crear",c:"linear-gradient(160deg,#e8b93f,#cf5c7c 55%,#4f82c4)",g:[{t:"Paquetes",im:1,k:"Paquete de relajación: ",i:"Mickey,Muñecos de nieve,Mini paisaje,Acuarela,Mandala,Flores,Animalitos,Rosas"}]},
-{n:"Pinturas",d:"Colores para mezclar y atreverte",c:"#cf5c7c",g:[{t:"Colores",k:"Pintura: ",i:"Amarillo limón|#f2e04a,Amarillo oro|#e8b93f,Naranja|#ee8a2e,Mandarina|#f4a259,Rojo|#c9352f,Carmesí|#9e2a3b,Rosa|#cf5c7c,Rosa pastel|#f2b5c4,Fucsia|#c2308a,Morado|#7a4fa0,Lila|#b79ad6,Azul rey|#2f55a4,Azul cielo|#8fb4e3,Celeste|#bfdcf2,Turquesa|#2fb5b0,Aguamarina|#7fd1c0,Verde hoja|#4f8a3a,Verde oliva|#6f8a3a,Verde menta|#a8d8b0,Verde lima|#a6c93a,Café|#7a4a2b,Chocolate|#4e2f1f,Terracota|#c2693f,Beige|#e3cfa8,Arena|#d8bf8f,Blanco|#fbf8f0,Negro|#1a1816,Gris|#8b8b8b,Plateado|#c0c4c8,Dorado|#c9a227,Cobre|#b4703a,Rojo coral|#f0705a"}]},
+{n:"Pinturas",d:"Colores para mezclar y atreverte",c:"#cf5c7c",g:[{t:"Colores",sz:1,k:"Pintura: ",i:"Amarillo limón|#f2e04a,Amarillo oro|#e8b93f,Naranja|#ee8a2e,Mandarina|#f4a259,Rojo|#c9352f,Carmesí|#9e2a3b,Rosa|#cf5c7c,Rosa pastel|#f2b5c4,Fucsia|#c2308a,Morado|#7a4fa0,Lila|#b79ad6,Azul rey|#2f55a4,Azul cielo|#8fb4e3,Celeste|#bfdcf2,Turquesa|#2fb5b0,Aguamarina|#7fd1c0,Verde hoja|#4f8a3a,Verde oliva|#6f8a3a,Verde menta|#a8d8b0,Verde lima|#a6c93a,Café|#7a4a2b,Chocolate|#4e2f1f,Terracota|#c2693f,Beige|#e3cfa8,Arena|#d8bf8f,Blanco|#fbf8f0,Negro|#1a1816,Gris|#8b8b8b,Plateado|#c0c4c8,Dorado|#c9a227,Cobre|#b4703a,Rojo coral|#f0705a"}]},
 {n:"Pinceles",d:"Para trazos amplios y detalles pequeños",c:"#4f82c4",g:[{t:"Pinceles sueltos",im:1,k:"Pincel: ",i:"Redondo n.º 2,Redondo n.º 6,Redondo n.º 10,Plano n.º 4,Plano n.º 8,Plano n.º 12,Punta fina para detalles,Delineador largo,Abanico,Lengua de gato n.º 6,Esponja para texturas,Ancho para fondos"},{t:"Paquetes de pinceles",im:1,k:"Paquete de pinceles: ",i:"Básico,De detalles,De fondos,Completo,Infantil"}]},
 {n:"Figuras de yeso",d:"Más lienzos en relieve, listos para pintar",c:"#e8b93f",g:[{t:"Figuras sueltas",im:1,k:"Figura: ",i:"Mariposa,Flor,Girasol,Corazón,Estrella,Luna,Sol,Nube,Arcoíris,Gato,Perro,Conejo,Osito,Elefante,Jirafa,Tortuga,Pez,Delfín,Ballena,Pulpo,Búho,Colibrí,Mariquita,Abeja,Rana,Unicornio,Dinosaurio,Caracol,Cactus,Hoja,Árbol,Casita,Cohete,Planeta,Concha,Estrella de mar,Sandía,Piña,Aguacate,Taza,Máscara,Mandala redonda"},{t:"Paquetes de figuras",im:1,k:"Paquete de figuras: ",i:"Animales del bosque,Jardín,Mar,Cielo y espacio,Granja,Selva,Dinosaurios,Frutas tropicales,Mariposas,Flores,Mascotas,Navidad,Cumpleaños,Fiesta infantil,Estrellas y lunas"}]}];
+/* TAMAÑOS DE PINTURA: pon el precio en p (número, en colones). Si p es null no se muestra precio. */
+var SIZES=[{n:"Unidad para una pieza (5 ml)",p:null},{n:"Frasco de 27 ml",p:null},{n:"Frasco de 120 ml",p:null}];
 var PRODUCTS=[];
-CATS.forEach(function(C,a){C.g.forEach(function(G,b){G.l=G.i.split(",").map(function(s,j){var q=s.split("|"),o={id:"c"+a+"g"+b+"i"+j,n:G.k+q[0],d:q[0],c:q[1]||C.c,p:null};PRODUCTS.push(o);return o})})});
+CATS.forEach(function(C,a){C.g.forEach(function(G,b){G.l=G.i.split(",").map(function(s,j){var q=s.split("|"),o={id:"c"+a+"g"+b+"i"+j,n:G.k+q[0],d:q[0],c:q[1]||C.c,p:null};if(G.sz){o.z=SIZES.map(function(z,k){var x={id:o.id+"s"+k,n:G.k+q[0]+" – "+z.n,d:z.n,c:o.c,p:z.p};PRODUCTS.push(x);return x})}else{PRODUCTS.push(o)}return o})})});
 var cart={};
 function money(n){return MONEDA+n.toLocaleString("es-CR")}
 function find(id){return PRODUCTS.filter(function(x){return x.id===id})[0]}
@@ -200,8 +214,8 @@ var d=document.createElement("details");d.className="acc";
 var sm=document.createElement("summary");sm.innerHTML='<span class="sw2 big" style="background:'+C.c+'"></span><div><h3>'+C.n+'</h3><small>'+C.d+' · '+n+' opciones</small></div>';d.appendChild(sm);
 var bd=document.createElement("div");bd.className="accbody";
 C.g.forEach(function(G){var h=document.createElement("h4");h.textContent=G.t+" ("+G.l.length+")";bd.appendChild(h);
-var it=document.createElement("div");it.className="items"+(G.im?" withimg":"");
-G.l.forEach(function(o){var r=document.createElement("div");r.className="item"+(G.im?" card":"");
+var it=document.createElement("div");it.className="items"+(G.im?" withimg":"")+(G.sz?" szgrid":"");
+G.l.forEach(function(o){if(G.sz){var dt=document.createElement("details");dt.className="item pc";var su=document.createElement("summary");var sw=document.createElement("span");sw.className="sw2";sw.style.background=o.c;var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;su.appendChild(sw);su.appendChild(nm);dt.appendChild(su);var bx=document.createElement("div");bx.className="szs";o.z.forEach(function(z){var rw=document.createElement("div");rw.className="sz";var lb=document.createElement("span");lb.className="lb";lb.textContent=z.d+(z.p!=null?" · "+money(z.p):"");var bt=document.createElement("button");bt.type="button";bt.className="btn sm";bt.textContent="Agregar";bt.setAttribute("aria-label","Agregar "+z.n);bt.onclick=function(){setQty(z.id,(cart[z.id]||0)+1);bt.textContent="Agregado";setTimeout(function(){bt.textContent="Agregar"},900)};rw.appendChild(lb);rw.appendChild(bt);bx.appendChild(rw)});dt.appendChild(bx);it.appendChild(dt);return}var r=document.createElement("div");r.className="item"+(G.im?" card":"");
 if(G.im){var ph=document.createElement("div");ph.className="ph";if(IMGS[o.n]){var im=document.createElement("img");im.src=IMGS[o.n];im.alt=o.n;ph.appendChild(im)}else{ph.textContent="Foto"}r.appendChild(ph)}else{var sw=document.createElement("span");sw.className="sw2";sw.style.background=o.c;r.appendChild(sw)}
 var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;r.appendChild(nm);
 var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent="Agregar";b.setAttribute("aria-label","Agregar "+o.n);
