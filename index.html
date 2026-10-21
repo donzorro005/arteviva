@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: formulario-pedido-2026-10-20 -->
-<meta name="page-version" content="formulario-pedido-2026-10-20">
+<!-- VERSION: punto-retiro-2026-10-20 -->
+<meta name="page-version" content="punto-retiro-2026-10-20">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -193,7 +193,7 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 <p class="lead" style="margin-left:auto;margin-right:auto;text-align:center">Elige lo que necesitas, arma tu carrito y envíanos tu pedido por WhatsApp.</p>
 <div class="shop" id="shop"></div>
 <div class="info" id="envios">
-<div><h3>Entrega</h3><ul><li>Retiro en persona</li><li>Envío por correo o mensajería (el costo se confirma por WhatsApp)</li></ul></div>
+<div><h3>Entrega</h3><ul><li>Retiro en persona, únicamente en un punto: <a href="https://www.google.com/maps?q=9.878291,-83.938701" target="_blank" rel="noopener">ver ubicación en Google Maps</a></li><li>Envío por correo o mensajería (el costo se confirma por WhatsApp)</li></ul></div>
 <div><h3>Formas de pago</h3><ul><li>SINPE Móvil</li><li>Efectivo</li></ul></div>
 </div>
 <div class="cart" id="carrito"><h3>Tu carrito</h3><div id="lines"></div><div class="total" id="total"></div>
@@ -202,6 +202,7 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 <fieldset><legend>¿Cómo recibes tu pedido?</legend>
 <label class="opt"><input type="radio" name="f-entrega" value="Retiro en persona"> Retiro en persona</label>
 <label class="opt"><input type="radio" name="f-entrega" value="Envío por correo o mensajería"> Envío por correo o mensajería</label></fieldset>
+<div id="f-retbox" hidden><small>El retiro es únicamente en este punto: <a href="https://www.google.com/maps?q=9.878291,-83.938701" target="_blank" rel="noopener">ver ubicación en Google Maps</a>.</small></div>
 <div id="f-dirbox" hidden><label for="f-dir">Dirección de envío (provincia, cantón, distrito y señas)</label><textarea id="f-dir" rows="3"></textarea><small>El costo del envío te lo confirmo por WhatsApp.</small></div>
 <fieldset><legend>Forma de pago</legend>
 <label class="opt"><input type="radio" name="f-pago" value="SINPE Móvil"> SINPE Móvil</label>
@@ -278,7 +279,7 @@ W.setAttribute("aria-disabled",ok?"false":"true");
 if(ok)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
 B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"")}
 function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
-function onForm(){document.getElementById("f-dirbox").hidden=(readForm().entrega||"").indexOf("Envío")!==0;drawCart()}
+function onForm(){var en=readForm().entrega||"";document.getElementById("f-dirbox").hidden=en.indexOf("Envío")!==0;document.getElementById("f-retbox").hidden=en!=="Retiro en persona";drawCart()}
 document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);
 drawShop();drawCart();
 document.getElementById("logo2").src=document.querySelector(".hero img").src;
