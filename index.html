@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: tienda-colores-logo-2026-10-20 -->
-<meta name="page-version" content="tienda-colores-logo-2026-10-20">
+<!-- VERSION: formulario-pedido-2026-10-20 -->
+<meta name="page-version" content="formulario-pedido-2026-10-20">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,6 +113,20 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 .wa{background:#1f7a4d;color:#fff;display:block;text-align:center}
 .wa:hover{background:#17603c}
 .wa[aria-disabled=true]{opacity:.45;pointer-events:none}
+.info{margin-top:2.5rem;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.info>div{border:1.5px solid var(--ink);border-radius:18px;padding:1.1rem 1.3rem;background:var(--bg)}
+.info h3{font-size:1.5rem;margin-bottom:.4rem}
+.info ul{margin:0;padding-left:1.1rem;color:var(--muted)}
+.info li{margin:.2rem 0}
+.ofrm{display:grid;gap:.9rem;margin:1rem 0}
+.ofrm label,.ofrm legend{font-weight:500;display:block}
+.ofrm fieldset{border:0;padding:0;margin:0;display:grid;gap:.35rem}
+.ofrm .opt{display:flex;align-items:center;gap:.6rem;font-weight:400;cursor:pointer;padding:.15rem 0}
+.ofrm .opt input{width:20px;height:20px;accent-color:var(--ink);flex:none}
+.ofrm input[type=text],.ofrm textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--ink);background:#fbf8f0;border:1.5px solid var(--ink);border-radius:12px;padding:.65rem .8rem}
+.ofrm input[type=text]:focus-visible,.ofrm textarea:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.ofrm small{color:var(--muted)}
+.falta{margin:.6rem 0 0;color:var(--muted);text-align:center;font-size:.95rem}
 .cartbar{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:20;display:none;box-shadow:4px 5px 0 rgba(0,0,0,.25)}
 .cartbar.on{display:inline-block}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
@@ -178,7 +192,23 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 <div class="shophead"><img id="logo2" alt="Logo de ARTE VIVA"><h2>Tienda</h2></div>
 <p class="lead" style="margin-left:auto;margin-right:auto;text-align:center">Elige lo que necesitas, arma tu carrito y envíanos tu pedido por WhatsApp.</p>
 <div class="shop" id="shop"></div>
-<div class="cart" id="carrito"><h3>Tu carrito</h3><div id="lines"></div><div class="total" id="total"></div><a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a></div>
+<div class="info" id="envios">
+<div><h3>Entrega</h3><ul><li>Retiro en persona</li><li>Envío por correo o mensajería (el costo se confirma por WhatsApp)</li></ul></div>
+<div><h3>Formas de pago</h3><ul><li>SINPE Móvil</li><li>Efectivo</li></ul></div>
+</div>
+<div class="cart" id="carrito"><h3>Tu carrito</h3><div id="lines"></div><div class="total" id="total"></div>
+<div class="ofrm" id="ofrm">
+<div><label for="f-nombre">Tu nombre</label><input type="text" id="f-nombre" autocomplete="name"></div>
+<fieldset><legend>¿Cómo recibes tu pedido?</legend>
+<label class="opt"><input type="radio" name="f-entrega" value="Retiro en persona"> Retiro en persona</label>
+<label class="opt"><input type="radio" name="f-entrega" value="Envío por correo o mensajería"> Envío por correo o mensajería</label></fieldset>
+<div id="f-dirbox" hidden><label for="f-dir">Dirección de envío (provincia, cantón, distrito y señas)</label><textarea id="f-dir" rows="3"></textarea><small>El costo del envío te lo confirmo por WhatsApp.</small></div>
+<fieldset><legend>Forma de pago</legend>
+<label class="opt"><input type="radio" name="f-pago" value="SINPE Móvil"> SINPE Móvil</label>
+<label class="opt"><input type="radio" name="f-pago" value="Efectivo"> Efectivo</label></fieldset>
+<div><label for="f-nota">Notas (opcional)</label><textarea id="f-nota" rows="2"></textarea></div>
+</div>
+<a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a><p class="falta" id="falta" role="status"></p></div>
 </div></section></main>
 
 <footer>ARTE VIVA<br><small style="font:400 .85rem Jost,sans-serif;letter-spacing:.3em">TIENDA DE ARTE</small></footer>
@@ -242,10 +272,14 @@ qt.appendChild(m);qt.appendChild(sp);qt.appendChild(pl);r.appendChild(qt);L.appe
 T.textContent="";
 if(ids.length){var a=document.createElement("span");a.textContent="Artículos: "+n;T.appendChild(a);
 if(priced){var b2=document.createElement("span");b2.textContent="Total: "+money(sum);T.appendChild(b2);msg+="\nTotal: "+money(sum)+"\n"}else{msg+="\nTotal de artículos: "+n+"\n"}}
-msg+="¡Gracias!";
-W.setAttribute("aria-disabled",ids.length?"false":"true");
-if(ids.length)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
+var F=readForm(),miss=[];if(ids.length){if(!F.nombre)miss.push("tu nombre");if(!F.entrega)miss.push("cómo recibes el pedido");else if(F.entrega.indexOf("Envío")===0&&!F.dir)miss.push("la dirección de envío");if(!F.pago)miss.push("la forma de pago")}
+msg+="\nNombre: "+F.nombre+"\nEntrega: "+F.entrega+(F.dir?"\nDirección: "+F.dir:"")+"\nPago: "+F.pago+(F.nota?"\nNotas: "+F.nota:"")+"\n\n¡Gracias!";var ok=ids.length&&!miss.length;document.getElementById("falta").textContent=ids.length&&miss.length?"Falta: "+miss.join(", ")+".":"";
+W.setAttribute("aria-disabled",ok?"false":"true");
+if(ok)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
 B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"")}
+function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
+function onForm(){document.getElementById("f-dirbox").hidden=(readForm().entrega||"").indexOf("Envío")!==0;drawCart()}
+document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);
 drawShop();drawCart();
 document.getElementById("logo2").src=document.querySelector(".hero img").src;
 var inicio=document.getElementById("inicio"),vista=document.getElementById("vista-tienda"),cur=null;
