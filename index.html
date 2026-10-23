@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: resenaleria-pincel-2026-10-23 -->
-<meta name="page-version" content="resenaleria-pincel-2026-10-23">
+<!-- VERSION: resenaleria-auto-2026-10-23 -->
+<meta name="page-version" content="resenaleria-auto-2026-10-23">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -150,6 +150,7 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 .rv-pin svg{width:20px;height:20px;display:block}
 .rv p{margin:.4rem 0 0}
 .rv img{display:block;width:100%;max-width:340px;border-radius:12px;margin-top:.6rem}
+.ofrm input[type=file]{font:inherit;color:var(--ink);max-width:100%}
 .rv-empty{color:var(--muted);margin:0}
 .pins{display:flex;gap:.25rem}
 .pins button{background:none;border:0;padding:.2rem;cursor:pointer;color:var(--ink);border-radius:8px;line-height:0}
@@ -233,12 +234,14 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 <div><label for="rv-nombre">Tu nombre</label><input type="text" id="rv-nombre" autocomplete="name"></div>
 <fieldset><legend>Tu calificación</legend><div class="pins" id="rv-pins" role="radiogroup" aria-label="Calificación de 1 a 5 pinceles"></div></fieldset>
 <div><label for="rv-texto">Tu comentario</label><textarea id="rv-texto" rows="3"></textarea></div>
-<label class="opt"><input type="checkbox" id="rv-foto"> Quiero compartir una foto de mi obra</label>
+<label class="opt" id="rv-fotolabel"><input type="checkbox" id="rv-foto"> Quiero compartir una foto de mi obra</label>
 <small id="rv-fotonota" hidden>Cuando se abra WhatsApp, adjunta la foto en el chat.</small>
+<div id="rv-filebox" hidden><label for="rv-file">Foto de tu obra (opcional)</label><input type="file" id="rv-file" accept="image/jpeg,image/png,image/webp"></div>
+<input type="text" id="rv-web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
 <label class="opt"><input type="checkbox" id="rv-ok"> Autorizo que ARTE VIVA publique mi nombre, mi reseña y mi foto en la Reseñalería.</label>
 </div>
-<a class="btn wa" id="rv-wa" target="_blank" rel="noopener" aria-disabled="true">Enviar mi reseña por WhatsApp</a><p class="falta" id="rv-falta" role="status"></p>
-<small style="display:block;margin-top:.6rem;color:var(--muted)">Las reseñas se publican después de que las revisamos.</small>
+<a class="btn wa" id="rv-wa" target="_blank" rel="noopener" aria-disabled="true">Enviar mi reseña por WhatsApp</a><p class="falta" id="rv-falta" role="status"></p><p class="falta" id="rv-estado" role="status"></p>
+<small id="rv-nota" style="display:block;margin-top:.6rem;color:var(--muted)">Las reseñas se publican después de que las revisamos.</small>
 </div></details></div></section>
 </div>
 
@@ -376,22 +379,41 @@ function onForm(){var en=readForm().entrega||"";document.getElementById("f-dirbo
 document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);
 /* RESEÑALERÍA. Para publicar una reseña ya revisada, agrégala aquí: {n:"Nombre",r:5,t:"Comentario",f:"fotos/obra1.jpg",d:"oct 2026"}  (f y d son opcionales; r va de 1 a 5) */
 var RESENAS=[];
+/* PUBLICACIÓN AUTOMÁTICA: pega aquí la URL y la clave "anon public" de tu proyecto de Supabase (ver supabase_setup.sql). Mientras estén vacías, la página usa el modo WhatsApp. */
+var SUPA={url:"",key:""},AUTO=!!(SUPA.url&&SUPA.key),RM=[],busy=false;
+var BAD="puta,puto,putas,putos,hijueputa,hijoeputa,hijo de puta,hijo de perra,hdp,mierda,mierdas,come mierda,verga,vergon,pendejo,pendeja,pendejos,pendejas,cabron,cabrona,cabrones,chinga,chingada,chingar,carajo,malparido,malparida,malnacido,gonorrea,maricon,maricones,culero,guevon,huevon,mamaguevo,tarado,tarada,idiota,idiotas,imbecil,imbeciles,estupido,estupida,zorra,joder,follar,pene,pija,nazi,fuck,fucking,shit,bitch,asshole,bastard,dick,cunt,whore,slut,pussy,nigger,faggot,retard".split(",");
 function BR(on){return'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.9 17.9L9.3 17.4L8.7 17.2L8.0 17.2L7.1 17.7L6.8 18.0L6.4 18.7L6.2 19.3L6.0 20.9L5.7 21.6L5.1 22.3L4.2 22.7L5.5 23.0L6.8 23.0L8.1 22.6L9.0 22.0L9.6 21.4L9.9 20.9L10.3 20.0L10.3 18.8L10.2 18.4ZM9.3 15.4L8.9 16.2L8.9 16.6L10.3 17.5L10.6 17.5L11.3 16.6ZM19.5 1.0L19.2 1.0L18.9 1.1L17.8 2.1L16.8 3.2L15.2 5.4L13.2 8.4L11.4 11.3L9.5 14.9L11.6 16.2L12.2 15.4L15.5 10.4L17.9 6.3L18.7 4.7L19.5 2.6L19.8 1.7L19.7 1.2Z" stroke="currentColor" stroke-width=".9" stroke-linejoin="round" fill="'+(on?"#e8b93f":"none")+'"/></svg>'}
 function pins(n){var s="";for(var i=1;i<=5;i++)s+=BR(i<=n);return s}
-function drawRes(){var L=document.getElementById("rv-list"),n=RESENAS.length,sum=0;L.textContent="";
-RESENAS.forEach(function(x){sum+=x.r;var c=document.createElement("div");c.className="rv";var t=document.createElement("div");t.className="rv-top";var p=document.createElement("span");p.className="rv-pin";p.setAttribute("role","img");p.setAttribute("aria-label",x.r+" de 5 pinceles");p.innerHTML=pins(x.r);var nm=document.createElement("b");nm.textContent=x.n;t.appendChild(p);t.appendChild(nm);if(x.d){var d=document.createElement("small");d.textContent=x.d;t.appendChild(d)}c.appendChild(t);var q=document.createElement("p");q.textContent=x.t;c.appendChild(q);if(x.f){var im=document.createElement("img");im.src=x.f;im.alt="Obra de "+x.n;im.loading="lazy";c.appendChild(im)}L.appendChild(c)});
+function drawRes(){var LST=RESENAS.concat(RM),L=document.getElementById("rv-list"),n=LST.length,sum=0;L.textContent="";
+LST.forEach(function(x){sum+=x.r;var c=document.createElement("div");c.className="rv";var t=document.createElement("div");t.className="rv-top";var p=document.createElement("span");p.className="rv-pin";p.setAttribute("role","img");p.setAttribute("aria-label",x.r+" de 5 pinceles");p.innerHTML=pins(x.r);var nm=document.createElement("b");nm.textContent=x.n;t.appendChild(p);t.appendChild(nm);if(x.d){var d=document.createElement("small");d.textContent=x.d;t.appendChild(d)}c.appendChild(t);var q=document.createElement("p");q.textContent=x.t;c.appendChild(q);if(x.f){var im=document.createElement("img");im.src=x.f;im.alt="Obra de "+x.n;im.loading="lazy";c.appendChild(im)}L.appendChild(c)});
 if(!n){var e=document.createElement("p");e.className="rv-empty";e.textContent="Todavía no hay reseñas. ¡Sé la primera persona en dejar la suya!";L.appendChild(e)}
 document.getElementById("rv-sum").textContent="Reseñas y obras de quienes ya pintaron su pausa"+(n?" · "+n+(n==1?" reseña":" reseñas")+" · "+(sum/n).toFixed(1).replace(".",",")+" de 5 pinceles":"")}
 var rvR=0;
 function drawPins(f){var P=document.getElementById("rv-pins");P.textContent="";for(var i=1;i<=5;i++){(function(i){var b=document.createElement("button");b.type="button";b.setAttribute("role","radio");b.setAttribute("aria-checked",rvR===i?"true":"false");b.setAttribute("aria-label",i+(i==1?" pincel":" pinceles"));b.innerHTML=BR(i<=rvR);b.onclick=function(){rvR=i;drawPins(i);updRv()};P.appendChild(b)})(i)}if(f)P.children[f-1].focus()}
 function updRv(){var g=function(i){return document.getElementById(i)},nom=g("rv-nombre").value.trim(),tx=g("rv-texto").value.trim(),fo=g("rv-foto").checked,miss=[];
 if(!nom)miss.push("tu nombre");if(!rvR)miss.push("la calificación");if(!tx)miss.push("tu comentario");if(!g("rv-ok").checked)miss.push("la autorización para publicar");
-g("rv-fotonota").hidden=!fo;var W2=g("rv-wa"),ok=!miss.length;
+if(!AUTO)g("rv-fotonota").hidden=!fo;var bm=AUTO&&malo(nom+" "+tx),W2=g("rv-wa"),ok=!miss.length&&!bm;
 var msg="Hola ARTE VIVA, quiero dejar mi reseña en la Reseñalería:\n\nNombre: "+nom+"\nCalificación: "+rvR+" de 5 pinceles\nComentario: "+tx+(fo?"\n\nTe envío la foto de mi obra por este chat.":"")+"\n\nAutorizo que publiquen "+(fo?"mi nombre, mi reseña y mi foto":"mi nombre y mi reseña")+" en la página.";
-W2.setAttribute("aria-disabled",ok?"false":"true");if(ok)W2.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W2.removeAttribute("href");
-g("rv-falta").textContent=miss.length&&(nom||tx||rvR)?"Falta: "+miss.join(", ")+".":""}
+W2.setAttribute("aria-disabled",ok?"false":"true");if(AUTO)W2.href="#";else if(ok)W2.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W2.removeAttribute("href");
+g("rv-falta").textContent=bm?"Tu reseña tiene palabras que no podemos publicar. Por favor edítala.":miss.length&&(nom||tx||rvR)?"Falta: "+miss.join(", ")+".":""}
 document.getElementById("rv-form").addEventListener("input",updRv);document.getElementById("rv-form").addEventListener("change",updRv);
 drawRes();drawPins();updRv();
+function norm(t){return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[01345@$]/g,function(c){return"oieasas"["01345@$".indexOf(c)]}).replace(/[^a-z ]/g," ").replace(/(.)\1+/g,"$1")}
+function malo(t){var x=" "+norm(t)+" ";return BAD.some(function(w){return x.indexOf(" "+norm(w)+" ")>-1})}
+function hdr(x){var h={apikey:SUPA.key,Authorization:"Bearer "+SUPA.key};for(var k in x)h[k]=x[k];return h}
+function reduce(file){return new Promise(function(res,rej){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var s=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?res(b):rej()},"image/jpeg",.82)};im.onerror=rej;im.src=u})}
+async function cargar(){try{var r=await fetch(SUPA.url+"/rest/v1/resenas_publicas?select=nombre,calificacion,comentario,foto_url,creado&order=creado.desc&limit=50",{headers:hdr()});if(!r.ok)return;var a=await r.json();RM=a.map(function(x){return{n:x.nombre,r:x.calificacion,t:x.comentario,f:x.foto_url&&x.foto_url.indexOf(SUPA.url)===0?x.foto_url:null,d:new Date(x.creado).toLocaleDateString("es-CR",{month:"short",year:"numeric"})}});drawRes()}catch(e){}}
+async function enviar(){if(busy)return;var g=function(i){return document.getElementById(i)},E=g("rv-estado");
+if(g("rv-web").value){E.textContent="¡Gracias! Tu reseña ya está publicada.";return}
+busy=true;g("rv-wa").setAttribute("aria-disabled","true");E.textContent="Publicando tu reseña…";
+try{var foto=null,f=g("rv-file").files[0];
+if(f){var b=await reduce(f),nm=Date.now()+"-"+Math.random().toString(36).slice(2,10)+".jpg",u=await fetch(SUPA.url+"/storage/v1/object/fotos/"+nm,{method:"POST",headers:hdr({"Content-Type":"image/jpeg"}),body:b});if(!u.ok)throw new Error("foto");foto=SUPA.url+"/storage/v1/object/public/fotos/"+nm}
+var r=await fetch(SUPA.url+"/rest/v1/resenas",{method:"POST",headers:hdr({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({nombre:g("rv-nombre").value.trim(),calificacion:rvR,comentario:g("rv-texto").value.trim(),foto_url:foto})});
+if(!r.ok){var t=await r.text();E.textContent=/palabras_no_permitidas/.test(t)?"Tu reseña tiene palabras que no podemos publicar. Por favor edítala.":/demasiadas_resenas/.test(t)?"Hay muchas reseñas en este momento. Inténtalo de nuevo en un minuto.":"No pudimos publicar tu reseña. Inténtalo de nuevo más tarde."}
+else{E.textContent=foto?"¡Gracias! Tu reseña ya está publicada. Tu foto aparecerá cuando la revisemos.":"¡Gracias! Tu reseña ya está publicada.";["rv-nombre","rv-texto","rv-file"].forEach(function(i){g(i).value=""});g("rv-ok").checked=false;rvR=0;drawPins();cargar()}}
+catch(e){E.textContent="No pudimos publicar tu reseña. Revisa tu conexión e inténtalo de nuevo."}
+busy=false;updRv()}
+if(AUTO){var W0=document.getElementById("rv-wa");W0.textContent="Publicar mi reseña";W0.addEventListener("click",function(e){e.preventDefault();if(W0.getAttribute("aria-disabled")!=="true")enviar()});document.getElementById("rv-fotolabel").hidden=true;document.getElementById("rv-fotonota").hidden=true;document.getElementById("rv-filebox").hidden=false;document.getElementById("rv-nota").textContent="Tu reseña se publica al instante. Las fotos aparecen después de que las revisamos.";cargar();updRv()}
 (function(){var h=document.documentElement,b=document.getElementById("tema");function ap(d){if(d)h.setAttribute("data-theme","dark");else h.removeAttribute("data-theme");b.setAttribute("aria-label",d?"Cambiar a modo claro":"Cambiar a modo oscuro");b.title=d?"Modo claro":"Modo oscuro"}
 try{ap(localStorage.getItem("av-tema")==="oscuro")}catch(e){ap(false)}
 b.addEventListener("click",function(){var d=!h.hasAttribute("data-theme");ap(d);try{localStorage.setItem("av-tema",d?"oscuro":"claro")}catch(e){}})})();
