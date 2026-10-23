@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: resenaleria-2026-10-23 -->
-<meta name="page-version" content="resenaleria-2026-10-23">
+<!-- VERSION: resenaleria-pincel-2026-10-23 -->
+<meta name="page-version" content="resenaleria-pincel-2026-10-23">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -376,7 +376,7 @@ function onForm(){var en=readForm().entrega||"";document.getElementById("f-dirbo
 document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);
 /* RESEÑALERÍA. Para publicar una reseña ya revisada, agrégala aquí: {n:"Nombre",r:5,t:"Comentario",f:"fotos/obra1.jpg",d:"oct 2026"}  (f y d son opcionales; r va de 1 a 5) */
 var RESENAS=[];
-function BR(on){return'<svg viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(35 12 12)" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="'+(on?"#e8b93f":"none")+'"><path d="M10.6 23l.9-11h1l.9 11z"/><rect x="10" y="8.5" width="4" height="3.5"/><path d="M10 8.5C10 4.5 11 2.5 12 1c1 1.5 2 3.5 2 7.5z"/></g></svg>'}
+function BR(on){return'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.9 17.9L9.3 17.4L8.7 17.2L8.0 17.2L7.1 17.7L6.8 18.0L6.4 18.7L6.2 19.3L6.0 20.9L5.7 21.6L5.1 22.3L4.2 22.7L5.5 23.0L6.8 23.0L8.1 22.6L9.0 22.0L9.6 21.4L9.9 20.9L10.3 20.0L10.3 18.8L10.2 18.4ZM9.3 15.4L8.9 16.2L8.9 16.6L10.3 17.5L10.6 17.5L11.3 16.6ZM19.5 1.0L19.2 1.0L18.9 1.1L17.8 2.1L16.8 3.2L15.2 5.4L13.2 8.4L11.4 11.3L9.5 14.9L11.6 16.2L12.2 15.4L15.5 10.4L17.9 6.3L18.7 4.7L19.5 2.6L19.8 1.7L19.7 1.2Z" stroke="currentColor" stroke-width=".9" stroke-linejoin="round" fill="'+(on?"#e8b93f":"none")+'"/></svg>'}
 function pins(n){var s="";for(var i=1;i<=5;i++)s+=BR(i<=n);return s}
 function drawRes(){var L=document.getElementById("rv-list"),n=RESENAS.length,sum=0;L.textContent="";
 RESENAS.forEach(function(x){sum+=x.r;var c=document.createElement("div");c.className="rv";var t=document.createElement("div");t.className="rv-top";var p=document.createElement("span");p.className="rv-pin";p.setAttribute("role","img");p.setAttribute("aria-label",x.r+" de 5 pinceles");p.innerHTML=pins(x.r);var nm=document.createElement("b");nm.textContent=x.n;t.appendChild(p);t.appendChild(nm);if(x.d){var d=document.createElement("small");d.textContent=x.d;t.appendChild(d)}c.appendChild(t);var q=document.createElement("p");q.textContent=x.t;c.appendChild(q);if(x.f){var im=document.createElement("img");im.src=x.f;im.alt="Obra de "+x.n;im.loading="lazy";c.appendChild(im)}L.appendChild(c)});
