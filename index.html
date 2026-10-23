@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: ideas-2026-10-22 -->
-<meta name="page-version" content="ideas-2026-10-22">
+<!-- VERSION: un-desplegable-2026-10-23 -->
+<meta name="page-version" content="un-desplegable-2026-10-23">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -320,6 +320,7 @@ B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"")}
 function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
 function onForm(){var en=readForm().entrega||"";document.getElementById("f-dirbox").hidden=en.indexOf("Envío")!==0;document.getElementById("f-retbox").hidden=en!=="Retiro en persona";drawCart()}
 document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);
+document.getElementById("shop").addEventListener("toggle",function(e){var t=e.target;if(!t.open||!t.classList)return;var c=t.classList.contains("acc")?"acc":t.classList.contains("pc")?"pc":"";if(!c)return;[].forEach.call(document.querySelectorAll("#shop details."+c),function(x){if(x!==t&&x.open)x.open=false})},true);
 drawShop();drawCart();
 document.getElementById("logo2").src=document.querySelector(".hero img").src;
 var inicio=document.getElementById("inicio"),vista=document.getElementById("vista-tienda"),cur=null;
