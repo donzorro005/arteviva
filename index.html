@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: celular-4-columnas-2026-10-23 -->
-<meta name="page-version" content="celular-4-columnas-2026-10-23">
+<!-- VERSION: sin-salto-desplegables-2026-10-23 -->
+<meta name="page-version" content="sin-salto-desplegables-2026-10-23">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -349,6 +349,7 @@ document.getElementById("ofrm").addEventListener("input",onForm);document.getEle
 (function(){var h=document.documentElement,b=document.getElementById("tema");function ap(d){if(d)h.setAttribute("data-theme","dark");else h.removeAttribute("data-theme");b.setAttribute("aria-label",d?"Cambiar a modo claro":"Cambiar a modo oscuro");b.title=d?"Modo claro":"Modo oscuro"}
 try{ap(localStorage.getItem("av-tema")==="oscuro")}catch(e){ap(false)}
 b.addEventListener("click",function(){var d=!h.hasAttribute("data-theme");ap(d);try{localStorage.setItem("av-tema",d?"oscuro":"claro")}catch(e){}})})();
+document.getElementById("shop").addEventListener("click",function(e){var sm=e.target.closest?e.target.closest("summary"):null;if(!sm)return;var t=sm.parentNode;if(t.open)return;var c=t.classList.contains("acc")?"acc":t.classList.contains("pc")?"pc":"";if(!c)return;var top=sm.getBoundingClientRect().top,ch=false;[].forEach.call(document.querySelectorAll("#shop details."+c),function(x){if(x!==t&&x.open){x.open=false;ch=true}});if(ch){var d=sm.getBoundingClientRect().top-top;if(d){var h=document.documentElement;h.style.scrollBehavior="auto";window.scrollBy(0,d);h.style.scrollBehavior=""}}},true);
 document.getElementById("shop").addEventListener("toggle",function(e){var t=e.target;if(!t.open||!t.classList)return;var c=t.classList.contains("acc")?"acc":t.classList.contains("pc")?"pc":"";if(!c)return;[].forEach.call(document.querySelectorAll("#shop details."+c),function(x){if(x!==t&&x.open)x.open=false})},true);
 drawShop();drawCart();
 document.getElementById("logo2").src=document.querySelector(".hero img").src;
