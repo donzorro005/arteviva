@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: modo-oscuro-2026-10-23 -->
-<meta name="page-version" content="modo-oscuro-2026-10-23">
+<!-- VERSION: celular-4-columnas-2026-10-23 -->
+<meta name="page-version" content="celular-4-columnas-2026-10-23">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,6 +142,19 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 .falta{margin:.6rem 0 0;color:var(--muted);text-align:center;font-size:.95rem}
 .cartbar{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:20;display:none;box-shadow:4px 5px 0 rgba(0,0,0,.25)}
 .cartbar.on{display:inline-block}
+@media(max-width:600px){
+.accbody{padding:0 .6rem 1rem}
+.items.withimg,.items.szgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:.35rem}
+.item.card{padding:.3rem;gap:.3rem;border-radius:10px}
+.item.card .nm{font-size:.7rem;line-height:1.15;overflow-wrap:anywhere}
+.item .pr{font-size:.7rem;text-align:center}
+.item.card .btn{padding:.3rem .1rem;font-size:.66rem;text-align:center}
+.item.card .ph{border-radius:8px}
+.item.pc[open]{grid-column:1/-1}
+.item.pc:not([open]) summary{flex-direction:column;gap:.25rem;padding:.5rem .2rem;text-align:center}
+.item.pc:not([open]) summary::after{margin-left:0;font-size:1rem}
+.item.pc summary .nm{flex:none;font-size:.72rem;line-height:1.15}
+}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style></head><body>
 <button type="button" class="tema" id="tema" aria-label="Cambiar a modo oscuro" title="Modo oscuro"><svg class="luna" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="currentColor"/></svg><svg class="sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6" fill="currentColor"/><path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3M4.8 4.8l2.1 2.1M17.1 17.1l2.1 2.1M4.8 19.2l2.1-2.1M17.1 6.9l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
