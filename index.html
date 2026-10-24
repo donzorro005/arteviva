@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: fondo-simbionte-2026-10-23 -->
-<meta name="page-version" content="fondo-simbionte-2026-10-23">
+<!-- VERSION: fondo-pinceladas-2026-10-23 -->
+<meta name="page-version" content="fondo-pinceladas-2026-10-23">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -144,8 +144,8 @@ button.btn{border:0;font:inherit;font-weight:500;cursor:pointer}
 .cartbar.on{display:inline-block}
 html{background:var(--bg)}
 body{background:transparent}
-#simbionte{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.18}
-[data-theme="dark"] #simbionte{opacity:.7}
+#pinceladas{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.3}
+[data-theme="dark"] #pinceladas{opacity:.55}
 .tema.fondo{top:calc(env(safe-area-inset-top,0px) + .75rem + 52px)}
 .fondo .play{display:none}
 .fondo[aria-pressed="true"] .pausa{display:none}
@@ -178,7 +178,7 @@ body{background:transparent}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style></head><body>
-<canvas id="simbionte" aria-hidden="true"></canvas>
+<canvas id="pinceladas" aria-hidden="true"></canvas>
 <button type="button" class="tema" id="tema" aria-label="Cambiar a modo oscuro" title="Modo oscuro"><svg class="luna" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="currentColor"/></svg><svg class="sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6" fill="currentColor"/><path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3M4.8 4.8l2.1 2.1M17.1 17.1l2.1 2.1M4.8 19.2l2.1-2.1M17.1 6.9l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
 <button type="button" class="tema fondo" id="fondo" aria-pressed="false" aria-label="Pausar la animación del fondo" title="Pausar fondo animado"><svg class="pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M17 5v14" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg><svg class="play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
 <div id="inicio">
@@ -426,40 +426,40 @@ else{E.textContent=foto?"¡Gracias! Tu reseña ya está publicada. Tu foto apare
 catch(e){E.textContent="No pudimos publicar tu reseña. Revisa tu conexión e inténtalo de nuevo."}
 busy=false;updRv()}
 if(AUTO){var W0=document.getElementById("rv-wa");W0.textContent="Publicar mi reseña";W0.addEventListener("click",function(e){e.preventDefault();if(W0.getAttribute("aria-disabled")!=="true")enviar()});document.getElementById("rv-fotolabel").hidden=true;document.getElementById("rv-fotonota").hidden=true;document.getElementById("rv-filebox").hidden=false;document.getElementById("rv-nota").textContent="Tu reseña se publica al instante. Las fotos aparecen después de que las revisamos.";cargar();updRv()}
-/* FONDO VIVO: simbionte estilo Venom. Cambia la intensidad en el CSS (#simbionte{opacity:...}). */
+/* FONDO VIVO: pinceladas de brocha que se pintan, se quedan un rato y se desvanecen. Cambia la intensidad en el CSS (#pinceladas{opacity:...}). */
 (function(){
-var cv=document.getElementById("simbionte"),bt=document.getElementById("fondo");
+var cv=document.getElementById("pinceladas"),bt=document.getElementById("fondo");
 var ctx=cv&&cv.getContext&&cv.getContext("2d");if(!ctx)return;
-var W,H,M,Q,img,F,TH=.45,S=32,N=6,t=0,last=0,raf=0,pausa=false,tent=[];
-var RT=[[0,.35],[.62,0],[.1,1],[1,.7],[.2,0],[.85,1]];
+var CL=[[79,130,196],[207,92,124],[232,185,63],[111,138,58]];
+var W,H,S=[],t=0,nxt=0,ci=0,last=0,raf=0,pausa=false,NP=44,NB=22;
 var saved=null;try{saved=localStorage.getItem("av-fondo")}catch(e){}
 var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 pausa=saved?saved==="pausa":!!rm;
-function setup(){W=Math.max(70,Math.min(300,Math.round(innerWidth/5)));H=Math.max(70,Math.min(300,Math.round(innerHeight/5)));M=Math.max(W,H);Q=Math.sqrt(W*H);cv.width=W;cv.height=H;img=ctx.createImageData(W,H);F=new Float32Array(W*H);tent=[];for(var i=0;i<N;i++)tent.push({P:new Float32Array(2*S)});t=t||0;for(var j=0;j<40;j++)step(.25)}
-function root(i,tt){var r=RT[i],s=Math.sin(tt*.045+i*1.7)*.14,x=r[0]*W,y=r[1]*H;if(r[0]===0||r[0]===1)y=Math.min(1,Math.max(0,r[1]+s))*H;else x=Math.min(1,Math.max(0,r[0]+s))*W;if(r[0]===0)x=-4;else if(r[0]===1)x=W+4;else if(r[1]===0)y=-4;else y=H+4;return[x,y]}
-function step(dt){t+=dt;var reach=M*.7,link=reach/(S-1);
-for(var i=0;i<N;i++){var P=tent[i].P,r=root(i,t),a=.05+i*.011,b=.063+i*.009,p=i*2.1;
-var gx=W*(.5+.46*Math.sin(t*a+p)),gy=H*(.5+.46*Math.sin(t*b+p*1.7+1)),dx=gx-r[0],dy=gy-r[1],d=Math.sqrt(dx*dx+dy*dy)||1;
-var mn=reach*.5;if(d>reach){gx=r[0]+dx/d*reach;gy=r[1]+dy/d*reach}else if(d<mn){var ux=d>1?dx/d:(W*.5-r[0])/M,uy=d>1?dy/d:(H*.5-r[1])/M;gx=r[0]+ux*mn;gy=r[1]+uy*mn}
-P[2*S-2]=gx;P[2*S-1]=gy;
-for(var k=S-2;k>=0;k--){var ex=P[2*k]-P[2*k+2],ey=P[2*k+1]-P[2*k+3],l=Math.sqrt(ex*ex+ey*ey)||1;P[2*k]=P[2*k+2]+ex/l*link;P[2*k+1]=P[2*k+3]+ey/l*link}
-P[0]=r[0];P[1]=r[1];
-for(k=1;k<S;k++){ex=P[2*k]-P[2*k-2];ey=P[2*k+1]-P[2*k-1];l=Math.sqrt(ex*ex+ey*ey)||1;P[2*k]=P[2*k-2]+ex/l*link;P[2*k+1]=P[2*k-1]+ey/l*link}}}
-function splat(x,y,R,w){var x0=Math.max(0,Math.floor(x-R)),x1=Math.min(W-1,Math.ceil(x+R)),y0=Math.max(0,Math.floor(y-R)),y1=Math.min(H-1,Math.ceil(y+R)),R2=R*R;
-for(var yy=y0;yy<=y1;yy++){var dy=yy-y,row=yy*W;for(var xx=x0;xx<=x1;xx++){var dx=xx-x,q=(dx*dx+dy*dy)/R2;if(q<1){var v=1-q;F[row+xx]+=w*v*v}}}}
-function sm(a,b,x){x=(x-a)/(b-a);x=x<0?0:x>1?1:x;return x*x*(3-2*x)}
-function draw(){F.fill(0);var rb=Q*.04,rt=Q*.026;
-for(var i=0;i<N;i++){var P=tent[i].P;for(var k=0;k<S;k++){var u=k/(S-1),r=rb+(rt-rb)*Math.pow(u,.7),w=Math.sin(t*1.4-k*.55+i)*u*Q*.016;
-var k0=k>0?k-1:k,k1=k<S-1?k+1:k,tx=P[2*k1]-P[2*k0],ty=P[2*k1+1]-P[2*k0+1],tl=Math.sqrt(tx*tx+ty*ty)||1;
-splat(P[2*k]-ty/tl*w,P[2*k+1]+tx/tl*w,r*1.8,.8)}}
-for(i=0;i<8;i++){var bx=W*(.5+.5*Math.sin(t*(.04+i*.013)+i*3)),by=H*(.5+.5*Math.sin(t*(.05+i*.011)+i*5+2)),br=Q*(.016+.016*(i%3)/2)*(1+.25*Math.sin(t*.9+i));splat(bx,by,br*1.8,.8)}
-var d=img.data,lx=-.45,ly=-.55,lz=.7,ll=Math.sqrt(lx*lx+ly*ly+lz*lz);lx/=ll;ly/=ll;lz/=ll;
-for(var y=0;y<H;y++)for(var x=0;x<W;x++){var id=y*W+x,f=F[id],o=id*4;
-if(f<TH-.1){d[o+3]=0;continue}
-var gx=(F[y*W+Math.min(W-1,x+1)]-F[y*W+Math.max(0,x-1)]),gy=(F[Math.min(H-1,y+1)*W+x]-F[Math.max(0,y-1)*W+x]);
-var nx=-gx*2.4,ny=-gy*2.4,nl=Math.sqrt(nx*nx+ny*ny+1),dd=Math.max(0,(nx*lx+ny*ly+lz)/nl),sp=Math.pow(dd,16),rim=1-sm(TH,TH+.5,f);
-d[o]=Math.min(255,12+dd*14+sp*170+rim*26);d[o+1]=Math.min(255,12+dd*14+sp*185+rim*28);d[o+2]=Math.min(255,16+dd*18+sp*215+rim*40);d[o+3]=sm(TH-.05,TH+.05,f)*255}
-ctx.putImageData(img,0,0)}
+function rnd(a,b){return a+Math.random()*(b-a)}
+function cl(v){return Math.max(0,Math.min(255,Math.round(v)))}
+function setup(){var vw=innerWidth,vh=innerHeight,sc=Math.min(1,900/Math.max(vw,vh));W=Math.max(60,Math.round(vw*sc));H=Math.max(60,Math.round(vh*sc));cv.width=W;cv.height=H;S=[];t=0;nxt=0;for(var i=0;i<64;i++)step(.25)}
+function nuevo(){
+var Q=Math.sqrt(W*H),w=Q*rnd(.09,.14),L=Math.max(W,H)*rnd(.35,.7),a=rnd(0,6.2832),dx=Math.cos(a),dy=Math.sin(a),nx=-dy,ny=dx,cx=rnd(.08,.92)*W,cy=rnd(.08,.92)*H;
+var x0=cx-dx*L/2,y0=cy-dy*L/2,x3=cx+dx*L/2,y3=cy+dy*L/2,b1=rnd(-.25,.25)*L,b2=rnd(-.25,.25)*L;
+var x1=x0+dx*L/3+nx*b1,y1=y0+dy*L/3+ny*b1,x2=x3-dx*L/3+nx*b2,y2=y3-dy*L/3+ny*b2;
+var c=CL[ci++%4],bs=[];
+for(var j=0;j<NB;j++){var f=(j+.5)/NB-.5,o=f*w+rnd(-.02,.02)*w,edge=Math.abs(f)*2,xs=new Float32Array(NP+1),ys=new Float32Array(NP+1);
+for(var k=0;k<=NP;k++){var u=k/NP,m=1-u,bx=m*m*m*x0+3*m*m*u*x1+3*m*u*u*x2+u*u*u*x3,by=m*m*m*y0+3*m*m*u*y1+3*m*u*u*y2+u*u*u*y3,
+tx=3*m*m*(x1-x0)+6*m*u*(x2-x1)+3*u*u*(x3-x2),ty=3*m*m*(y1-y0)+6*m*u*(y2-y1)+3*u*u*(y3-y2),tl=Math.sqrt(tx*tx+ty*ty)||1,off=o*(.88+.12*Math.sin(Math.PI*u))+Math.sin(u*7+j)*w*.015;
+xs[k]=bx-ty/tl*off;ys[k]=by+tx/tl*off}
+var d=rnd(-16,16),end=1-rnd(0,.22)*(edge*.7+.3);
+bs.push({xs:xs,ys:ys,u0:rnd(0,.03),end:end,cut:end-rnd(.08,.2),a:rnd(.45,.95),lw:Math.max(1.5,w/NB*rnd(1.3,2.1)),col:"rgb("+cl(c[0]+d)+","+cl(c[1]+d)+","+cl(c[2]+d)+")"})}
+return{bs:bs,age:0,dur:rnd(2.2,3.4),hold:rnd(5,9),fade:3.2}}
+function step(dt){t+=dt;for(var i=S.length-1;i>=0;i--){var s=S[i];s.age+=dt;if(s.age>s.dur+s.hold+s.fade)S.splice(i,1)}
+if(S.length<7&&t>=nxt){S.push(nuevo());nxt=t+rnd(.8,2.2)}}
+function pt(b,u){var q=Math.max(0,Math.min(1,u))*NP,i=Math.min(NP-1,Math.floor(q)),f=q-i;return[b.xs[i]+(b.xs[i+1]-b.xs[i])*f,b.ys[i]+(b.ys[i+1]-b.ys[i])*f]}
+function trace(b,u0,u1){if(u1<=u0)return false;var p=pt(b,u0);ctx.beginPath();ctx.moveTo(p[0],p[1]);var k0=Math.floor(u0*NP)+1,k1=Math.floor(u1*NP);for(var k=k0;k<=k1;k++)ctx.lineTo(b.xs[k],b.ys[k]);p=pt(b,u1);ctx.lineTo(p[0],p[1]);return true}
+function draw(){ctx.clearRect(0,0,W,H);ctx.lineCap="round";ctx.lineJoin="round";
+S.forEach(function(s){var r=Math.min(1,s.age/s.dur),p=1-Math.pow(1-r,3),env=s.age<s.dur+s.hold?Math.min(1,s.age/.4):Math.max(0,1-(s.age-s.dur-s.hold)/s.fade);
+s.bs.forEach(function(b){ctx.strokeStyle=b.col;ctx.lineWidth=b.lw;
+var m=Math.min(p,b.cut);if(trace(b,b.u0,m)){ctx.globalAlpha=env*b.a;ctx.stroke()}
+var e=Math.min(p,b.end);if(trace(b,Math.max(b.u0,b.cut),e)){ctx.globalAlpha=env*b.a*.5;ctx.stroke()}})});
+ctx.globalAlpha=1}
 function loop(now){raf=requestAnimationFrame(loop);if(now-last<33)return;var dt=Math.min(.1,(now-last)/1000);last=now;step(dt);draw()}
 function icono(){if(!bt)return;bt.setAttribute("aria-pressed",pausa?"true":"false");bt.setAttribute("aria-label",pausa?"Reanudar la animación del fondo":"Pausar la animación del fondo");bt.title=pausa?"Reanudar fondo animado":"Pausar fondo animado"}
 function aplicar(){cancelAnimationFrame(raf);icono();draw();if(!pausa){last=performance.now();raf=requestAnimationFrame(loop)}}
