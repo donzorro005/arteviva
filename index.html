@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: tienda-sin-volver-2026-10-24 -->
-<meta name="page-version" content="tienda-sin-volver-2026-10-24">
+<!-- VERSION: pedidos-2026-10-24 -->
+<meta name="page-version" content="pedidos-2026-10-24">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -523,6 +523,14 @@ msg+="\nNombre: "+F.nombre+"\nProvincia: "+F.prov+"\nEntrega: "+F.entrega+(F.dir
 W.setAttribute("aria-disabled",ok?"false":"true");
 if(ok)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
 B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"")}
+/* PEDIDOS AL PANEL: al tocar "Comprar por WhatsApp" el pedido se guarda como pendiente. Si falla, WhatsApp abre igual. */
+var ultimoPedido={k:"",t:0};
+function guardarPedido(){if(!SUPA.url||!SUPA.key)return;var ids=Object.keys(cart);if(!ids.length)return;var K=cuenta(),F=readForm();
+var it=ids.map(function(id){var p=find(id);return{n:p.n,q:cart[id],p:p.p==null?0:p.p,t:K.l[id].t}});
+var p={nombre:F.nombre,provincia:F.prov,entrega:F.entrega,direccion:F.dir,pago:F.pago,notas:F.nota,items:it,subtotal:K.o,descuento:K.desc,total:K.t,prueba:DEMO};
+var k=JSON.stringify(p),ah=Date.now();if(k===ultimoPedido.k&&ah-ultimoPedido.t<60000)return;ultimoPedido={k:k,t:ah};
+try{fetch(SUPA.url+"/rest/v1/rpc/crear_pedido",{method:"POST",keepalive:true,headers:hdr({"Content-Type":"application/json"}),body:JSON.stringify({p:p})}).catch(function(){})}catch(e){}}
+document.getElementById("wa").addEventListener("click",function(){if(this.getAttribute("aria-disabled")==="false")guardarPedido()});
 function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),prov:g("f-prov"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
 function onForm(){var en=readForm().entrega||"";document.getElementById("f-dirbox").hidden=en.indexOf("Envío")!==0;document.getElementById("f-retbox").hidden=en!=="Retiro en persona";drawCart()}
 document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);

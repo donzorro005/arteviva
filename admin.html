@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ARTE VIVA | Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0d0b;--card:rgba(28,25,22,.86);--ln:rgba(239,233,219,.13);--cr:#efe9db;--mu:rgba(239,233,219,.62);--ink:#141210;--bl:#4f82c4;--pk:#cf5c7c;--ye:#e8b93f;--gr:#6f8a3a;--li:#b79ad6;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--cr);font:400 15px/1.5 Jost,system-ui,sans-serif;background:var(--bg);padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.6;filter:blur(2px);background:
+radial-gradient(ellipse 30% 18% at 6% 8%,rgba(207,92,124,.5),transparent 70%),
+radial-gradient(ellipse 20% 28% at 96% 4%,rgba(79,130,196,.5),transparent 70%),
+radial-gradient(ellipse 24% 14% at 72% 52%,rgba(232,185,63,.3),transparent 70%),
+radial-gradient(ellipse 34% 20% at 12% 82%,rgba(111,138,58,.42),transparent 70%),
+radial-gradient(ellipse 18% 24% at 94% 92%,rgba(207,92,124,.4),transparent 70%),
+radial-gradient(circle at 42% 28%,rgba(183,154,214,.22) 0 3%,transparent 4%),
+radial-gradient(circle at 58% 90%,rgba(79,130,196,.3) 0 2.5%,transparent 3.5%)}
+h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;margin:0;line-height:1.1}
+h1{font-size:1.9rem}h2{font-size:1.5rem}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--ye)}
+:focus-visible{outline:3px solid var(--ye);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px}
+.mu{color:var(--mu)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:0;border-radius:999px;padding:.6rem 1.1rem;background:var(--cr);color:var(--ink);font-weight:600;cursor:pointer;text-decoration:none;min-height:42px}
+.btn.o{background:transparent;color:var(--cr);border:1.5px solid var(--ln)}
+.btn.pk{background:var(--pk);color:#fff}.btn.gr{background:var(--gr);color:#fff}
+.btn.sm{padding:.35rem .8rem;min-height:34px;font-size:.9rem}
+.btn:disabled{opacity:.5;cursor:wait}
+input,select,textarea{width:100%;background:rgba(0,0,0,.35);border:1.5px solid var(--ln);border-radius:12px;padding:.6rem .75rem;min-height:44px}
+label{display:block;font-weight:500;margin:.7rem 0 .25rem}
+.c{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px;backdrop-filter:blur(4px)}
+.c h3{font:600 .78rem/1.2 Jost,sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.c .s{color:var(--mu);font-size:.85rem;margin:0 0 10px}
+.g{display:grid;gap:12px}
+/* entrada */
+#entrada{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+#entrada .c{width:min(380px,100%);padding:26px}
+#entrada h1{font-size:2.2rem;letter-spacing:.08em;text-align:center}
+#entrada p.sub{text-align:center;margin:.2rem 0 1rem}
+.msg{min-height:1.4em;margin:.8rem 0 0;color:#f2a5b8;text-align:center}
+/* barra */
+header.top{position:sticky;top:0;z-index:20;background:rgba(15,13,11,.88);backdrop-filter:blur(6px);border-bottom:1px solid var(--ln)}
+header.top .wrap{display:flex;align-items:center;gap:12px;min-height:56px}
+header.top b{font:700 1.25rem Georgia,"Cormorant Garamond",serif;letter-spacing:.1em}
+header.top .der{margin-left:auto;display:flex;gap:8px;align-items:center}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:rgba(15,13,11,.95);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs button{flex:1;background:none;border:0;padding:.55rem .2rem;min-height:60px;color:var(--mu);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem}
+nav.tabs button i{width:10px;height:10px;border-radius:50%;display:block}
+nav.tabs button[aria-current=page]{color:var(--cr);font-weight:600}
+nav.tabs button[aria-current=page] i{box-shadow:0 0 0 3px rgba(255,255,255,.15)}
+@media(min-width:900px){body{padding-bottom:0}nav.tabs{position:static;justify-content:center;gap:6px;background:rgba(15,13,11,.6);border-top:0;border-bottom:1px solid var(--ln);padding:4px 0}nav.tabs button{flex:none;flex-direction:row;min-height:40px;padding:.4rem 1rem;font-size:.95rem;gap:8px;border-radius:99px}nav.tabs button[aria-current=page]{background:rgba(239,233,219,.1)}#toast{bottom:24px}}
+main{padding:16px 0 30px}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+/* tarjetas */
+.kp{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:900px){.kp{grid-template-columns:repeat(4,1fr)}}
+.k{border-radius:14px;padding:12px 14px;color:#fff;min-width:0}
+.k small{display:block;text-transform:uppercase;font-size:.68rem;letter-spacing:.07em;opacity:.92}
+.k b{display:block;font:700 1.55rem/1.15 "Cormorant Garamond",Georgia,serif;margin:4px 0 2px;overflow-wrap:anywhere}
+.k em{font-style:normal;font-size:.78rem;opacity:.92}
+.k.v{background:linear-gradient(135deg,#4f82c4,#2f55a4)}.k.ga{background:linear-gradient(135deg,#cf5c7c,#9e2a3b)}
+.k.gn{background:linear-gradient(135deg,#6f8a3a,#4f6a26)}.k.pr{background:linear-gradient(135deg,#e8b93f,#ee8a2e);color:var(--ink)}
+.dos{display:grid;gap:12px}
+@media(min-width:900px){.dos{grid-template-columns:1.3fr 1fr}}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;margin-bottom:6px}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+svg.graf{width:100%;height:auto;max-height:260px;display:block}
+svg.mapa{width:100%;max-height:340px;display:block}
+svg.mapa path{stroke:rgba(239,233,219,.55);stroke-width:1;stroke-linejoin:round;cursor:pointer;transition:opacity .2s}
+svg.mapa path:hover,svg.mapa path.sel{stroke:#fff;stroke-width:2}
+svg.mapa text{font:600 9px Jost,sans-serif;fill:#efe9db;pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,.6);stroke-width:2.5px}
+.mapinfo{min-height:1.5em;text-align:center;font-weight:500}
+.vacio{color:var(--mu);text-align:center;padding:18px 6px;margin:0}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ln)}
+.li:last-child{border:0}
+.tag{font-size:.72rem;padding:2px 9px;border-radius:99px;white-space:nowrap;font-weight:600}
+.t-pe{background:var(--ye);color:var(--ink)}.t-co{background:var(--gr);color:#fff}.t-ca{background:#6b6560;color:#fff}.t-pr{background:var(--li);color:var(--ink)}.t-ma{background:var(--bl);color:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chips button{border:1.5px solid var(--ln);background:transparent;border-radius:99px;padding:.35rem .85rem;cursor:pointer;min-height:36px}
+.chips button[aria-pressed=true]{background:var(--cr);color:var(--ink);border-color:var(--cr);font-weight:600}
+.ped{display:grid;gap:4px}
+.ped .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ped .tot{margin-left:auto;font:700 1.25rem "Cormorant Garamond",Georgia,serif}
+.ped ul{margin:4px 0;padding-left:1.1rem;color:var(--mu);font-size:.9rem}
+.ped .acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.tabla{width:100%;border-collapse:collapse;font-size:.88rem}
+.tabla th,.tabla td{padding:7px 6px;border-bottom:1px solid var(--ln);text-align:left;white-space:nowrap}
+.tabla th{color:var(--mu);font-weight:500;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.tabla td.n,.tabla th.n{text-align:right}
+.scroll{overflow-x:auto}
+.sube{color:#9fd18a}.baja{color:#f2a5b8}
+dialog{border:1px solid var(--ln);border-radius:18px;background:#1b1815;color:var(--cr);padding:20px;width:min(460px,calc(100vw - 24px));max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h2{margin-bottom:.3rem}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.botones{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--cr);color:var(--ink);padding:.6rem 1rem;border-radius:99px;font-weight:600;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:calc(100vw - 24px)}
+.aviso{border:1.5px solid var(--ye);border-radius:14px;padding:10px 12px;margin-bottom:12px;color:var(--ye)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+
+<section id="entrada">
+<div class="c">
+<h1>ARTE VIVA</h1>
+<p class="sub mu">Panel de administración</p>
+<form id="f-entrar" novalidate>
+<label for="e-correo">Correo</label><input id="e-correo" type="email" autocomplete="username" required>
+<label for="e-clave">Contraseña</label><input id="e-clave" type="password" autocomplete="current-password" required>
+<button class="btn" style="width:100%;margin-top:16px" id="b-entrar">Entrar</button>
+</form>
+<p class="msg" id="e-msg" role="alert"></p>
+</div>
+</section>
+
+<div id="app" hidden>
+<header class="top"><div class="wrap">
+<b>ARTE VIVA</b>
+<div class="der"><a class="btn o sm" href="./" target="_blank" rel="noopener">Ver mi página ↗</a><button class="btn o sm" id="b-salir">Salir</button></div>
+</div></header>
+<nav class="tabs" aria-label="Secciones">
+<button data-s="inicio"><i style="background:var(--ye)"></i>Inicio</button>
+<button data-s="pedidos"><i style="background:var(--bl)"></i>Pedidos</button>
+<button data-s="gastos"><i style="background:var(--pk)"></i>Gastos</button>
+<button data-s="cuentas"><i style="background:var(--gr)"></i>Cuentas</button>
+</nav>
+
+<main class="wrap">
+<div class="aviso" id="aviso" role="status" hidden></div>
+
+<section id="s-inicio" data-sec>
+<div class="hd"><div><h1 id="saludo">¡Hola de nuevo!</h1><div class="mu" id="mes-txt"></div></div></div>
+<div class="kp" id="kpis"></div>
+<div class="dos" style="margin-top:12px">
+<div class="c"><h3>Ventas y gastos</h3><p class="s">Últimos 6 meses. Punteado: proyección de este mes.</p>
+<div class="lg"><span><i style="background:var(--bl)"></i>Ventas</span><span><i style="background:var(--pk)"></i>Gastos</span><span><i style="background:var(--gr)"></i>Ganancia</span></div>
+<div id="graf"></div></div>
+<div class="c"><h3>¿Dónde compran?</h3><p class="s">Ventas completadas por provincia. Toca una provincia.</p>
+<div class="chips" id="map-rango"><button data-r="mes" aria-pressed="true">Este mes</button><button data-r="anio" aria-pressed="false">Este año</button></div>
+<div id="mapa"></div><p class="mapinfo" id="mapinfo"></p></div>
+</div>
+<div class="c" style="margin-top:12px"><h3>Pendientes</h3><p class="s">Lo que necesita tu atención</p><div id="pend"></div></div>
+</section>
+
+<section id="s-pedidos" data-sec hidden>
+<div class="hd"><h1>Pedidos</h1><button class="btn" id="b-venta">+ Agregar venta</button></div>
+<div class="chips" id="ped-filtro">
+<button data-f="pendiente" aria-pressed="true">Pendientes</button><button data-f="completado" aria-pressed="false">Completados</button><button data-f="cancelado" aria-pressed="false">Cancelados</button><button data-f="todos" aria-pressed="false">Todos</button>
+</div>
+<div class="g" id="ped-lista"></div>
+</section>
+
+<section id="s-gastos" data-sec hidden>
+<div class="hd"><h1>Gastos</h1><div style="display:flex;gap:8px;align-items:center"><input type="month" id="g-mes" aria-label="Mes" style="width:auto"><button class="btn" id="b-gasto">+ Agregar gasto</button></div></div>
+<div class="c" style="margin-bottom:12px"><h3>Total del mes</h3><div id="g-tot"></div></div>
+<div class="c"><div id="g-lista"></div></div>
+</section>
+
+<section id="s-cuentas" data-sec hidden>
+<div class="hd"><h1>Cuentas</h1><select id="c-anio" aria-label="Año" style="width:auto"></select></div>
+<div class="c scroll"><div id="c-tabla"></div></div>
+<div class="c" style="margin-top:12px"><h3>Descargar en Excel</h3><p class="s">Hojas: Resumen por mes, Ventas y Gastos.</p>
+<div class="fila"><div><label for="x-rango">Rango</label><select id="x-rango"><option value="mes">Este mes</option><option value="unmes">Un mes…</option><option value="anio">Este año</option><option value="todo">Todo</option></select></div>
+<div id="x-mesbox" hidden><label for="x-mes">Mes</label><input type="month" id="x-mes"></div></div>
+<div class="botones" style="justify-content:flex-start"><button class="btn gr" id="b-excel">Descargar Excel</button></div></div>
+</section>
+</main>
+</div>
+
+<dialog id="d-completar"><form method="dialog" id="f-completar">
+<h2>Completar pedido</h2><p class="mu" id="dc-txt"></p>
+<label for="dc-monto">Monto cobrado (₡)</label><input id="dc-monto" type="number" inputmode="numeric" min="0" step="1" required>
+<p class="mu" style="font-size:.85rem">Cámbialo si cobraste envío o hiciste algún descuento por WhatsApp.</p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn gr" value="si">Marcar completado</button></div>
+</form></dialog>
+
+<dialog id="d-venta"><form method="dialog" id="f-venta">
+<h2>Agregar venta</h2><p class="mu" style="margin:0">Para ventas que no pasaron por la página.</p>
+<div class="fila"><div><label for="dv-fecha">Fecha</label><input id="dv-fecha" type="date" required></div><div><label for="dv-monto">Monto (₡)</label><input id="dv-monto" type="number" inputmode="numeric" min="1" step="1" required></div></div>
+<label for="dv-nombre">Cliente (opcional)</label><input id="dv-nombre" maxlength="80">
+<label for="dv-prov">Provincia (opcional)</label><select id="dv-prov"><option value="">Sin provincia</option></select>
+<label for="dv-items">Productos (opcional, uno por línea)</label><textarea id="dv-items" rows="3" placeholder="2 x Figura: Sol&#10;1 x Paquete de relajación: Flores"></textarea>
+<p class="msg" id="dv-msg"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar venta</button></div>
+</form></dialog>
+
+<dialog id="d-gasto"><form method="dialog" id="f-gasto">
+<h2 id="dg-tit">Agregar gasto</h2>
+<div class="fila"><div><label for="dg-fecha">Fecha</label><input id="dg-fecha" type="date" required></div><div><label for="dg-monto">Monto (₡)</label><input id="dg-monto" type="number" inputmode="numeric" min="1" step="1" required></div></div>
+<label for="dg-desc">Descripción</label><input id="dg-desc" maxlength="200" required placeholder="Yeso 10 kg">
+<label for="dg-cat">Categoría</label><select id="dg-cat"></select>
+<p class="msg" id="dg-msg"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar</button></div>
+</form></dialog>
+
+<dialog id="d-confirma"><form method="dialog">
+<h2 id="dq-tit">¿Seguro?</h2><p class="mu" id="dq-txt"></p>
+<div class="botones"><button class="btn o" value="no">Volver</button><button class="btn pk" value="si">Sí</button></div>
+</form></dialog>
+
+<div id="toast" role="status" hidden></div>
+
+<script src="supabase-config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script src="admin-calc.js"></script>
+<script src="cr-mapa.js"></script>
+<script src="admin.js"></script>
+</body></html>
