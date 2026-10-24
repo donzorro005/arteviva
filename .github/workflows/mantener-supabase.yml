@@ -1,0 +1,18 @@
+# Mantiene despierto el proyecto de Supabase (los proyectos gratuitos se pausan tras ~7 días sin uso).
+# Corre solo cada 3 días. También se puede correr a mano desde la pestaña Actions de GitHub.
+name: Mantener Supabase despierto
+on:
+  schedule:
+    - cron: "0 15 */3 * *"
+  workflow_dispatch:
+jobs:
+  despertar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consultar Supabase
+        run: |
+          URL=$(sed -n 's/.*url: *"\([^"]*\)".*/\1/p' supabase-config.js | head -1)
+          KEY=$(sed -n 's/.*key: *"\([^"]*\)".*/\1/p' supabase-config.js | head -1)
+          curl -fsS "$URL/rest/v1/resenas_publicas?select=nombre&limit=1" -H "apikey: $KEY" > /dev/null
+          echo "Supabase respondió bien"
