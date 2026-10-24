@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: logo-fijo-2026-10-24 -->
-<meta name="page-version" content="logo-fijo-2026-10-24">
+<!-- VERSION: sin-boton-fondo-2026-10-24 -->
+<meta name="page-version" content="sin-boton-fondo-2026-10-24">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -231,7 +231,6 @@ body{background:transparent}
 </style></head><body>
 <canvas id="pinceladas" aria-hidden="true"></canvas>
 <button type="button" class="tema" id="tema" aria-label="Cambiar a modo oscuro" title="Modo oscuro"><svg class="luna" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="currentColor"/></svg><svg class="sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6" fill="currentColor"/><path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3M4.8 4.8l2.1 2.1M17.1 17.1l2.1 2.1M4.8 19.2l2.1-2.1M17.1 6.9l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
-<button type="button" class="tema fondo" id="fondo" aria-pressed="false" aria-label="Pausar la animación del fondo" title="Pausar fondo animado"><svg class="pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M17 5v14" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg><svg class="play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
 <div class="franja" id="franja" role="note" hidden></div>
 <a class="marca" id="marca" href="#inicio" aria-label="ARTE VIVA, ir al inicio" tabindex="-1"><img id="marca-img" alt=""><b id="marca-txt">ARTE VIVA</b></a>
 <div id="inicio">
@@ -242,6 +241,8 @@ body{background:transparent}
 <a class="btn" href="#ideas">Ver ideas para pintar</a>
 <div class="dots" aria-hidden="true"><i style="background:var(--blue)"></i><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i></div>
 </div></header>
+
+<section id="anuncios" style="padding:1rem 0 1.5rem"><div class="wrap"><div class="bnr-slot"></div><div class="mv-slot"></div></div></section>
 
 <section id="paquete"><div class="wrap">
 <h2>Lo que trae tu paquete</h2>
@@ -271,7 +272,7 @@ body{background:transparent}
 <div><h3>Deja secar</h3><p>Espera a que cada capa esté seca al tacto antes de pintar encima.</p></div>
 </div></div></section>
 
-<section id="tienda-promo" style="background:rgba(0,0,0,.035)"><div class="wrap"><div class="bnr-slot"></div><div class="mv-slot"></div><div class="promo">
+<section id="tienda-promo" style="background:rgba(0,0,0,.035)"><div class="wrap"><div class="promo">
 <h2>Tienda</h2>
 <p>En este lugar puedes encontrar más piezas para tu pausa o tu obra de arte: paquetes, pinturas, pinceles y figuras sueltas.</p>
 <a class="btn" href="#tienda">Ir a la tienda</a>
@@ -573,7 +574,7 @@ var CL=[[79,130,196],[207,92,124],[232,185,63],[111,138,58]];
 var W,H,S=[],t=0,nxt=0,ci=0,last=0,raf=0,pausa=false,NP=44,NB=22;
 var saved=null;try{saved=localStorage.getItem("av-fondo")}catch(e){}
 var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-pausa=saved?saved==="pausa":!!rm;
+pausa=!!rm;
 function rnd(a,b){return a+Math.random()*(b-a)}
 function cl(v){return Math.max(0,Math.min(255,Math.round(v)))}
 function setup(){var vw=innerWidth,vh=innerHeight,sc=Math.min(1,900/Math.max(vw,vh));W=Math.max(60,Math.round(vw*sc));H=Math.max(60,Math.round(vh*sc));cv.width=W;cv.height=H;S=[];t=0;nxt=0;for(var i=0;i<64;i++)step(.25)}
