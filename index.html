@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: pedidos-2026-10-24 -->
-<meta name="page-version" content="pedidos-2026-10-24">
+<!-- VERSION: carrito-guardado-2026-10-24 -->
+<meta name="page-version" content="carrito-guardado-2026-10-24">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -227,6 +227,7 @@ body{background:transparent}
 .tj h3{font-size:1.8rem;font-weight:700}.tj p{margin:.25rem 0 0}
 .demo{position:fixed;left:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:25;background:var(--yellow);color:#141210;border-radius:99px;padding:.4rem .9rem;font-size:.85rem;font-weight:500}
 @media(max-width:600px){.kit{grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}.kit div{padding-top:.7rem}.kit h3{font-size:1.25rem;margin:.4rem 0 .2rem}.kit p{font-size:.85rem;line-height:1.35}.kit .sw{width:26px;height:26px}.marca b{font-size:1.05rem;padding:.35rem .7rem}.bnr-a{display:none}.bnr-s{min-height:0;padding:1.3rem 1.2rem 2.4rem;gap:1rem}.bnr-s img{width:92px}.bdg{font-size:.58rem;padding:.25rem .4rem;top:-.5rem}.franja{font-size:.85rem}}
+.vaciar{text-align:center;margin:.4rem 0 0}.vaciar button{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:.9rem;cursor:pointer;padding:.4rem}
 @media(prefers-reduced-motion:reduce){.franja .mq{animation:none;display:block;text-align:center}.franja .mq span+span{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style></head><body>
@@ -332,7 +333,7 @@ body{background:transparent}
 <label class="opt"><input type="radio" name="f-pago" value="Efectivo"> Efectivo</label></fieldset>
 <div><label for="f-nota">Notas (opcional)</label><textarea id="f-nota" rows="2"></textarea></div>
 </div>
-<a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a><p class="falta" id="falta" role="status"></p></div>
+<a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a><p class="falta" id="falta" role="status"></p><p class="vaciar" id="vaciar-box" hidden><button type="button" id="vaciar">Vaciar carrito</button></p></div>
 </div></section></main>
 
 <footer>ARTE VIVA<br><small style="font:400 .85rem Jost,sans-serif;letter-spacing:.3em">TIENDA DE ARTE</small></footer>
@@ -519,10 +520,13 @@ var b2=document.createElement("span");b2.textContent="Total: "+money(K.t);T.appe
 if(activo(FRANJA)&&FRANJA.envioMin!=null){var zn=FRANJA.prov?" en "+FRANJA.prov:"",enZona=!FRANJA.prov||F.prov===FRANJA.prov;if(F.prov&&!enZona)EG.textContent="El envío gratis aplica solo"+zn+".";else if(K.t>=FRANJA.envioMin){EG.textContent="¡Tu pedido califica para envío gratis"+zn+"!";if(F.prov&&F.entrega.indexOf("Envío")===0)msg+="Califica para envío gratis.\n"}else EG.textContent="Te faltan "+money(FRANJA.envioMin-K.t)+" para el envío gratis"+zn+"."}}
 else{msg+="\nTotal de artículos: "+n+"\n"}}
 var miss=[];if(ids.length){if(!F.nombre)miss.push("tu nombre");if(!F.prov)miss.push("tu provincia");if(!F.entrega)miss.push("cómo recibes el pedido");else if(F.entrega.indexOf("Envío")===0&&!F.dir)miss.push("la dirección de envío");if(!F.pago)miss.push("la forma de pago")}
-msg+="\nNombre: "+F.nombre+"\nProvincia: "+F.prov+"\nEntrega: "+F.entrega+(F.dir?"\nDirección: "+F.dir:"")+"\nPago: "+F.pago+(F.nota?"\nNotas: "+F.nota:"")+"\n\n¡Gracias!";var ok=ids.length&&!miss.length;document.getElementById("falta").textContent=ids.length&&miss.length?"Falta: "+miss.join(", ")+".":"";
+msg+="\nNombre: "+F.nombre+"\nProvincia: "+F.prov+"\nEntrega: "+F.entrega+(F.dir?"\nDirección: "+F.dir:"")+"\nPago: "+F.pago+(F.nota?"\nNotas: "+F.nota:"")+"\n\n¡Gracias!";var ok=ids.length&&!miss.length;document.getElementById("falta").textContent=!ids.length?"Agrega al menos un producto de la tienda.":miss.length?"Falta: "+miss.join(", ")+".":"";
 W.setAttribute("aria-disabled",ok?"false":"true");
 if(ok)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
-B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"")}
+B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"");document.getElementById("vaciar-box").hidden=!ids.length;guardarCarrito()}
+function guardarCarrito(){try{if(Object.keys(cart).length)localStorage.setItem("av-carrito",JSON.stringify({t:Date.now(),c:cart}));else localStorage.removeItem("av-carrito")}catch(e){}}
+function cargarCarrito(){try{var g=JSON.parse(localStorage.getItem("av-carrito")||"null");if(!g||Date.now()-g.t>7*864e5)return;Object.keys(g.c||{}).forEach(function(id){var q=Math.floor(+g.c[id]);if(find(id)&&q>0&&q<1000)cart[id]=q})}catch(e){}}
+document.getElementById("vaciar").addEventListener("click",function(){cart={};drawCart()});
 /* PEDIDOS AL PANEL: al tocar "Comprar por WhatsApp" el pedido se guarda como pendiente. Si falla, WhatsApp abre igual. */
 var ultimoPedido={k:"",t:0};
 function guardarPedido(){if(!SUPA.url||!SUPA.key)return;var ids=Object.keys(cart);if(!ids.length)return;var K=cuenta(),F=readForm();
@@ -618,7 +622,7 @@ try{ap(localStorage.getItem("av-tema")==="oscuro")}catch(e){ap(false)}
 b.addEventListener("click",function(){var d=!h.hasAttribute("data-theme");ap(d);try{localStorage.setItem("av-tema",d?"oscuro":"claro")}catch(e){}})})();
 document.getElementById("shop").addEventListener("click",function(e){var sm=e.target.closest?e.target.closest("summary"):null;if(!sm)return;var t=sm.parentNode;if(t.open)return;var c=t.classList.contains("acc")?"acc":t.classList.contains("pc")?"pc":"";if(!c)return;var top=sm.getBoundingClientRect().top,ch=false;[].forEach.call(document.querySelectorAll("#shop details."+c),function(x){if(x!==t&&x.open){x.open=false;ch=true}});if(ch){var d=sm.getBoundingClientRect().top-top;if(d){var h=document.documentElement;h.style.scrollBehavior="auto";window.scrollBy(0,d);h.style.scrollBehavior=""}}},true);
 document.getElementById("shop").addEventListener("toggle",function(e){var t=e.target;if(!t.open||!t.classList)return;var c=t.classList.contains("acc")?"acc":t.classList.contains("pc")?"pc":"";if(!c)return;[].forEach.call(document.querySelectorAll("#shop details."+c),function(x){if(x!==t&&x.open)x.open=false})},true);
-drawPromos();drawShop();drawCart();
+drawPromos();drawShop();cargarCarrito();drawCart();
 document.getElementById("logo2").src=document.querySelector(".hero img").src;
 var inicio=document.getElementById("inicio"),vista=document.getElementById("vista-tienda"),cur=null;
 function route(){var h=location.hash,t=h==="#tienda"||h==="#carrito";inicio.hidden=t;vista.hidden=!t;var el=null;

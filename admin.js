@@ -359,6 +359,16 @@
   $("c-anio").addEventListener("change", pintarCuentas);
   $("b-venta").onclick = abrirVenta; $("b-gasto").onclick = function () { abrirGasto(null); };
   $("b-salir").onclick = function () { salir(""); };
+  // Actualizar: con el botón, cada minuto y al volver a la pestaña (nunca con una ventana de edición abierta)
+  var actualizando = false;
+  async function actualizar(aviso_) {
+    if (actualizando || $("app").hidden || document.querySelector("dialog[open]")) return;
+    actualizando = true; var b = $("b-actualizar"); b.disabled = true;
+    try { await recargar(); if (aviso_) toast("Datos actualizados"); } finally { actualizando = false; b.disabled = false; }
+  }
+  $("b-actualizar").onclick = function () { actualizar(true); };
+  setInterval(function () { if (!document.hidden) actualizar(false); }, 60000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) actualizar(false); });
   [].forEach.call(document.querySelectorAll("nav.tabs button"), function (b) { b.onclick = function () { mostrar(b.dataset.s); }; });
   [].forEach.call(document.querySelectorAll("#ped-filtro button"), function (b) { b.onclick = function () { filtro = b.dataset.f; [].forEach.call(b.parentNode.children, function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); pintarPedidos(); }; });
   [].forEach.call(document.querySelectorAll("#map-rango button"), function (b) { b.onclick = function () { rangoMapa = b.dataset.r; [].forEach.call(b.parentNode.children, function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); pintarMapa(); }; });

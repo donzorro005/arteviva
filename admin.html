@@ -47,7 +47,9 @@ label{display:block;font-weight:500;margin:.7rem 0 .25rem}
 header.top{position:sticky;top:0;z-index:20;background:rgba(15,13,11,.88);backdrop-filter:blur(6px);border-bottom:1px solid var(--ln)}
 header.top .wrap{display:flex;align-items:center;gap:12px;min-height:56px}
 header.top b{font:700 1.25rem Georgia,"Cormorant Garamond",serif;letter-spacing:.1em}
-header.top .der{margin-left:auto;display:flex;gap:8px;align-items:center}
+header.top .der{margin-left:auto;display:flex;gap:6px;align-items:center}
+header.top b{white-space:nowrap}
+@media(max-width:480px){header.top b{font-size:1.05rem;letter-spacing:.06em}header.top .der .btn.sm{padding:.3rem .7rem;font-size:.85rem;white-space:nowrap}header.top .t{display:none}}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:rgba(15,13,11,.95);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px)}
 nav.tabs button{flex:1;background:none;border:0;padding:.55rem .2rem;min-height:60px;color:var(--mu);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem}
 nav.tabs button i{width:10px;height:10px;border-radius:50%;display:block}
@@ -119,7 +121,7 @@ dialog h2{margin-bottom:.3rem}
 <div id="app" hidden>
 <header class="top"><div class="wrap">
 <b>ARTE VIVA</b>
-<div class="der"><a class="btn o sm" href="./" target="_blank" rel="noopener">Ver mi página ↗</a><button class="btn o sm" id="b-salir">Salir</button></div>
+<div class="der"><button class="btn o sm" id="b-actualizar" title="Traer los pedidos y gastos más recientes" aria-label="Actualizar">↻<span class="t"> Actualizar</span></button><a class="btn o sm" href="./" target="_blank" rel="noopener"><span class="t">Ver mi </span>página ↗</a><button class="btn o sm" id="b-salir">Salir</button></div>
 </div></header>
 <nav class="tabs" aria-label="Secciones">
 <button data-s="inicio"><i style="background:var(--ye)"></i>Inicio</button>
