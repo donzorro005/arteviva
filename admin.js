@@ -112,16 +112,19 @@
     try { datos = await cargarDatos(); aviso(""); }
     catch (e) { if (e.status !== 401) aviso("No se pudieron cargar los datos. Revisa tu internet y recarga la página."); }
     pintarTodo();
+    if (tiendaLista()) AV.tienda.cargar();
   }
+  function tiendaLista() { return window.AV && window.AV.tienda && !$("s-tienda").hidden; }
   function pintarTodo() { pintarInicio(); pintarPedidos(); pintarGastos(); pintarCuentas(); }
 
   /* ---------- navegación ---------- */
   function mostrar(s) {
-    if (["inicio", "pedidos", "gastos", "cuentas"].indexOf(s) < 0) s = "inicio";
+    if (["inicio", "pedidos", "gastos", "cuentas", "tienda"].indexOf(s) < 0) s = "inicio";
     [].forEach.call(document.querySelectorAll("[data-sec]"), function (x) { x.hidden = x.id !== "s-" + s; });
     [].forEach.call(document.querySelectorAll("nav.tabs button"), function (b) { if (b.dataset.s === s) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     if (location.hash !== "#" + s) history.replaceState(null, "", "#" + s);
     window.scrollTo(0, 0);
+    if (tiendaLista()) AV.tienda.cargar();
   }
 
   /* ---------- inicio ---------- */
@@ -352,6 +355,8 @@
   });
 
   /* ---------- arranque ---------- */
+  // Herramientas para admin-tienda.js (catálogo): se carga después de este archivo y se registra en AV.tienda
+  window.AV = { api: api, toast: toast, confirma: confirma, el: el, hoy: hoy, URL: URL_, KEY: KEY, token: token, errorTxt: errorTxt };
   C.PROVINCIAS.forEach(function (p) { $("dv-prov").appendChild(el("option", "", p)); });
   CATS.forEach(function (c) { $("dg-cat").appendChild(el("option", "", c)); });
   $("g-mes").value = mesHoy(); $("x-mes").value = mesHoy();

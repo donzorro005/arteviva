@@ -102,6 +102,54 @@ dialog h2{margin-bottom:.3rem}
 .botones{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--cr);color:var(--ink);padding:.6rem 1rem;border-radius:99px;font-weight:600;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:calc(100vw - 24px)}
 .aviso{border:1.5px solid var(--ye);border-radius:14px;padding:10px 12px;margin-bottom:12px;color:var(--ye)}
+/* tienda */
+.botones.ord .del{order:1;margin-right:auto}.botones.ord .vol{order:2}.botones.ord .ok{order:3}
+#t-lista summary{flex-wrap:wrap}#t-lista summary .nom{flex:1 1 120px}.sacc{display:flex;gap:6px;margin-left:auto;align-items:center}
+.tb-acc{display:flex;gap:6px;flex-wrap:wrap}
+#t-lista details{margin-bottom:10px}
+#t-lista summary{display:flex;align-items:center;gap:6px;cursor:pointer;list-style:none;min-height:40px}
+#t-lista summary::-webkit-details-marker{display:none}
+#t-lista summary::before{content:"▸";color:var(--mu);width:1em;flex:none}
+#t-lista details[open]>summary::before{content:"▾"}
+#t-lista summary .nom{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:600}
+#t-lista summary .nom small{color:var(--mu);font-weight:400;margin-left:6px}
+#t-lista .grp{margin:6px 0 0;padding:4px 10px;border:1px solid var(--ln);border-radius:12px}
+#t-lista .grp summary .nom{font-weight:500}
+.ico{background:transparent;border:1.5px solid var(--ln);color:var(--cr);border-radius:10px;min-width:36px;height:36px;cursor:pointer;padding:0 8px;flex:none}
+.ico:disabled{opacity:.3;cursor:default}
+.prod{display:grid;grid-template-columns:52px minmax(0,1fr);gap:4px 10px;padding:10px 0;border-bottom:1px solid var(--ln)}
+.prod:last-child{border:0}
+.prod .miniatura{grid-row:span 2}
+.miniatura{width:52px;height:52px;border-radius:10px;border:1px solid var(--ln);background:rgba(239,233,219,.07);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--mu);font-size:.62rem;text-align:center;line-height:1.1;flex:none}
+.miniatura img{width:100%;height:100%;object-fit:cover;display:block}
+.miniatura i{width:22px;height:22px;border-radius:50%;display:block;border:1px solid var(--ln)}
+.prod .nm{font-weight:600;overflow-wrap:anywhere}
+.prod .pr{color:var(--mu);font-size:.88rem}
+.prod .ctl{grid-column:1/-1;display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap}
+.sw{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:400;font-size:.9rem;min-height:36px;cursor:pointer}
+.sw input{width:20px;height:20px;min-height:0;padding:0;accent-color:var(--gr)}
+.prod .ctl .ed{margin-left:auto}
+.chk{display:flex;align-items:center;gap:8px;font-weight:400}
+.chk input{width:20px;height:20px;min-height:0;padding:0;flex:none}
+.colorfila{display:flex;gap:8px;align-items:center}
+.colorfila input[type=color]{width:52px;padding:2px;flex:none}
+.colorfila input:not([type=color]){flex:1;min-width:0}
+.fotofila{display:flex;gap:12px;align-items:center}
+.fotofila .miniatura{width:72px;height:72px}
+.fotoacc{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.tam{display:grid;grid-template-columns:minmax(0,1fr) 84px auto auto;gap:6px;align-items:center;margin-bottom:6px}
+.tam .sw{font-size:.8rem}
+.tam input[type=text]{min-width:0}
+dialog{overflow-y:auto}
+/* promociones */
+.pr-fila{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:10px 0;border-bottom:1px solid var(--ln);align-items:center}
+.pr-fila:last-child{border:0}.pr-fila .nm{font-weight:600;overflow-wrap:anywhere}.pr-fila .pr{color:var(--mu);font-size:.85rem;overflow-wrap:anywhere}
+.pr-fila .ctl{grid-column:1/-1;display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap}.pr-fila .ctl .ed{margin-left:auto}
+.pr-mues{width:44px;height:28px;border-radius:8px;border:1px solid var(--ln);flex:none}
+.picker{max-height:190px;overflow-y:auto;margin-top:4px}
+.picker button{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--ln);padding:.5rem .3rem;min-height:40px;cursor:pointer;overflow-wrap:anywhere}
+.eleg{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--ln)}.eleg span{flex:1;min-width:0;overflow-wrap:anywhere}
+.t-ve{background:#b8453d;color:#fff}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
 
@@ -128,6 +176,7 @@ dialog h2{margin-bottom:.3rem}
 <button data-s="pedidos"><i style="background:var(--bl)"></i>Pedidos</button>
 <button data-s="gastos"><i style="background:var(--pk)"></i>Gastos</button>
 <button data-s="cuentas"><i style="background:var(--gr)"></i>Cuentas</button>
+<button data-s="tienda"><i style="background:var(--li)"></i>Tienda</button>
 </nav>
 
 <main class="wrap">
@@ -169,6 +218,42 @@ dialog h2{margin-bottom:.3rem}
 <div id="x-mesbox" hidden><label for="x-mes">Mes</label><input type="month" id="x-mes"></div></div>
 <div class="botones" style="justify-content:flex-start"><button class="btn gr" id="b-excel">Descargar Excel</button></div></div>
 </section>
+
+<section id="s-tienda" data-sec hidden>
+<div class="hd"><h1>Tienda</h1><div class="chips" id="t-vistas" style="margin:0"><button data-v="prod" aria-pressed="true">Productos</button><button data-v="promo" aria-pressed="false">Promociones</button></div></div>
+<div id="t-v-prod">
+<div class="c" id="im-card" style="margin-bottom:12px" hidden><h3>Importar mi catálogo actual</h3><p class="s" id="im-ayuda">Carga en el panel los productos, fotos y promociones que hoy tiene la página. Se hace una sola vez; si se corta, vuelve a tocar el botón y continúa sin duplicar nada.</p>
+<div class="botones" style="justify-content:flex-start"><button class="btn" id="im-ir" type="button">Importar mi catálogo actual</button></div>
+<p class="mu" id="im-prog" role="status" style="margin:8px 0 0;font-size:.88rem"></p><p class="mu" id="im-ok" role="status" style="margin:8px 0 0"></p><p class="msg" id="im-msg" role="alert"></p></div>
+<div class="tb-acc" style="margin-bottom:10px"><button class="btn sm" id="t-prod">+ Producto</button><button class="btn o sm" id="t-grupo">+ Grupo</button><button class="btn o sm" id="t-cat">+ Categoría</button></div>
+<p class="mu" style="margin:0 0 12px;font-size:.88rem">Los cambios se ven en la página al abrirla de nuevo.</p>
+<div id="t-lista"></div>
+<div class="c" style="margin-top:14px"><h3>Respaldo para la tienda</h3><p class="s">Descarga un archivo con lo que tu tienda muestra hoy. Las promociones apagadas o vencidas no se incluyen. Súbelo a GitHub reemplazando catalogo.js cuando hagas cambios grandes.</p>
+<div class="botones" style="justify-content:flex-start"><button class="btn o" id="rs-ir" type="button">Descargar respaldo para la tienda</button></div><p class="msg" id="rs-msg" role="alert"></p></div>
+</div>
+<div id="t-v-promo" hidden>
+<div class="tb-acc" style="margin-bottom:10px"><a class="btn o sm" id="pr-demo" href="./?demo" target="_blank" rel="noopener">Ver con ?demo ↗</a></div>
+<p class="mu" style="margin:0 0 12px;font-size:.88rem">Los cambios se ven en la página al abrirla de nuevo. «Ver con ?demo» muestra también las promociones apagadas o vencidas (los clientes no las ven).</p>
+<div class="c" style="margin-bottom:12px"><h3>Franja de arriba</h3><p class="s">El mensaje que corre en la parte de arriba de la página.</p>
+<label class="chk"><input type="checkbox" id="fr-on"> Mostrarla</label>
+<label for="fr-t">Texto</label><input id="fr-t" maxlength="160" autocomplete="off">
+<div class="fila"><div><label for="fr-min">Envío gratis desde (₡)</label><input id="fr-min" type="text" inputmode="numeric" placeholder="15000 (vacío = sin envío gratis)" autocomplete="off"></div>
+<div><label for="fr-prov">Dónde aplica</label><select id="fr-prov"></select></div></div>
+<label for="fr-hasta">Hasta (opcional)</label><input id="fr-hasta" type="date">
+<p class="msg" id="fr-msg" role="alert"></p>
+<div class="botones"><button class="btn" id="fr-ok" type="button">Guardar franja</button></div></div>
+<div class="c" style="margin-bottom:12px"><div class="hd" style="margin:0"><h3>Banners</h3><button class="btn o sm" id="pr-nban" type="button">+ Banner</button></div><p class="s">Los carteles grandes de la portada.</p><div id="pr-ban"></div></div>
+<div class="c" style="margin-bottom:12px"><div class="hd" style="margin:0"><h3>Tarjetas</h3><button class="btn o sm" id="pr-ntar" type="button">+ Tarjeta</button></div><p class="s">Los cuadros pequeños de promoción.</p><div id="pr-tar"></div></div>
+<div class="c" style="margin-bottom:12px"><div class="hd" style="margin:0"><h3>Descuentos</h3><button class="btn o sm" id="pr-ndes" type="button">+ Descuento</button></div><p class="s">Se aplican solos en el carrito. Gana el que más le conviene al cliente.</p><div id="pr-des"></div></div>
+<div class="c" style="margin-bottom:12px"><h3>Lo más vendido</h3><p class="s">Qué productos se destacan en la tienda.</p>
+<div class="chips" id="mv-modo"><button data-m="auto" type="button" aria-pressed="true">Automático</button><button data-m="manual" type="button" aria-pressed="false">Manual</button></div>
+<p class="mu" id="mv-ayuda" style="font-size:.85rem;margin:0 0 8px"></p>
+<div id="mv-elegidos"></div>
+<label for="mv-buscar">Agregar producto</label><input id="mv-buscar" type="search" placeholder="Buscar por nombre…" autocomplete="off"><div class="picker" id="mv-res"></div>
+<p class="msg" id="mv-msg" role="alert"></p>
+<div class="botones"><button class="btn" id="mv-ok" type="button">Guardar</button></div></div>
+</div>
+</section>
 </main>
 </div>
 
@@ -198,6 +283,73 @@ dialog h2{margin-bottom:.3rem}
 <div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar</button></div>
 </form></dialog>
 
+<dialog id="d-producto"><form method="dialog" id="f-producto" novalidate>
+<h2 id="dp-tit">Producto</h2>
+<label for="dp-nombre">Nombre</label><input id="dp-nombre" maxlength="80" autocomplete="off">
+<label for="dp-grupo">Grupo</label><select id="dp-grupo"></select>
+<label for="dp-precio">Precio (₡, entero; vacío = sin precio)</label><input id="dp-precio" type="text" inputmode="numeric" autocomplete="off" placeholder="500">
+<div id="dp-colorbox" hidden><label for="dp-color">Color (opcional)</label>
+<div class="colorfila"><input id="dp-colorp" type="color" aria-label="Elegir color" value="#999999"><input id="dp-color" maxlength="7" placeholder="#f2d12e" autocomplete="off"><button type="button" class="btn o sm" id="dp-colorx">Quitar</button></div></div>
+<label for="dp-elegir">Foto (opcional)</label>
+<div class="fotofila"><div class="miniatura" id="dp-prev"></div><div class="fotoacc"><input id="dp-foto" type="file" accept="image/*" hidden><button type="button" class="btn o sm" id="dp-elegir">Tomar o elegir foto</button><button type="button" class="btn o sm" id="dp-quitar" hidden>Quitar foto</button></div></div>
+<div id="dp-tambox" hidden><label>Tamaños</label><div id="dp-tams"></div><button type="button" class="btn o sm" id="dp-addtam">+ Tamaño</button></div>
+<p class="msg" id="dp-msg" role="alert"></p>
+<div class="botones ord"><button class="btn ok" value="si" id="dp-ok">Guardar</button><button class="btn o vol" value="no" formnovalidate>Volver</button><button class="btn pk del" value="borrar" id="dp-borrar" formnovalidate hidden>Borrar</button></div>
+</form></dialog>
+
+<dialog id="d-grupo"><form method="dialog" id="f-grupo" novalidate>
+<h2 id="dgr-tit">Grupo</h2>
+<label for="dgr-nombre">Nombre</label><input id="dgr-nombre" maxlength="80" autocomplete="off">
+<label for="dgr-cat">Categoría</label><select id="dgr-cat"></select>
+<label for="dgr-pref">Texto antes del nombre (opcional)</label><input id="dgr-pref" maxlength="60" placeholder="Figura:" autocomplete="off">
+<label class="chk"><input type="checkbox" id="dgr-foto"> Sus productos llevan foto</label>
+<label class="chk"><input type="checkbox" id="dgr-tam"> Sus productos tienen tamaños con precio</label>
+<p class="msg" id="dgr-msg" role="alert"></p>
+<div class="botones ord"><button class="btn ok" value="si" id="dgr-ok">Guardar</button><button class="btn o vol" value="no" formnovalidate>Volver</button><button class="btn pk del" value="borrar" id="dgr-borrar" formnovalidate hidden>Borrar</button></div>
+</form></dialog>
+
+<dialog id="d-categoria"><form method="dialog" id="f-categoria" novalidate>
+<h2 id="dca-tit">Categoría</h2>
+<label for="dca-nombre">Nombre</label><input id="dca-nombre" maxlength="80" autocomplete="off">
+<label for="dca-desc">Descripción (opcional)</label><input id="dca-desc" maxlength="200" autocomplete="off">
+<label for="dca-color">Color (opcional)</label>
+<div class="colorfila"><input id="dca-colorp" type="color" aria-label="Elegir color" value="#999999"><input id="dca-color" maxlength="7" placeholder="#4f82c4" autocomplete="off"><button type="button" class="btn o sm" id="dca-colorx">Quitar</button></div>
+<p class="msg" id="dca-msg" role="alert"></p>
+<div class="botones ord"><button class="btn ok" value="si" id="dca-ok">Guardar</button><button class="btn o vol" value="no" formnovalidate>Volver</button><button class="btn pk del" value="borrar" id="dca-borrar" formnovalidate hidden>Borrar</button></div>
+</form></dialog>
+
+<dialog id="d-promo"><form method="dialog" id="f-promo" novalidate>
+<h2 id="dpr-tit">Banner</h2>
+<label for="dpr-sup">Texto pequeño de arriba (opcional)</label><input id="dpr-sup" maxlength="60" autocomplete="off">
+<label for="dpr-titulo">Título</label><input id="dpr-titulo" maxlength="80" autocomplete="off">
+<label for="dpr-desc">Descripción (opcional)</label><input id="dpr-desc" maxlength="200" autocomplete="off">
+<div class="fila"><div><label for="dpr-boton">Texto del botón</label><input id="dpr-boton" maxlength="30" autocomplete="off"></div>
+<div><label for="dpr-cat">El botón lleva a</label><select id="dpr-cat"></select></div></div>
+<div id="dpr-fotobox"><label for="dpr-elegir">Foto (opcional)</label>
+<div class="fotofila"><div class="miniatura" id="dpr-prev"></div><div class="fotoacc"><input id="dpr-foto" type="file" accept="image/*" hidden><button type="button" class="btn o sm" id="dpr-elegir">Tomar o elegir foto</button><button type="button" class="btn o sm" id="dpr-quitar" hidden>Quitar foto</button></div></div></div>
+<div class="fila"><div><label for="dpr-c1">Color 1</label><input id="dpr-c1" type="color" value="#4f82c4"></div><div><label for="dpr-c2">Color 2</label><input id="dpr-c2" type="color" value="#2f55a4"></div></div>
+<label class="chk" style="margin-top:10px"><input type="checkbox" id="dpr-osc"> Letra oscura (para colores claros)</label>
+<label class="chk"><input type="checkbox" id="dpr-on"> Mostrarlo</label>
+<label for="dpr-hasta">Hasta (opcional)</label><input id="dpr-hasta" type="date">
+<p class="msg" id="dpr-msg" role="alert"></p>
+<div class="botones ord"><button class="btn ok" value="si" id="dpr-ok">Guardar</button><button class="btn o vol" value="no" formnovalidate>Volver</button><button class="btn pk del" value="borrar" id="dpr-borrar" formnovalidate hidden>Borrar</button></div>
+</form></dialog>
+
+<dialog id="d-desc"><form method="dialog" id="f-desc" novalidate>
+<h2 id="dd-tit">Descuento</h2>
+<div class="fila"><div><label for="dd-tipo">Tipo</label><select id="dd-tipo"><option value="%">Porcentaje (%)</option><option value="2x1">2x1</option></select></div>
+<div id="dd-valbox"><label for="dd-valor">Porcentaje (1 a 90)</label><input id="dd-valor" type="text" inputmode="numeric" maxlength="2" autocomplete="off"></div></div>
+<label for="dd-aplica">Se aplica a</label><select id="dd-aplica"><option value="cat">Una categoría</option><option value="grupo">Un grupo</option><option value="prod">Productos que yo elija</option></select>
+<div id="dd-catbox"><label for="dd-cat">Categoría</label><select id="dd-cat"></select></div>
+<div id="dd-grupobox" hidden><label for="dd-grupo">Grupo</label><select id="dd-grupo"></select></div>
+<div id="dd-prodbox" hidden><label for="dd-buscar">Productos</label><div id="dd-elegidos"></div><input id="dd-buscar" type="search" placeholder="Buscar por nombre…" autocomplete="off"><div class="picker" id="dd-res"></div></div>
+<label for="dd-etiqueta">Etiqueta (opcional, se ve en la tienda)</label><input id="dd-etiqueta" maxlength="40" autocomplete="off" placeholder="2x1 en figuras">
+<label class="chk" style="margin-top:10px"><input type="checkbox" id="dd-on"> Activo</label>
+<label for="dd-hasta">Hasta (opcional)</label><input id="dd-hasta" type="date">
+<p class="msg" id="dd-msg" role="alert"></p>
+<div class="botones ord"><button class="btn ok" value="si" id="dd-ok">Guardar</button><button class="btn o vol" value="no" formnovalidate>Volver</button><button class="btn pk del" value="borrar" id="dd-borrar" formnovalidate hidden>Borrar</button></div>
+</form></dialog>
+
 <dialog id="d-confirma"><form method="dialog">
 <h2 id="dq-tit">¿Seguro?</h2><p class="mu" id="dq-txt"></p>
 <div class="botones"><button class="btn o" value="no">Volver</button><button class="btn pk" value="si">Sí</button></div>
@@ -210,4 +362,7 @@ dialog h2{margin-bottom:.3rem}
 <script src="admin-calc.js"></script>
 <script src="cr-mapa.js"></script>
 <script src="admin.js"></script>
+<script src="admin-tienda.js"></script>
+<script src="admin-promos.js"></script>
+<script src="admin-importar.js"></script>
 </body></html>
