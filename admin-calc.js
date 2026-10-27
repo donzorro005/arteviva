@@ -74,6 +74,39 @@
     return { resumen: resumen, ventas: ventas, gastos: gastosF };
   }
 
-  return { PROVINCIAS: PROVINCIAS, MATERIALES: MATERIALES, money: money, montoVenta: montoVenta, esVenta: esVenta,
+  /* ---------- visitas (etapa 3) ---------- */
+  var ORIGENES = ["ig", "fb", "qr", "otros"];
+  function diaMas(dia, d) { var t = new Date(dia + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + d); return t.toISOString().slice(0, 10); }
+  function lunesDe(dia) { var t = new Date(dia + "T12:00:00Z"), w = (t.getUTCDay() + 6) % 7; return diaMas(dia, -w); }
+  function clavePor(dia, modo) { return modo === "mes" ? String(dia).slice(0, 7) : modo === "semana" ? lunesDe(String(dia).slice(0, 10)) : String(dia).slice(0, 10); }
+  // Visitas (evento «visita») de los últimos n días, semanas o meses hasta «hasta», separadas por origen; los períodos sin datos van en 0.
+  function visitasPor(visitas, modo, hasta, n) {
+    var claves = [], ult = clavePor(hasta, modo), i;
+    for (i = n - 1; i >= 0; i--) claves.push(modo === "mes" ? mesMas(ult, -i) : diaMas(ult, -i * (modo === "semana" ? 7 : 1)));
+    var por = {};
+    claves.forEach(function (k) { por[k] = { clave: k, ig: 0, fb: 0, qr: 0, otros: 0, total: 0 }; });
+    visitas.forEach(function (v) {
+      if (v.evento !== "visita" || ORIGENES.indexOf(v.origen) < 0) return;
+      var f = por[clavePor(v.dia, modo)]; if (!f) return;
+      f[v.origen] += v.n || 0; f.total += v.n || 0;
+    });
+    return claves.map(function (k) { return por[k]; });
+  }
+  // Mes: visitas, aperturas de tienda, toques de WhatsApp, ventas de la tienda web y % de visitas que compraron (null si no hubo visitas).
+  function resumenVisitasMes(visitas, pedidos, mes) {
+    var r = { visitas: 0, tienda: 0, whatsapp: 0, ventas: 0, conversion: null, porOrigen: { ig: 0, fb: 0, qr: 0, otros: 0 } };
+    visitas.forEach(function (v) {
+      if (mesDe(v.dia) !== mes) return;
+      if (v.evento === "visita") { r.visitas += v.n || 0; if (r.porOrigen[v.origen] != null) r.porOrigen[v.origen] += v.n || 0; }
+      else if (v.evento === "tienda") r.tienda += v.n || 0;
+      else if (v.evento === "whatsapp") r.whatsapp += v.n || 0;
+    });
+    pedidos.forEach(function (p) { if (esVenta(p) && p.origen !== "manual" && mesDe(p.fecha) === mes) r.ventas++; });
+    if (r.visitas) r.conversion = Math.round(r.ventas / r.visitas * 1000) / 10;
+    return r;
+  }
+
+  return { ORIGENES: ORIGENES, visitasPor: visitasPor, resumenVisitasMes: resumenVisitasMes, lunesDe: lunesDe,
+    PROVINCIAS: PROVINCIAS, MATERIALES: MATERIALES, money: money, montoVenta: montoVenta, esVenta: esVenta,
     mesMas: mesMas, diasMes: diasMes, resumenMes: resumenMes, serieMeses: serieMeses, porProvincia: porProvincia, filasExcel: filasExcel };
 });

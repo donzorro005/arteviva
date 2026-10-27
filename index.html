@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: catalogo-supabase-2026-10-24 -->
-<meta name="page-version" content="catalogo-supabase-2026-10-24">
+<!-- VERSION: visitas-2026-10-27 -->
+<meta name="page-version" content="visitas-2026-10-27">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <meta name="description" content="Paquetes de relajación de ARTE VIVA: figura de yeso, pinceles y pinturas para pintar en casa. Pedidos por WhatsApp, envío gratis en Cartago desde ₡15.000.">
@@ -678,7 +678,13 @@ var it=ids.map(function(id){var p=find(id);return{n:p.n,q:cart[id],p:p.p==null?0
 var p={nombre:F.nombre,provincia:F.prov,entrega:F.entrega,direccion:F.dir,pago:F.pago,notas:F.nota,items:it,subtotal:K.o,descuento:K.desc,total:K.t,prueba:DEMO};
 var k=JSON.stringify(p),ah=Date.now();if(k===ultimoPedido.k&&ah-ultimoPedido.t<60000)return;ultimoPedido={k:k,t:ah};
 try{fetch(SUPA.url+"/rest/v1/rpc/crear_pedido",{method:"POST",keepalive:true,headers:hdr({"Content-Type":"application/json"}),body:JSON.stringify({p:p})}).catch(function(){})}catch(e){}}
-document.getElementById("wa").addEventListener("click",function(){if(this.getAttribute("aria-disabled")==="false")guardarPedido()});
+document.getElementById("wa").addEventListener("click",function(){if(this.getAttribute("aria-disabled")==="false"){guardarPedido();registrarVisita("whatsapp")}})
+/* VISITAS: contadores por día, origen (?de=ig, fb, qr u otros) y evento. Sin cookies ni datos personales. La vista ?demo no cuenta. */
+function origenVisita(){var o=null;try{o=sessionStorage.getItem("av-origen")}catch(e){}
+if(!o){var m=/[?&]de=([a-z]+)/i.exec(location.search),d=m?m[1].toLowerCase():"";o=d==="ig"||d==="fb"||d==="qr"?d:"otros";try{sessionStorage.setItem("av-origen",o)}catch(e){}}return o}
+function registrarVisita(evento){if(typeof DEMO!=="undefined"&&DEMO)return;if(!SUPA.url||!SUPA.key)return;
+try{if(sessionStorage.getItem("av-ev-"+evento))return;sessionStorage.setItem("av-ev-"+evento,"1")}catch(e){}
+try{fetch(SUPA.url+"/rest/v1/rpc/registrar_visita",{method:"POST",keepalive:true,headers:hdr({"Content-Type":"application/json"}),body:JSON.stringify({origen:origenVisita(),evento:evento})}).catch(function(){})}catch(e){}};
 function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),prov:g("f-prov"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
 function onForm(){var en=readForm().entrega||"";document.getElementById("f-dirbox").hidden=en.indexOf("Envío")!==0;document.getElementById("f-retbox").hidden=en!=="Retiro en persona";drawCart()}
 document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);
@@ -716,10 +722,10 @@ try{var foto=null,f=g("rv-file").files[0];
 if(f){var b=await reduce(f),nm=Date.now()+"-"+Math.random().toString(36).slice(2,10)+".jpg",u=await fetch(SUPA.url+"/storage/v1/object/fotos/"+nm,{method:"POST",headers:hdr({"Content-Type":"image/jpeg"}),body:b});if(!u.ok)throw new Error("foto");foto=SUPA.url+"/storage/v1/object/public/fotos/"+nm}
 var r=await fetch(SUPA.url+"/rest/v1/resenas",{method:"POST",headers:hdr({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({nombre:g("rv-nombre").value.trim(),calificacion:rvR,comentario:g("rv-texto").value.trim(),foto_url:foto})});
 if(!r.ok){var t=await r.text();E.textContent=/palabras_no_permitidas/.test(t)?"Tu reseña tiene palabras que no podemos publicar. Por favor edítala.":/demasiadas_resenas/.test(t)?"Hay muchas reseñas en este momento. Inténtalo de nuevo en un minuto.":"No pudimos publicar tu reseña. Inténtalo de nuevo más tarde."}
-else{E.textContent=foto?"¡Gracias! Tu reseña ya está publicada. Tu foto aparecerá cuando la revisemos.":"¡Gracias! Tu reseña ya está publicada.";["rv-nombre","rv-texto","rv-file"].forEach(function(i){g(i).value=""});g("rv-ok").checked=false;rvR=0;drawPins();cargar()}}
+else{E.textContent=foto?"¡Gracias! Tu reseña con foto se publicará cuando la revisemos.":"¡Gracias! Tu reseña ya está publicada.";["rv-nombre","rv-texto","rv-file"].forEach(function(i){g(i).value=""});g("rv-ok").checked=false;rvR=0;drawPins();cargar()}}
 catch(e){E.textContent="No pudimos publicar tu reseña. Revisa tu conexión e inténtalo de nuevo."}
 busy=false;updRv()}
-if(AUTO){var W0=document.getElementById("rv-wa");W0.textContent="Publicar mi reseña";W0.addEventListener("click",function(e){e.preventDefault();if(W0.getAttribute("aria-disabled")!=="true")enviar()});document.getElementById("rv-fotolabel").hidden=true;document.getElementById("rv-fotonota").hidden=true;document.getElementById("rv-filebox").hidden=false;document.getElementById("rv-nota").textContent="Tu reseña se publica al instante. Las fotos aparecen después de que las revisamos.";cargar();updRv()}
+if(AUTO){var W0=document.getElementById("rv-wa");W0.textContent="Publicar mi reseña";W0.addEventListener("click",function(e){e.preventDefault();if(W0.getAttribute("aria-disabled")!=="true")enviar()});document.getElementById("rv-fotolabel").hidden=true;document.getElementById("rv-fotonota").hidden=true;document.getElementById("rv-filebox").hidden=false;document.getElementById("rv-nota").textContent="Las reseñas sin foto se publican al instante. Las que traen foto se publican cuando las revisamos.";cargar();updRv()}
 /* FONDO VIVO: pinceladas de brocha que se pintan, se quedan un rato y se desvanecen. Cambia la intensidad en el CSS (#pinceladas{opacity:...}). */
 (function(){
 var cv=document.getElementById("pinceladas"),bt=document.getElementById("fondo");
@@ -788,10 +794,10 @@ document.getElementById("shop").addEventListener("toggle",function(e){var t=e.ta
 arrancarTienda();
 document.getElementById("logo2").src=document.querySelector(".hero img").src;
 var inicio=document.getElementById("inicio"),vista=document.getElementById("vista-tienda"),cur=null;
-function route(){var h=location.hash,t=h==="#tienda"||h==="#carrito";inicio.hidden=t;vista.hidden=!t;var el=null;
+function route(){var h=location.hash,t=h==="#tienda"||h==="#carrito";if(t)registrarVisita("tienda");inicio.hidden=t;vista.hidden=!t;var el=null;
 try{el=t?(h==="#carrito"?document.getElementById("carrito"):null):(h?document.querySelector(h):null)}catch(e){}
 if(cur!==t){cur=t;if(el)el.scrollIntoView();else window.scrollTo(0,0)}else if(t&&el)el.scrollIntoView()}
-window.addEventListener("hashchange",route);route();
+window.addEventListener("hashchange",route);registrarVisita("visita");route();
 /* LOGO: la barra superior usa el mismo logo de la portada. */
 document.getElementById("marca-img").src=document.querySelector(".hero img").src;
 /* PORTADA: los paquetes con foto, cada uno sobre un color del logo; se cambian con los botones de abajo. */

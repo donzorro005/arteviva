@@ -151,6 +151,8 @@ dialog{overflow-y:auto}
 .eleg{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--ln)}.eleg span{flex:1;min-width:0;overflow-wrap:anywhere}
 .t-ve{background:#b8453d;color:#fff}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.rv-adm{display:grid;gap:6px}.rv-adm img{width:100%;max-width:320px;max-height:320px;object-fit:cover;border-radius:12px;display:block}.rv-adm .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rv-adm p{margin:0}.rv-adm .acc{display:flex;gap:8px;flex-wrap:wrap}.t-ye{background:var(--ye);color:var(--ink)}
+.vi-link{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--ln);flex-wrap:wrap}.vi-link:last-child{border:0}.vi-link code{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.85rem;color:var(--mu)}#vi-qr canvas{display:block;max-width:100%;height:auto}
 </style></head><body>
 
 <section id="entrada">
@@ -211,16 +213,30 @@ dialog{overflow-y:auto}
 </section>
 
 <section id="s-cuentas" data-sec hidden>
-<div class="hd"><h1>Cuentas</h1><select id="c-anio" aria-label="Año" style="width:auto"></select></div>
+<div class="hd"><h1>Cuentas</h1><div class="chips" id="c-vistas" style="margin:0"><button data-v="mes" aria-pressed="true">Por mes</button><button data-v="vis" aria-pressed="false">Visitas</button></div></div>
+<div id="c-v-mes">
+<div style="margin-bottom:10px"><select id="c-anio" aria-label="Año" style="width:auto"></select></div>
 <div class="c scroll"><div id="c-tabla"></div></div>
 <div class="c" style="margin-top:12px"><h3>Descargar en Excel</h3><p class="s">Hojas: Resumen por mes, Ventas y Gastos.</p>
 <div class="fila"><div><label for="x-rango">Rango</label><select id="x-rango"><option value="mes">Este mes</option><option value="unmes">Un mes…</option><option value="anio">Este año</option><option value="todo">Todo</option></select></div>
 <div id="x-mesbox" hidden><label for="x-mes">Mes</label><input type="month" id="x-mes"></div></div>
 <div class="botones" style="justify-content:flex-start"><button class="btn gr" id="b-excel">Descargar Excel</button></div></div>
+</div>
+<div id="c-v-vis" hidden>
+<div class="chips" id="vi-modo"><button data-m="dia" aria-pressed="false">Por día</button><button data-m="semana" aria-pressed="false">Por semana</button><button data-m="mes" aria-pressed="true">Por mes</button></div>
+<div class="c"><h3 id="vi-tit">Visitas por mes</h3><p class="s">Una visita por persona y por sesión. Sin cookies ni datos personales.</p>
+<div class="lg"><span><i style="background:var(--pk)"></i>Instagram</span><span><i style="background:var(--bl)"></i>Facebook</span><span><i style="background:var(--ye)"></i>QR</span><span><i style="background:var(--gr)"></i>Otros</span></div>
+<div id="vi-graf"></div><div id="vi-tot" class="chips" style="margin:10px 0 0"></div></div>
+<div class="c" style="margin-top:12px"><h3 id="vi-mes-tit">Este mes</h3><p class="s">Cuántas visitas terminaron en compra por la tienda.</p><div class="kp" id="vi-kpis"></div></div>
+<div class="c" style="margin-top:12px"><h3>Tus enlaces</h3><p class="s">Usa uno distinto en cada lugar para saber de dónde llegan.</p><div id="vi-links"></div></div>
+<div class="c" style="margin-top:12px"><h3>QR para imprimir</h3><p class="s">Lleva a tu página y cuenta como «QR». Ponlo en tus paquetes y volantes.</p>
+<div id="vi-qr" style="background:#fff;border-radius:12px;padding:12px;width:max-content;max-width:100%"></div>
+<div class="botones" style="justify-content:flex-start"><a class="btn" id="vi-qr-baja" download="ARTEVIVA-QR.png">Descargar QR</a></div></div>
+</div>
 </section>
 
 <section id="s-tienda" data-sec hidden>
-<div class="hd"><h1>Tienda</h1><div class="chips" id="t-vistas" style="margin:0"><button data-v="prod" aria-pressed="true">Productos</button><button data-v="promo" aria-pressed="false">Promociones</button></div></div>
+<div class="hd"><h1>Tienda</h1><div class="chips" id="t-vistas" style="margin:0"><button data-v="prod" aria-pressed="true">Productos</button><button data-v="promo" aria-pressed="false">Promociones</button><button data-v="res" aria-pressed="false">Reseñas</button></div></div>
 <div id="t-v-prod">
 <div class="c" id="im-card" style="margin-bottom:12px" hidden><h3>Importar mi catálogo actual</h3><p class="s" id="im-ayuda">Carga en el panel los productos, fotos y promociones que hoy tiene la página. Se hace una sola vez; si se corta, vuelve a tocar el botón y continúa sin duplicar nada.</p>
 <div class="botones" style="justify-content:flex-start"><button class="btn" id="im-ir" type="button">Importar mi catálogo actual</button></div>
@@ -230,6 +246,11 @@ dialog{overflow-y:auto}
 <div id="t-lista"></div>
 <div class="c" style="margin-top:14px"><h3>Respaldo para la tienda</h3><p class="s">Descarga un archivo con lo que tu tienda muestra hoy. Las promociones apagadas o vencidas no se incluyen. Súbelo a GitHub reemplazando catalogo.js cuando hagas cambios grandes.</p>
 <div class="botones" style="justify-content:flex-start"><button class="btn o" id="rs-ir" type="button">Descargar respaldo para la tienda</button></div><p class="msg" id="rs-msg" role="alert"></p></div>
+</div>
+<div id="t-v-res" hidden>
+<p class="mu" style="margin:0 0 12px;font-size:.88rem">Las reseñas sin foto se publican solas al instante. Las que traen foto esperan aquí hasta que las apruebes.</p>
+<div class="c" style="margin-bottom:12px"><h3>En espera <span id="rv-n-espera"></span></h3><p class="s">Con foto. Nadie las ve hasta que las apruebes.</p><div class="g" id="rv-espera"></div></div>
+<div class="c"><h3>Publicadas <span id="rv-n-pub"></span></h3><p class="s">Las que tus clientes ven en la Reseñalería.</p><div class="g" id="rv-publicadas"></div></div>
 </div>
 <div id="t-v-promo" hidden>
 <div class="tb-acc" style="margin-bottom:10px"><a class="btn o sm" id="pr-demo" href="./?demo" target="_blank" rel="noopener">Ver con ?demo ↗</a></div>
@@ -365,4 +386,7 @@ dialog{overflow-y:auto}
 <script src="admin-tienda.js"></script>
 <script src="admin-promos.js"></script>
 <script src="admin-importar.js"></script>
+<script src="admin-resenas.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
+<script src="admin-visitas.js"></script>
 </body></html>

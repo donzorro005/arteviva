@@ -111,8 +111,10 @@
   async function recargar() {
     try { datos = await cargarDatos(); aviso(""); }
     catch (e) { if (e.status !== 401) aviso("No se pudieron cargar los datos. Revisa tu internet y recarga la página."); }
+    try { if (window.AV && AV.resenas) await AV.resenas.contar(); } catch (e) {}
     pintarTodo();
     if (tiendaLista()) AV.tienda.cargar();
+    if (window.AV && AV.visitas) AV.visitas.alMostrar();
   }
   function tiendaLista() { return window.AV && window.AV.tienda && !$("s-tienda").hidden; }
   function pintarTodo() { pintarInicio(); pintarPedidos(); pintarGastos(); pintarCuentas(); }
@@ -125,6 +127,7 @@
     if (location.hash !== "#" + s) history.replaceState(null, "", "#" + s);
     window.scrollTo(0, 0);
     if (tiendaLista()) AV.tienda.cargar();
+    if (window.AV && AV.visitas) AV.visitas.alMostrar();
   }
 
   /* ---------- inicio ---------- */
@@ -145,6 +148,8 @@
     var web = datos.pedidos.filter(function (p) { return p.origen === "web" && !p.prueba; })[0];
     var fila = function (t, tag, cls, ir) { var l = el("div", "li"); l.appendChild(el("span", "", t)); var b = el("button", "tag " + cls, tag); b.style.border = "0"; b.style.cursor = "pointer"; b.onclick = function () { mostrar(ir); }; l.appendChild(b); P.appendChild(l); };
     fila(pend ? pend + (pend === 1 ? " pedido por confirmar" : " pedidos por confirmar") : "No hay pedidos por confirmar", pend ? "Ver" : "OK", pend ? "t-pe" : "t-co", "pedidos");
+    var nr = window.AV && AV.resenas ? AV.resenas.pendientes : 0;
+    if (nr) { fila(nr + (nr === 1 ? " reseña con foto por revisar" : " reseñas con foto por revisar"), "Ver", "t-pe", "tienda"); P.lastChild.querySelector("button").onclick = function () { mostrar("tienda"); AV.resenas.abrir(); }; }
     if (web) { var dias = Math.round((Date.parse(hoy()) - Date.parse(String(web.creado).slice(0, 10))) / 864e5); fila("Último pedido de la tienda: " + (dias <= 0 ? "hoy" : dias === 1 ? "ayer" : "hace " + dias + " días"), dias > 14 ? "Revisar" : "OK", dias > 14 ? "t-pe" : "t-co", "pedidos"); }
     else fila("Todavía no llegan pedidos desde la tienda", "Info", "t-ma", "pedidos");
   }
@@ -356,7 +361,7 @@
 
   /* ---------- arranque ---------- */
   // Herramientas para admin-tienda.js (catálogo): se carga después de este archivo y se registra en AV.tienda
-  window.AV = { api: api, toast: toast, confirma: confirma, el: el, hoy: hoy, URL: URL_, KEY: KEY, token: token, errorTxt: errorTxt };
+  window.AV = { api: api, toast: toast, confirma: confirma, el: el, hoy: hoy, URL: URL_, KEY: KEY, token: token, errorTxt: errorTxt, datos: function () { return datos; } };
   C.PROVINCIAS.forEach(function (p) { $("dv-prov").appendChild(el("option", "", p)); });
   CATS.forEach(function (c) { $("dg-cat").appendChild(el("option", "", c)); });
   $("g-mes").value = mesHoy(); $("x-mes").value = mesHoy();
