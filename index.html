@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: envios-2026-10-29 -->
-<meta name="page-version" content="envios-2026-10-29">
+<!-- VERSION: elegir-figuras-2026-10-30 -->
+<meta name="page-version" content="elegir-figuras-2026-10-30">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <meta name="description" content="Paquetes de relajación de ARTE VIVA: figura de yeso, pinceles y pinturas para pintar en casa. Pedidos por WhatsApp, pago en efectivo al retirar y envío gratis en Cartago desde ₡9.000.">
@@ -304,6 +304,29 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 .cart .total span{white-space:nowrap}
 .cart .empty{color:var(--muted)}
 .envg{margin:0 0 .4rem;color:var(--green);font-weight:500;text-align:center}
+.eleg{border:0;padding:0;border-radius:18px;background:var(--bg);color:var(--ink);width:min(680px,calc(100vw - 32px));max-height:min(88vh,920px);overflow:hidden}
+.eleg[open]{display:flex;flex-direction:column}
+.eleg::backdrop{background:rgba(20,18,16,.55)}
+.el-top{padding:1.1rem 1.25rem .7rem;border-bottom:1px solid var(--line)}
+.el-top h3{margin:0;font:700 var(--t3)/1.1 "Cormorant Garamond",Georgia,serif}
+.el-top p{margin:.35rem 0 0;color:var(--muted);font-size:var(--t1)}
+#el-lista{flex:1;overflow:auto;padding:.25rem 1.25rem 1rem;overscroll-behavior:contain}
+#el-lista h4{margin:1rem 0 .5rem;font-size:var(--t1);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.el-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:.5rem}
+.el-f{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:.35rem;padding:.45rem;border:2px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font:inherit;font-size:.86rem;line-height:1.2;cursor:pointer;text-align:center}
+.el-f .ph{width:100%;border-radius:8px}
+.el-f .ph.sin{aspect-ratio:auto;height:2.6rem;background:var(--surface);font:700 1.4rem "Cormorant Garamond",Georgia,serif;color:var(--muted)}
+.el-f[aria-pressed="true"]{border-color:var(--ink)}
+.el-f:disabled{opacity:.45;cursor:not-allowed}
+.el-n{position:absolute;top:.3rem;right:.3rem;min-width:1.6rem;height:1.6rem;padding:0 .3rem;border-radius:999px;background:var(--ink);color:var(--bg);font-size:.8rem;font-weight:600;display:flex;align-items:center;justify-content:center}
+.el-n[hidden]{display:none}
+.el-pie{border-top:1px solid var(--line);padding:.7rem 1.25rem 1rem}
+#el-sel{display:flex;flex-wrap:wrap;gap:.4rem}
+.el-chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.35rem .75rem;font:inherit;font-size:.88rem;cursor:pointer}
+.el-pie .falta{margin:.4rem 0 0}
+.el-acc{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:.6rem}
+.el-no{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;cursor:pointer;padding:.5rem 0}
+#el-ok:disabled{opacity:.5;cursor:not-allowed}
 .confianza{margin-top:1.1rem;color:var(--muted);font-size:.95rem}
 .pagoalr{margin:1rem 0 .5rem;text-align:center;color:var(--muted);font-size:.92rem}
 #f-sinpenota{display:block;margin-top:.3rem}
@@ -481,6 +504,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 </div>
 <p class="pagoalr">Puedes pagar en efectivo al retirar o al recibir por mensajería.</p><a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a><p class="falta" id="falta" role="status"></p><p class="vaciar" id="vaciar-box" hidden><button type="button" id="vaciar">Vaciar carrito</button></p></div>
 </div></section></main>
+<dialog id="elegir" class="eleg" aria-labelledby="el-tit"><div class="el-top"><h3 id="el-tit"></h3><p id="el-sub"></p></div><div id="el-lista"></div><div class="el-pie"><div id="el-sel" aria-live="polite"></div><p class="falta" id="el-falta" role="status"></p><div class="el-acc"><button type="button" class="el-no" id="el-no">Cancelar</button><button type="button" class="btn sm" id="el-ok" disabled>Agregar al carrito</button></div></div></dialog>
 
 <footer class="rev" aria-labelledby="t-cierre"><div class="wrap">
 <div class="cierre">
@@ -541,7 +565,7 @@ cargarCatalogo().then(function(j){try{usarCatalogo(j)}catch(e){var r=window.CATA
 .catch(function(){TIENDA_LISTA=false;S.textContent="No pudimos cargar la tienda. Recarga la página."})}
 var cart={};
 function money(n){return MONEDA+n.toLocaleString("es-CR")}
-function find(id){return PRODUCTS.filter(function(x){return x.id===id})[0]}
+function find(id){var k=String(id).split("~"),b=PRODUCTS.filter(function(x){return x.id===k[0]})[0];if(!b||k.length<2)return b;var f=k[1].split(".").map(function(i){return PRODUCTS.filter(function(x){return x.id===i})[0]});if(f.some(function(x){return!x}))return undefined;return Object.assign({},b,{id:String(id),n:b.n+" · Figuras: "+f.map(function(x){return x.d}).join(", "),figs:f})}
 function setQty(id,q){if(q>(cart[id]||0)&&agotado(find(id)))return;if(q<=0)delete cart[id];else cart[id]=q;drawCart()}
 /*ART*/
 var AT='fill="#f6f1e7" stroke="#a89b86" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"';
@@ -579,12 +603,12 @@ function brush(k){return'<g '+AT+'><g transform="rotate(28 50 50)"><path d="M44 
 function fig(k){return'<g '+AT+'>'+A[k]+'</g>'}
 function comp(keys,fn){var n=keys.length,s=n==1?1:n==2?.64:n==3?.52:.46,y=(100-100*s)/2,o="";keys.forEach(function(k,i){var x=n==1?0:i*(100-100*s)/(n-1);o+='<g transform="translate('+x+' '+y+') scale('+s+')">'+fn(k)+'</g>'});return o}
 function wrapSvg(inner,l){return'<svg viewBox="0 0 100 100" role="img" aria-label="'+esc(l)+'"><ellipse cx="50" cy="93" rx="34" ry="4.5" fill="rgba(0,0,0,.09)"/>'+inner+'</svg>'}
-function artFor(o,G){var d=o.d,t=G.t,k;if(t==="Pinceles sueltos")return wrapSvg(brush(bk(d)),d);if(t==="Paquetes de pinceles"){k=BP[d];return k?wrapSvg(comp(k.split(","),brush),d):""}if(t==="Figuras sueltas")return A[d]?wrapSvg(fig(d),d):"";k=PK[d];return k?wrapSvg(comp(k.split(","),fig),d):""}
+function artFor(o,G){var d=o.d,t=G.t,k;if(t==="Pinceles sueltos")return wrapSvg(brush(bk(d)),d);if(t==="Paquetes de pinceles"){k=BP[d];return k?wrapSvg(comp(k.split(","),brush),d):""}if(!/^Paquete/.test(t))return A[d]?wrapSvg(fig(d),d):"";k=PK[d];return k?wrapSvg(comp(k.split(","),fig),d):""}
 /*ENDART*/
 var DEMO=/[?&]demo(=|&|$)/.test(location.search);
 function hoy(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
 function activo(x){return!!x&&(x.on||DEMO)&&(!x.hasta||hoy()<=x.hasta)}
-function agotado(p){return!!p&&(AGOTADOS.indexOf(p.n)>-1||AGOTADOS.indexOf(p.base)>-1)}
+function agotado(p){return!!p&&(AGOTADOS.indexOf(p.n)>-1||AGOTADOS.indexOf(p.base)>-1||!!p.figs&&p.figs.some(agotado))}
 function descDe(p){var m=null;if(!p||(p.p==null&&!p.z))return null;DESCUENTOS.forEach(function(x,i){if(!activo(x))return;
 if(!((x.cat&&x.cat===p.cat)||(x.grupo&&x.grupo===p.grp)||(x.prod&&(x.prod.indexOf(p.base)>-1||x.prod.indexOf(p.n)>-1))))return;
 var t=x.tipo==="2x1"?"2x1":"%",r=t==="%"?+x.v||0:50;if(r<=0)return;
@@ -604,8 +628,8 @@ function tarjetaProd(o){var G=null;CATS.forEach(function(C){C.g.forEach(function
 var r=document.createElement("div"),ph=document.createElement("div");r.className="item card";ph.className="ph";
 if(IMGS[o.n]){var im=document.createElement("img");im.src=IMGS[o.n];im.alt=o.n;ph.appendChild(im)}else{var sv=G?artFor(o,G):"";if(sv){ph.className="ph art";ph.innerHTML=sv}else ph.textContent="Foto"}r.appendChild(ph);
 var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;r.appendChild(nm);ponPrecio(r,o);
-var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent="Agregar";b.setAttribute("aria-label","Agregar "+o.n);
-b.onclick=function(){setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar"},900)};marca(r,b,o);r.appendChild(b);return r}
+var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent=pideFiguras(o)?"Elegir figuras":"Agregar";b.setAttribute("aria-label",(pideFiguras(o)?"Elegir figuras de ":"Agregar ")+o.n);
+b.onclick=function(){if(pideFiguras(o)){abrirElegir(o);return}setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar"},900)};marca(r,b,o);r.appendChild(b);return r}
 function tarjetaTamanos(o){var dt=document.createElement("details");dt.className="item pc";var su=document.createElement("summary");var sw=document.createElement("span");sw.className="sw2";sw.style.background=o.c;var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;su.appendChild(sw);su.appendChild(nm);etq(su,o,true);dt.appendChild(su);var bx=document.createElement("div");bx.className="szs";o.z.forEach(function(z){var rw=document.createElement("div");rw.className="sz";var lb=document.createElement("span");lb.className="lb";lb.textContent=z.d;ponPrecio(lb,z," · ");var bt=document.createElement("button");bt.type="button";bt.className="btn sm";bt.textContent="Agregar";bt.setAttribute("aria-label","Agregar "+z.n);bt.onclick=function(){setQty(z.id,(cart[z.id]||0)+1);bt.textContent="Agregado";setTimeout(function(){bt.textContent="Agregar"},900)};if(agotado(z)){bt.disabled=true;bt.textContent="Agotado";bt.setAttribute("aria-label","Agotado: "+z.n)}rw.appendChild(lb);rw.appendChild(bt);bx.appendChild(rw)});dt.appendChild(bx);return dt}
 function irA(x){var go=function(){var t=null;if(x.cat)[].forEach.call(document.querySelectorAll("#shop details.acc"),function(d){if(d.querySelector("h3").textContent===x.cat)t=d});
 if(t){t.open=true;t.scrollIntoView()}else document.getElementById("shop").scrollIntoView()};
@@ -643,8 +667,8 @@ var it=document.createElement("div");it.className="items"+(G.im?" withimg":"")+(
 G.l.forEach(function(o){if(G.sz){it.appendChild(tarjetaTamanos(o));return}var r=document.createElement("div");r.className="item"+(G.im?" card":"");
 if(G.im){var ph=document.createElement("div");ph.className="ph";if(IMGS[o.n]){var im=document.createElement("img");im.src=IMGS[o.n];im.alt=o.n;ph.appendChild(im)}else{var sv=artFor(o,G);if(sv){ph.className="ph art";ph.innerHTML=sv}else{ph.textContent="Foto"}}r.appendChild(ph)}else{var sw=document.createElement("span");sw.className="sw2";sw.style.background=o.c;r.appendChild(sw)}
 var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;r.appendChild(nm);ponPrecio(r,o);
-var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent="Agregar";b.setAttribute("aria-label","Agregar "+o.n);
-b.onclick=function(){setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar"},900)};
+var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent=pideFiguras(o)?"Elegir figuras":"Agregar";b.setAttribute("aria-label",(pideFiguras(o)?"Elegir figuras de ":"Agregar ")+o.n);
+b.onclick=function(){if(pideFiguras(o)){abrirElegir(o);return}setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar"},900)};
 marca(r,b,o);r.appendChild(b);it.appendChild(r)});bd.appendChild(it)});
 d.appendChild(bd);s.appendChild(d)})}
 function drawCart(){if(!TIENDA_LISTA)return;var L=document.getElementById("lines"),T=document.getElementById("total"),W=document.getElementById("wa"),B=document.getElementById("cartbar"),EG=document.getElementById("envg");
@@ -674,8 +698,34 @@ W.setAttribute("aria-disabled",ok?"false":"true");
 if(ok)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
 B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"");document.getElementById("vaciar-box").hidden=!ids.length;guardarCarrito()}
 function guardarCarrito(){try{if(Object.keys(cart).length)localStorage.setItem("av-carrito",JSON.stringify({t:Date.now(),c:cart}));else localStorage.removeItem("av-carrito")}catch(e){}}
-function cargarCarrito(){try{var g=JSON.parse(localStorage.getItem("av-carrito")||"null");if(!g||Date.now()-g.t>7*864e5)return;Object.keys(g.c||{}).forEach(function(id){var q=Math.floor(+g.c[id]);if(find(id)&&q>0&&q<1000)cart[id]=q})}catch(e){}}
+function cargarCarrito(){try{var g=JSON.parse(localStorage.getItem("av-carrito")||"null");if(!g||Date.now()-g.t>7*864e5)return;Object.keys(g.c||{}).forEach(function(id){var q=Math.floor(+g.c[id]);var p=find(id);if(p&&q>0&&q<1000&&!(pideFiguras(p)&&!p.figs))cart[id]=q})}catch(e){}}
 document.getElementById("vaciar").addEventListener("click",function(){cart={};drawCart()});
+/* ELEGIR FIGURAS: los productos del grupo «Paquetes» de «Paquetes de relajación» piden elegir sus figuras.
+   Cuántas: el número de «(N figura…» en el nombre; si no lo dice, 1. Se eligen entre las figuras de «Figuras de yeso»,
+   menos los grupos que empiezan con «Paquete» o «Piezas». Se puede repetir una figura. */
+function pideFiguras(p){return!!p&&p.cat==="Paquetes de relajación"&&p.grp==="Paquetes"}
+function cuantasFiguras(p){var m=/\((\d+)\s+figura/i.exec(p.d);return m?Math.max(1,Math.min(10,+m[1])):1}
+function figurasElegibles(){var r=[];CATS.forEach(function(C){if(C.n!=="Figuras de yeso")return;C.g.forEach(function(G){if(G.sz||/^(Paquete|Piezas)/i.test(G.t))return;if(G.l.length)r.push(G)})});return r}
+var ELE={o:null,n:1,sel:[]};
+function abrirElegir(o){var D=document.getElementById("elegir");ELE={o:o,n:cuantasFiguras(o),sel:[]};
+document.getElementById("el-tit").textContent=o.d;var L=document.getElementById("el-lista");L.textContent="";
+var gs=figurasElegibles();if(!gs.length){var v=document.createElement("p");v.textContent="Todavía no hay figuras para elegir. Escríbenos por WhatsApp.";L.appendChild(v)}
+gs.forEach(function(G){var h=document.createElement("h4");h.textContent=G.t;L.appendChild(h);var g=document.createElement("div");g.className="el-g";
+G.l.forEach(function(f){var b=document.createElement("button");b.type="button";b.className="el-f";b.dataset.id=f.id;
+var ph=document.createElement("span");if(IMGS[f.n]){ph.className="ph";var im=document.createElement("img");im.src=IMGS[f.n];im.alt="";ph.appendChild(im)}else{var sv=artFor(f,G);ph.className="ph"+(sv?" art":" sin");if(sv)ph.innerHTML=sv;else ph.textContent=f.d.charAt(0)}
+var nm=document.createElement("span");nm.className="el-nm";nm.textContent=f.d;var c=document.createElement("span");c.className="el-n";c.hidden=true;
+b.appendChild(ph);b.appendChild(nm);b.appendChild(c);if(agotado(f)){b.disabled=true;nm.textContent=f.d+" (agotada)"}
+b.onclick=function(){if(ELE.sel.length>=ELE.n){if(ELE.n===1)ELE.sel=[];else{document.getElementById("el-falta").textContent="Ya elegiste "+ELE.n+". Quita una abajo para cambiarla.";return}}ELE.sel.push(f.id);pintaElegir()};
+g.appendChild(b)});L.appendChild(g)});
+pintaElegir();if(D.showModal)D.showModal();else D.setAttribute("open","");L.scrollTop=0}
+function pintaElegir(){var n=ELE.n,s=ELE.sel,cuenta={};s.forEach(function(i){cuenta[i]=(cuenta[i]||0)+1});
+document.getElementById("el-sub").textContent=n===1?"Elige tu figura.":"Elige "+n+" figuras. Puedes repetir. Llevas "+s.length+" de "+n+".";
+[].forEach.call(document.querySelectorAll("#el-lista .el-f"),function(b){var k=cuenta[b.dataset.id]||0,c=b.querySelector(".el-n");c.hidden=!k;c.textContent=k>1?"×"+k:"✓";b.setAttribute("aria-pressed",k?"true":"false")});
+var Q=document.getElementById("el-sel");Q.textContent="";s.forEach(function(i,j){var f=find(i),x=document.createElement("button");x.type="button";x.className="el-chip";x.textContent=f.d+" ✕";x.setAttribute("aria-label","Quitar "+f.d);x.onclick=function(){ELE.sel.splice(j,1);pintaElegir()};Q.appendChild(x)});
+document.getElementById("el-falta").textContent="";var ok=document.getElementById("el-ok");ok.disabled=s.length!==n;ok.textContent=s.length===n?"Agregar al carrito":"Faltan "+(n-s.length)}
+document.getElementById("el-ok").addEventListener("click",function(){if(ELE.sel.length!==ELE.n)return;var k=ELE.o.id+"~"+ELE.sel.slice().sort().join(".");
+setQty(k,(cart[k]||0)+1);var D=document.getElementById("elegir");if(D.close)D.close();else D.removeAttribute("open");var B=document.getElementById("cartbar");if(B)B.focus()});
+document.getElementById("el-no").addEventListener("click",function(){var D=document.getElementById("elegir");if(D.close)D.close();else D.removeAttribute("open")});
 /* PEDIDOS AL PANEL: al tocar "Comprar por WhatsApp" el pedido se guarda como pendiente. Si falla, WhatsApp abre igual. */
 var ultimoPedido={k:"",t:0};
 function guardarPedido(){if(!SUPA.url||!SUPA.key)return;var ids=Object.keys(cart);if(!ids.length)return;var K=cuenta(),F=readForm();
