@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: visitas-2026-10-27 -->
-<meta name="page-version" content="visitas-2026-10-27">
+<!-- VERSION: envios-2026-10-29 -->
+<meta name="page-version" content="envios-2026-10-29">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
-<meta name="description" content="Paquetes de relajación de ARTE VIVA: figura de yeso, pinceles y pinturas para pintar en casa. Pedidos por WhatsApp, envío gratis en Cartago desde ₡15.000.">
+<meta name="description" content="Paquetes de relajación de ARTE VIVA: figura de yeso, pinceles y pinturas para pintar en casa. Pedidos por WhatsApp, pago en efectivo al retirar y envío gratis en Cartago desde ₡9.000.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500&display=swap" rel="stylesheet">
 <script>document.documentElement.className+=" js"</script>
@@ -304,6 +304,9 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 .cart .total span{white-space:nowrap}
 .cart .empty{color:var(--muted)}
 .envg{margin:0 0 .4rem;color:var(--green);font-weight:500;text-align:center}
+.confianza{margin-top:1.1rem;color:var(--muted);font-size:.95rem}
+.pagoalr{margin:1rem 0 .5rem;text-align:center;color:var(--muted);font-size:.92rem}
+#f-sinpenota{display:block;margin-top:.3rem}
 .vaciar{text-align:center;margin:.4rem 0 0}.vaciar button{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:var(--t1);cursor:pointer;padding:.4rem}
 .cartbar{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:20;display:none}
 .cartbar.on{display:inline-flex}
@@ -375,6 +378,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 <h1 id="titulo">Pinta tu pausa</h1>
 <p class="lead">Paquetes con figura de yeso, pinceles y pinturas para pintar en casa y relajarte un rato.</p>
 <div class="acciones"><a class="btn" href="#tienda">Ir a la tienda</a><a class="lnk" href="#ideas">Ver ideas para pintar</a></div>
+<p class="confianza">Pagas en efectivo al retirar en Cartago · Envíos desde ₡1.500</p>
 </div>
 <div class="vitrina" id="vitrina" aria-live="polite">
 <div class="vt-tile" id="vt-tile"></div>
@@ -458,8 +462,8 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 <p class="lead" style="margin-left:auto;margin-right:auto;text-align:center">Elige lo que necesitas, arma tu carrito y envíanos tu pedido por WhatsApp.</p>
 <div class="shop" id="shop"></div>
 <div class="info" id="envios">
-<div><h3>Entrega</h3><ul><li>Retiro en persona, únicamente en un punto: <a href="https://www.google.com/maps?q=9.878291,-83.938701" target="_blank" rel="noopener">ver ubicación en Google Maps</a></li><li>Envío por correo o mensajería (el costo se confirma por WhatsApp)</li></ul></div>
-<div><h3>Formas de pago</h3><ul><li>SINPE Móvil</li><li>Efectivo</li></ul></div>
+<div><h3>Entrega</h3><ul><li>Retiro sin costo en ARTEVIVA, de lunes a viernes de 9 a. m. a 6 p. m.: <a href="https://www.google.com/maps?q=9.878291,-83.938701" target="_blank" rel="noopener">ver ubicación en Google Maps</a></li><li>Mensajería a Cartago: ₡1.500</li><li>Mensajería a San José, Alajuela y Heredia: ₡2.500</li><li>Correos de Costa Rica a otras provincias: ₡3.500</li></ul></div>
+<div><h3>Formas de pago</h3><ul><li>Efectivo al retirar o al recibir por mensajería</li><li>SINPE Móvil</li><li>Los envíos por Correos de Costa Rica se pagan por SINPE Móvil antes de enviarlos</li></ul></div>
 </div>
 <div class="cart" id="carrito"><h3>Tu carrito</h3><div id="lines"></div><div class="total" id="total"></div><p class="envg" id="envg" role="status"></p>
 <div class="ofrm" id="ofrm">
@@ -468,14 +472,14 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 <fieldset><legend>¿Cómo recibes tu pedido?</legend>
 <label class="opt"><input type="radio" name="f-entrega" value="Retiro en persona"> Retiro en persona</label>
 <label class="opt"><input type="radio" name="f-entrega" value="Envío por correo o mensajería"> Envío por correo o mensajería</label></fieldset>
-<div id="f-retbox" hidden><small>El retiro es únicamente en este punto: <a href="https://www.google.com/maps?q=9.878291,-83.938701" target="_blank" rel="noopener">ver ubicación en Google Maps</a>.</small></div>
-<div id="f-dirbox" hidden><label for="f-dir">Dirección de envío (cantón, distrito y señas)</label><textarea id="f-dir" rows="3"></textarea><small>El costo del envío te lo confirmo por WhatsApp.</small></div>
+<div id="f-retbox" hidden><small>Retiras en ARTEVIVA, de lunes a viernes de 9 a. m. a 6 p. m. Pagas al retirar: <a href="https://www.google.com/maps?q=9.878291,-83.938701" target="_blank" rel="noopener">ver ubicación en Google Maps</a>.</small></div>
+<div id="f-dirbox" hidden><label for="f-dir">Dirección de envío (cantón, distrito y señas)</label><textarea id="f-dir" rows="3"></textarea><small>Cartago ₡1.500 · San José, Alajuela y Heredia ₡2.500 (mensajería) · Otras provincias ₡3.500 (Correos de Costa Rica).</small></div>
 <fieldset><legend>Forma de pago</legend>
 <label class="opt"><input type="radio" name="f-pago" value="SINPE Móvil"> SINPE Móvil</label>
-<label class="opt"><input type="radio" name="f-pago" value="Efectivo"> Efectivo</label></fieldset>
+<label class="opt"><input type="radio" name="f-pago" value="Efectivo"> Efectivo al retirar o al recibir</label><small id="f-sinpenota" hidden>Los envíos por Correos de Costa Rica se pagan por SINPE Móvil antes de enviarlos.</small></fieldset>
 <div><label for="f-nota">Notas (opcional)</label><textarea id="f-nota" rows="2"></textarea></div>
 </div>
-<a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a><p class="falta" id="falta" role="status"></p><p class="vaciar" id="vaciar-box" hidden><button type="button" id="vaciar">Vaciar carrito</button></p></div>
+<p class="pagoalr">Puedes pagar en efectivo al retirar o al recibir por mensajería.</p><a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a><p class="falta" id="falta" role="status"></p><p class="vaciar" id="vaciar-box" hidden><button type="button" id="vaciar">Vaciar carrito</button></p></div>
 </div></section></main>
 
 <footer class="rev" aria-labelledby="t-cierre"><div class="wrap">
@@ -484,7 +488,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 <nav aria-label="Enlaces del pie"><a href="#tienda">Tienda</a><a href="https://wa.me/50663579829" target="_blank" rel="noopener">WhatsApp</a><a href="https://www.instagram.com/arteviva005/" target="_blank" rel="noopener">Instagram</a><a href="https://www.facebook.com/profile.php?id=61595492700535" target="_blank" rel="noopener">Facebook</a></nav>
 </div>
 <p class="firma" aria-hidden="true">ARTE VIVA</p>
-<div class="firma-pie"><span>Tienda de arte · Cartago, Costa Rica</span><span>Envío gratis en Cartago desde ₡15.000</span></div>
+<div class="firma-pie"><span>Tienda de arte · Cartago, Costa Rica</span><span>Envío gratis en Cartago desde ₡9.000</span></div>
 </div></footer>
 
 <script src="supabase-config.js"></script>
@@ -661,7 +665,8 @@ T.textContent="";EG.textContent="";
 if(ids.length){var a=document.createElement("span");a.textContent="Artículos: "+n;T.appendChild(a);
 if(priced){if(K.desc>0){var dz=document.createElement("span");dz.textContent="Descuento: −"+money(K.desc);dz.style.color="var(--pink)";T.appendChild(dz)}
 var b2=document.createElement("span");b2.textContent="Total: "+money(K.t);T.appendChild(b2);msg+=(K.desc>0?"\nSubtotal: "+money(K.o)+"\nDescuento: −"+money(K.desc):"")+"\nTotal: "+money(K.t)+"\n";
-if(activo(FRANJA)&&FRANJA.envioMin!=null){var zn=FRANJA.prov?" en "+FRANJA.prov:"",enZona=!FRANJA.prov||F.prov===FRANJA.prov;if(F.prov&&!enZona)EG.textContent="El envío gratis aplica solo"+zn+".";else if(K.t>=FRANJA.envioMin){EG.textContent="¡Tu pedido califica para envío gratis"+zn+"!";if(F.prov&&F.entrega.indexOf("Envío")===0)msg+="Califica para envío gratis.\n"}else EG.textContent="Te faltan "+money(FRANJA.envioMin-K.t)+" para el envío gratis"+zn+"."}}
+if(activo(FRANJA)&&FRANJA.envioMin!=null){var zn=FRANJA.prov?" en "+FRANJA.prov:"",enZona=!FRANJA.prov||F.prov===FRANJA.prov;if(F.prov&&!enZona)EG.textContent="El envío gratis aplica solo"+zn+".";else if(K.t>=FRANJA.envioMin){EG.textContent="¡Tu pedido califica para envío gratis"+zn+"!";if(F.prov&&F.entrega.indexOf("Envío")===0)msg+="Califica para envío gratis.\n"}else EG.textContent="Te faltan "+money(FRANJA.envioMin-K.t)+" para el envío gratis"+zn+"."}
+var ENV=costoEnvio(F,K);if(ENV){var txe="Envío por "+ENV.v+": "+(ENV.c?money(ENV.c):"gratis"),se=document.createElement("span");se.textContent=txe;T.appendChild(se);var st=document.createElement("span");st.textContent="Total con envío: "+money(K.t+ENV.c);T.appendChild(st);msg+=txe+"\nTotal con envío: "+money(K.t+ENV.c)+"\n"}}
 else{msg+="\nTotal de artículos: "+n+"\n"}}
 var miss=[];if(ids.length){if(!F.nombre)miss.push("tu nombre");if(!F.prov)miss.push("tu provincia");if(!F.entrega)miss.push("cómo recibes el pedido");else if(F.entrega.indexOf("Envío")===0&&!F.dir)miss.push("la dirección de envío");if(!F.pago)miss.push("la forma de pago")}
 msg+="\nNombre: "+F.nombre+"\nProvincia: "+F.prov+"\nEntrega: "+F.entrega+(F.dir?"\nDirección: "+F.dir:"")+"\nPago: "+F.pago+(F.nota?"\nNotas: "+F.nota:"")+"\n\n¡Gracias!";var ok=ids.length&&!miss.length;document.getElementById("falta").textContent=!ids.length?"Agrega al menos un producto de la tienda.":miss.length?"Falta: "+miss.join(", ")+".":"";
@@ -686,7 +691,10 @@ function registrarVisita(evento){if(typeof DEMO!=="undefined"&&DEMO)return;if(!S
 try{if(sessionStorage.getItem("av-ev-"+evento))return;sessionStorage.setItem("av-ev-"+evento,"1")}catch(e){}
 try{fetch(SUPA.url+"/rest/v1/rpc/registrar_visita",{method:"POST",keepalive:true,headers:hdr({"Content-Type":"application/json"}),body:JSON.stringify({origen:origenVisita(),evento:evento})}).catch(function(){})}catch(e){}};
 function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),prov:g("f-prov"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
-function onForm(){var en=readForm().entrega||"";document.getElementById("f-dirbox").hidden=en.indexOf("Envío")!==0;document.getElementById("f-retbox").hidden=en!=="Retiro en persona";drawCart()}
+/* ENVÍOS: tarifa fija por provincia. Fuera del GAM va por Correos de Costa Rica y se paga solo por SINPE (s:1). */
+var ENVIOS={"Cartago":{c:1500,v:"mensajería"},"San José":{c:2500,v:"mensajería"},"Alajuela":{c:2500,v:"mensajería"},"Heredia":{c:2500,v:"mensajería"},"Guanacaste":{c:3500,v:"Correos de Costa Rica",s:1},"Puntarenas":{c:3500,v:"Correos de Costa Rica",s:1},"Limón":{c:3500,v:"Correos de Costa Rica",s:1}};
+function costoEnvio(F,K){var e=ENVIOS[F.prov];if(!e||F.entrega.indexOf("Envío")!==0)return null;var g=activo(FRANJA)&&FRANJA.envioMin!=null&&(!FRANJA.prov||F.prov===FRANJA.prov)&&K.t>=FRANJA.envioMin;return{v:e.v,c:g?0:e.c}}
+function onForm(){var F0=readForm(),e0=ENVIOS[F0.prov],ss=!!(e0&&e0.s&&F0.entrega.indexOf("Envío")===0),ef=document.querySelector('input[name="f-pago"][value="Efectivo"]');ef.disabled=ss;if(ss&&ef.checked)ef.checked=false;document.getElementById("f-sinpenota").hidden=!ss;var en=readForm().entrega||"";document.getElementById("f-dirbox").hidden=en.indexOf("Envío")!==0;document.getElementById("f-retbox").hidden=en!=="Retiro en persona";drawCart()}
 document.getElementById("ofrm").addEventListener("input",onForm);document.getElementById("ofrm").addEventListener("change",onForm);
 /* RESEÑALERÍA. Para publicar una reseña ya revisada, agrégala aquí: {n:"Nombre",r:5,t:"Comentario",f:"fotos/obra1.jpg",d:"oct 2026"}  (f y d son opcionales; r va de 1 a 5) */
 var RESENAS=[];
