@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: elegir-figuras-2026-10-30 -->
-<meta name="page-version" content="elegir-figuras-2026-10-30">
+<!-- VERSION: figuras-relacionadas-2026-10-30 -->
+<meta name="page-version" content="figuras-relacionadas-2026-10-30">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <meta name="description" content="Paquetes de relajación de ARTE VIVA: figura de yeso, pinceles y pinturas para pintar en casa. Pedidos por WhatsApp, pago en efectivo al retirar y envío gratis en Cartago desde ₡9.000.">
@@ -703,13 +703,19 @@ document.getElementById("vaciar").addEventListener("click",function(){cart={};dr
 /* ELEGIR FIGURAS: los productos del grupo «Paquetes» de «Paquetes de relajación» piden elegir sus figuras.
    Cuántas: el número de «(N figura…» en el nombre; si no lo dice, 1. Se eligen entre las figuras de «Figuras de yeso»,
    menos los grupos que empiezan con «Paquete» o «Piezas». Se puede repetir una figura. */
-function pideFiguras(p){return!!p&&p.cat==="Paquetes de relajación"&&p.grp==="Paquetes"}
+/* FIGURAS DE CADA PAQUETE: nombre del paquete (sin tildes, en minúscula) → figuras que se pueden elegir.
+   "#Animales" quiere decir todas las figuras del grupo Animales. Un paquete que no está aquí y dice «(N figuras…»
+   deja elegir entre todas. Si un paquete queda con una sola figura posible, o ninguna, se agrega directo. */
+var FIGS_PAQ={"abejitas":["Abeja","Panal","Tarro de miel","Palito para miel","Flor"],"animalitos":["#Animales"],"flores":["Flor","Planta"],"rosas":["Flor"],"munecos de nieve":["Muñeco de nieve"],"ratoncito famoso":[]};
+function sinTilde(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim()}
+function figurasDe(o){var r=FIGS_PAQ[sinTilde(o.d)],gs=figurasElegibles();if(!r)return/\(\d+\s+figura/i.test(o.d)?gs:[];return gs.map(function(G){return{t:G.t,l:G.l.filter(function(f){return r.indexOf("#"+G.t)>-1||r.indexOf(f.d)>-1})}}).filter(function(G){return G.l.length})}
+function pideFiguras(p){if(!p||p.cat!=="Paquetes de relajación"||p.grp!=="Paquetes")return false;var n=0;figurasDe(p).forEach(function(G){n+=G.l.length});return n>1}
 function cuantasFiguras(p){var m=/\((\d+)\s+figura/i.exec(p.d);return m?Math.max(1,Math.min(10,+m[1])):1}
 function figurasElegibles(){var r=[];CATS.forEach(function(C){if(C.n!=="Figuras de yeso")return;C.g.forEach(function(G){if(G.sz||/^(Paquete|Piezas)/i.test(G.t))return;if(G.l.length)r.push(G)})});return r}
 var ELE={o:null,n:1,sel:[]};
 function abrirElegir(o){var D=document.getElementById("elegir");ELE={o:o,n:cuantasFiguras(o),sel:[]};
 document.getElementById("el-tit").textContent=o.d;var L=document.getElementById("el-lista");L.textContent="";
-var gs=figurasElegibles();if(!gs.length){var v=document.createElement("p");v.textContent="Todavía no hay figuras para elegir. Escríbenos por WhatsApp.";L.appendChild(v)}
+var gs=figurasDe(o);if(!gs.length){var v=document.createElement("p");v.textContent="Todavía no hay figuras para elegir. Escríbenos por WhatsApp.";L.appendChild(v)}
 gs.forEach(function(G){var h=document.createElement("h4");h.textContent=G.t;L.appendChild(h);var g=document.createElement("div");g.className="el-g";
 G.l.forEach(function(f){var b=document.createElement("button");b.type="button";b.className="el-f";b.dataset.id=f.id;
 var ph=document.createElement("span");if(IMGS[f.n]){ph.className="ph";var im=document.createElement("img");im.src=IMGS[f.n];im.alt="";ph.appendChild(im)}else{var sv=artFor(f,G);ph.className="ph"+(sv?" art":" sin");if(sv)ph.innerHTML=sv;else ph.textContent=f.d.charAt(0)}
