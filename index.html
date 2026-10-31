@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<!-- VERSION: desplegables-ola-2026-10-30 -->
-<meta name="page-version" content="desplegables-ola-2026-10-30">
+<!-- VERSION: yesito-2026-10-30 -->
+<meta name="page-version" content="yesito-2026-10-30">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ARTE VIVA | Pinta tu pausa</title>
 <meta name="description" content="Paquetes de relajación de ARTE VIVA: figura de yeso, pinceles y pinturas para pintar en casa. Pedidos por WhatsApp, pago en efectivo al retirar y envío gratis en Cartago desde ₡9.000.">
@@ -341,6 +341,27 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 .vaciar{text-align:center;margin:.4rem 0 0}.vaciar button{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:var(--t1);cursor:pointer;padding:.4rem}
 .cartbar{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:20;display:none}
 .cartbar.on{display:inline-flex}
+.yesito{position:fixed;left:.75rem;bottom:calc(.5rem + env(safe-area-inset-bottom,0px));z-index:19;width:92px;pointer-events:none}
+.yesito[hidden]{display:none}
+.yesito.con-demo{bottom:calc(3.5rem + env(safe-area-inset-bottom,0px))}
+.ys-fig{position:relative;display:block;width:92px;height:108px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+.ys-fig:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:12px}
+.ys-mov{position:absolute;left:0;right:0;bottom:6px;display:block;animation:ys-flota 2.6s ease-in-out infinite}
+.ys-mov svg{display:block;width:92px;height:107px;overflow:visible}
+.ys-p{transition:fill .35s ease}
+.ys-pincel{transform-box:fill-box;transform-origin:30% 90%}
+.ys-ojo{transform-box:fill-box;transform-origin:center}
+.ys-sh{position:absolute;left:50%;bottom:0;width:56px;height:7px;margin-left:-28px;border-radius:50%;background:rgba(20,18,16,.16);animation:ys-sombra 2.6s ease-in-out infinite}
+[data-theme="dark"] .ys-sh{background:rgba(0,0,0,.45)}
+@keyframes ys-flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes ys-sombra{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.86)}}
+.ys-bub{position:absolute;left:4px;bottom:112px;margin:0;width:max-content;max-width:min(240px,calc(100vw - 2rem));background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:.5rem .75rem;font-size:.9rem;line-height:1.3;box-shadow:0 6px 18px rgba(20,18,16,.12);opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+.ys-bub.on{opacity:1;transform:none}
+.ys-x{position:absolute;right:-6px;top:-4px;z-index:1;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:1.05rem;line-height:1;cursor:pointer;pointer-events:auto;opacity:.85}
+.ys-x:hover{opacity:1;color:var(--ink)}
+.ys-gota{position:absolute;left:46px;bottom:60px;width:7px;height:7px;border-radius:50%;pointer-events:none}
+@media (max-width:600px){.yesito{width:74px}.ys-fig{width:74px;height:88px}.ys-mov svg{width:74px;height:86px}.ys-bub{bottom:92px}.ys-sh{width:46px;margin-left:-23px}}
+@media (prefers-reduced-motion: reduce){.ys-mov,.ys-sh{animation:none}.ys-p{transition:none}}
 .demo{position:fixed;left:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:25;background:var(--yellow);color:#141210;border-radius:99px;padding:.45rem .95rem;font-size:var(--t1);font-weight:500}
 
 /* Entradas: cada parte de la sección sube un poco al aparecer (solo con JavaScript y sin "reducir movimiento") */
@@ -456,6 +477,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 <ul class="cats" id="cats" aria-label="Categorías de la tienda"></ul>
 </div></div></section>
 <a href="#carrito" class="btn sm cartbar" id="cartbar">Carrito (0)</a>
+<div class="yesito" id="yesito" hidden><p class="ys-bub" id="ys-bub" role="status" aria-live="polite"></p><button type="button" class="ys-x" id="ys-x" aria-label="Cerrar a Yesito">×</button><button type="button" class="ys-fig" id="ys-fig" aria-label="Yesito, el zorro pintor"><span class="ys-sh"></span><span class="ys-mov" id="ys-mov"></span></button></div>
 
 <section id="contacto" class="rev" aria-labelledby="t-contacto"><div class="wrap"><div class="contacto">
 <div>
@@ -704,7 +726,7 @@ var miss=[];if(ids.length){if(!F.nombre)miss.push("tu nombre");if(!F.prov)miss.p
 msg+="\nNombre: "+F.nombre+"\nProvincia: "+F.prov+"\nEntrega: "+F.entrega+(F.dir?"\nDirección: "+F.dir:"")+"\nPago: "+F.pago+(F.nota?"\nNotas: "+F.nota:"")+"\n\n¡Gracias!";var ok=ids.length&&!miss.length;document.getElementById("falta").textContent=!ids.length?"Agrega al menos un producto de la tienda.":miss.length?"Falta: "+miss.join(", ")+".":"";
 W.setAttribute("aria-disabled",ok?"false":"true");
 if(ok)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
-B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"");document.getElementById("vaciar-box").hidden=!ids.length;guardarCarrito()}
+B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"");document.getElementById("vaciar-box").hidden=!ids.length;guardarCarrito();try{yesito()}catch(e){}}
 function guardarCarrito(){try{if(Object.keys(cart).length)localStorage.setItem("av-carrito",JSON.stringify({t:Date.now(),c:cart}));else localStorage.removeItem("av-carrito")}catch(e){}}
 function cargarCarrito(){try{var g=JSON.parse(localStorage.getItem("av-carrito")||"null");if(!g||Date.now()-g.t>7*864e5)return;Object.keys(g.c||{}).forEach(function(id){var q=Math.floor(+g.c[id]);var p=find(id);if(p&&q>0&&q<1000&&!(pideFiguras(p)&&!p.figs))cart[id]=q})}catch(e){}}
 document.getElementById("vaciar").addEventListener("click",function(){cart={};drawCart()});
@@ -740,6 +762,43 @@ document.getElementById("el-falta").textContent="";var ok=document.getElementByI
 document.getElementById("el-ok").addEventListener("click",function(){if(ELE.sel.length!==ELE.n)return;var k=ELE.o.id+"~"+ELE.sel.slice().sort().join(".");
 setQty(k,(cart[k]||0)+1);var D=document.getElementById("elegir");if(D.close)D.close();else D.removeAttribute("open");var B=document.getElementById("cartbar");if(B)B.focus()});
 document.getElementById("el-no").addEventListener("click",function(){var D=document.getElementById("elegir");if(D.close)D.close();else D.removeAttribute("open")});
+/* YESITO: el zorro pintor se pinta por partes según el carrito, hasta el monto del envío gratis.
+   Etapa 1 boina y punta del pincel, 2 delantal, 3 mango, 4 pelaje. Cerrado se recuerda en este teléfono. */
+var YS={et:-1,listo:false,rm:!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)};
+var YS_COL=["#cf5c7c","#4f82c4","#6f8a3a","#e8b93f"];
+function ysMeta(){return activo(FRANJA)&&FRANJA.envioMin?{m:FRANJA.envioMin,g:true,z:FRANJA.prov?" en "+FRANJA.prov:""}:{m:9000,g:false,z:""}}
+function ysDibujo(){var PL="#f3eee3",SH="#d9d0bf",O=' stroke="#2c2622" stroke-width="2.5" stroke-linejoin="round"',FU="#e8b93f",FU2="#c99a2a";
+function P(n,c,x){return' class="ys-p" data-p="'+n+'" data-c="'+c+'" fill="'+PL+'"'+O+(x||"")}function F(c){return' fill="'+c+'"'+O}
+return'<svg viewBox="0 0 120 140" aria-hidden="true" focusable="false">'
++'<path d="M76 128 Q120 130 112 92 Q108 72 94 80 Q104 100 78 112 Z"'+P(4,FU)+'/><path d="M94 80 Q108 72 112 92 Q104 88 99 91 Z"'+F(PL)+'/>'
++'<ellipse cx="60" cy="112" rx="25" ry="23"'+P(4,FU)+'/><ellipse cx="47" cy="134" rx="10" ry="6"'+P(4,FU)+'/><ellipse cx="73" cy="134" rx="10" ry="6"'+P(4,FU)+'/>'
++'<path d="M42 96 L78 96 L81 127 Q60 134 39 127 Z"'+P(2,"#4f82c4")+'/><rect x="52" y="108" width="16" height="10" rx="2"'+P(2,"#3a659e")+'/>'
++'<g class="ys-pincel"><g transform="rotate(18 92 98)"><rect x="89" y="74" width="7" height="44" rx="3.5"'+P(3,"#6f8a3a")+'/><rect x="88" y="70" width="9" height="7" rx="1" fill="#b4b2a9"'+O+'/><path d="M88 70 Q92.5 54 97 70 Z"'+P(1,"#cf5c7c")+'/></g><circle cx="88" cy="100" r="7.5"'+P(4,FU)+'/></g>'
++'<polygon points="32,54 36,14 58,40"'+P(4,FU2)+'/><polygon points="88,54 84,14 62,40"'+P(4,FU2)+'/><polygon points="38,46 39,26 50,40" fill="'+SH+'"/><polygon points="82,46 81,26 70,40" fill="'+SH+'"/>'
++'<path d="M27 52 Q60 28 93 52 Q89 80 60 89 Q31 80 27 52 Z"'+P(4,FU)+'/><path d="M37 66 Q60 59 83 66 Q75 86 60 89 Q45 86 37 66 Z"'+F(PL)+'/>'
++'<ellipse class="ys-ojo" cx="47" cy="59" rx="3" ry="3.6" fill="#2c2622"/><ellipse class="ys-ojo" cx="73" cy="59" rx="3" ry="3.6" fill="#2c2622"/>'
++'<ellipse cx="40" cy="70" rx="4" ry="2.6" fill="#f2b3c0"/><ellipse cx="80" cy="70" rx="4" ry="2.6" fill="#f2b3c0"/><ellipse cx="60" cy="72" rx="4.2" ry="3" fill="#2c2622"/>'
++'<path d="M55 77 Q60 81 65 77" fill="none" stroke="#2c2622" stroke-width="2" stroke-linecap="round"/>'
++'<g transform="rotate(-10 60 36)"><rect x="57.5" y="21.4" width="5" height="9" rx="2.5"'+P(1,"#a8445f")+'/><ellipse cx="60" cy="36" rx="21.8" ry="8.6"'+P(1,"#cf5c7c")+'/></g></svg>'}
+function ysDice(t,ms){var b=document.getElementById("ys-bub");if(!b)return;b.textContent=t;b.classList.add("on");clearTimeout(b._t);b._t=setTimeout(function(){b.classList.remove("on")},ms||3200)}
+function ysBrinca(n){var m=document.getElementById("ys-mov");if(YS.rm||!m.animate)return;for(var i=0;i<n;i++)m.animate([{transform:"translateY(0)"},{transform:"translateY(2px) scale(1.06,.94)",offset:.15},{transform:"translateY(-22px) scale(.96,1.05)",offset:.45},{transform:"translateY(0) scale(1.04,.96)",offset:.75},{transform:"translateY(0)"}],{duration:600,delay:i*600,easing:"ease-out"})}
+function ysGotas(cs,n){if(YS.rm)return;var Y=document.getElementById("yesito");cs.forEach(function(c){for(var i=0;i<n;i++){var d=document.createElement("span");d.className="ys-gota";d.style.background=c;Y.appendChild(d);
+var a=Math.random()*Math.PI*2,r=34+Math.random()*40;d.animate([{transform:"translate(0,0)",opacity:1},{transform:"translate("+Math.cos(a)*r+"px,"+(Math.sin(a)*r-18)+"px) scale(.4)",opacity:0}],{duration:700+Math.random()*300,easing:"cubic-bezier(.2,.7,.2,1)"}).onfinish=(function(e){return function(){e.remove()}})(d)}})}
+function ysSaluda(){var p=document.querySelector("#yesito .ys-pincel");if(p&&p.animate&&!YS.rm)p.animate([{transform:"rotate(0)"},{transform:"rotate(-22deg)"},{transform:"rotate(14deg)"},{transform:"rotate(-22deg)"},{transform:"rotate(0)"}],{duration:1100,easing:"ease-in-out"})}
+function ysFalta(){var M=ysMeta(),t=cuenta().t;if(t>=M.m)return M.g?"¡Envío gratis"+M.z+"! Quedé pintado":"¡Quedé pintado! Gracias";
+if(!t)return"¡Hola! Píntame con tu pedido";return M.g?"Te faltan "+money(M.m-t)+" para envío gratis"+M.z:"Me faltan "+money(M.m-t)+" de pintura"}
+function yesito(){var Y=document.getElementById("yesito");if(!Y||!YS.listo)return;var M=ysMeta(),t=cuenta().t,et=t>=M.m?4:Math.min(3,Math.floor(t/M.m*4)),antes=YS.et;YS.et=et;
+var ps=[].slice.call(Y.querySelectorAll(".ys-p"));ps.forEach(function(r){var p=+r.dataset.p,c=p<=et?r.dataset.c:"#f3eee3";if(r.getAttribute("fill")===c)return;
+var d=antes<0||YS.rm?0:p>antes?(+r.getAttribute("data-i"))*90:0;setTimeout(function(){r.setAttribute("fill",c)},d)});
+if(antes<0||et===antes)return;if(et>antes){var cs=YS_COL.slice(antes,et);ysBrinca(et===4?2:1);ysGotas(et===4?YS_COL:cs,et===4?6:9);ysDice(ysFalta())}else ysDice(t?ysFalta():"Me quedé sin pintura",2400)}
+(function(){var Y=document.getElementById("yesito");if(!Y)return;try{if(localStorage.getItem("av-yesito")==="no")return}catch(e){}
+document.getElementById("ys-mov").innerHTML=ysDibujo();var cuentaP={};[].forEach.call(Y.querySelectorAll(".ys-p"),function(r){var p=r.dataset.p;cuentaP[p]=(cuentaP[p]||0)+1;r.setAttribute("data-i",cuentaP[p]-1)});
+document.body.appendChild(Y);if(DEMO)Y.classList.add("con-demo");Y.hidden=false;YS.listo=true;yesito();
+var s=false;try{s=sessionStorage.getItem("av-ys-hola")==="1";sessionStorage.setItem("av-ys-hola","1")}catch(e){}
+if(!s)setTimeout(function(){ysSaluda();ysDice(ysFalta(),3600)},1800);
+document.getElementById("ys-fig").addEventListener("click",function(){ysSaluda();ysBrinca(1);ysDice(ysFalta())});
+document.getElementById("ys-x").addEventListener("click",function(){Y.hidden=true;try{localStorage.setItem("av-yesito","no")}catch(e){}});
+if(!YS.rm)setInterval(function(){if(document.hidden)return;[].forEach.call(Y.querySelectorAll(".ys-ojo"),function(o){if(o.animate)o.animate([{transform:"scaleY(1)"},{transform:"scaleY(.1)"},{transform:"scaleY(1)"}],{duration:180})})},3600)})();
 /* PEDIDOS AL PANEL: al tocar "Comprar por WhatsApp" el pedido se guarda como pendiente. Si falla, WhatsApp abre igual. */
 var ultimoPedido={k:"",t:0};
 function guardarPedido(){if(!SUPA.url||!SUPA.key)return;var ids=Object.keys(cart);if(!ids.length)return;var K=cuenta(),F=readForm();
