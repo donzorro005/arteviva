@@ -78,16 +78,32 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 .hero .lead{font-size:var(--t3);line-height:1.35;max-width:24ch;margin-top:1.5rem}
 .acciones{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.75rem;margin-top:2.25rem}
 .vitrina{grid-column:7/13}
-.vt-tile{position:relative;aspect-ratio:1;background:var(--yellow);padding:clamp(1.25rem,3.5vw,3rem);transition:background-color .5s var(--ease);overflow:hidden}
-.vt-tile img{display:block;width:100%;height:100%;object-fit:cover;animation:respira 12s ease-in-out infinite alternate}
-.vt-tile img.entra{animation:entra .6s var(--ease),respira 12s ease-in-out .6s infinite alternate}
-@keyframes respira{from{transform:scale(1)}to{transform:scale(1.045)}}
-@keyframes entra{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.vt-tile{position:relative;aspect-ratio:1;overflow:hidden;touch-action:pan-y}
+/* Cada paquete es una lámina: la nueva barre sobre la anterior mientras la foto se asienta y la anterior se aparta. --d es la dirección (1 o -1). */
+.vt-s{position:absolute;inset:0;padding:clamp(1.25rem,3.5vw,3rem)}
+.vt-m{width:100%;height:100%;overflow:hidden}
+.vt-m img{display:block;width:100%;height:100%;object-fit:cover;animation:vt-deriva 9s ease-in-out infinite alternate}
+.vt-s.in{--de:inset(0 0 0 100%);will-change:clip-path;animation:vt-entra 1s cubic-bezier(.76,0,.24,1) both}
+.vt-s.in.atr{--de:inset(0 100% 0 0)}
+.vt-s.in img{animation:vt-asienta 1.3s var(--ease) both,vt-deriva 9s ease-in-out infinite alternate}
+.vt-s.sale{will-change:transform;animation:vt-sale 1s cubic-bezier(.76,0,.24,1) both}
+@keyframes vt-entra{from{clip-path:var(--de)}to{clip-path:inset(0)}}
+@keyframes vt-sale{to{transform:translateX(calc(var(--d)*-14%))}}
+@keyframes vt-asienta{from{scale:1.22;translate:calc(var(--d)*7%) 0}to{scale:1;translate:0 0}}
+@keyframes vt-deriva{from{transform:scale(1)}to{transform:scale(1.09)}}
+.vt-pie.muda>*{animation:vt-sube .6s var(--ease) both}
+.vt-pie.muda>*:nth-child(2){animation-delay:.08s}
+.vt-pie.muda>*:nth-child(n+3){animation-delay:.16s}
+@keyframes vt-sube{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .vt-pie{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1.25rem;margin-top:1rem}
 .vt-pie h3{margin-right:auto}
 .vt-pie .pr{font-weight:500}
 .vt-pick{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
-.vt-pick button{font:500 var(--t1)/1 Jost,system-ui,sans-serif;color:var(--ink);background:var(--surface);border:0;border-radius:999px;padding:.6rem 1rem .6rem .7rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;transition:transform .18s var(--ease),background-color .2s}
+.vt-pick button{position:relative;overflow:hidden;font:500 var(--t1)/1 Jost,system-ui,sans-serif;color:var(--ink);background:var(--surface);border:0;border-radius:999px;padding:.6rem 1rem .6rem .7rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;transition:transform .18s var(--ease),background-color .3s,color .3s}
+/* La barra del botón activo marca el tiempo: al llenarse pasa al siguiente paquete. */
+.vitrina.auto .vt-pick button[aria-pressed=true]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--yellow);transform-origin:left;animation:vt-avance 6s linear both}
+.vitrina.quieto .vt-pick button[aria-pressed=true]::after{animation-play-state:paused}
+@keyframes vt-avance{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .vt-pick button:hover{background:var(--line)}
 .vt-pick button:active{transform:scale(.95)}
 .vt-pick button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
@@ -939,14 +955,29 @@ document.getElementById("marca-img").src=document.querySelector(".hero img").src
 var COLORES=["var(--yellow)","var(--blue)","var(--pink)","var(--green)"];
 function drawInicio(){var V=[];CATS.forEach(function(C){C.g.forEach(function(G){if(!G.sz)G.l.forEach(function(o){if(IMGS[o.n]&&V.length<4)V.push(o)})})});
 var vit=document.getElementById("vitrina"),T=document.getElementById("vt-tile"),P=document.getElementById("vt-pie"),K=document.getElementById("vt-pick");
-vit.hidden=!V.length;K.textContent="";
-var ver=function(i){var o=V[i],im=document.createElement("img");T.style.backgroundColor=COLORES[i%4];im.src=IMGS[o.n];im.alt=o.n;im.width=800;im.height=800;if(T.firstChild)im.className="entra";T.textContent="";T.appendChild(im);
-P.textContent="";var h=document.createElement("h3");h.textContent=o.n;P.appendChild(h);ponPrecio(P,o);
+vit.hidden=!V.length;K.textContent="";vit.classList.toggle("auto",V.length>1);
+var cur=-1,tk=0,rm=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+var ver=function(i,d,man){if(i===cur)return;var o=V[i],t=++tk,ant=cur,s=document.createElement("div"),m=document.createElement("div"),im=document.createElement("img");cur=i;
+vit.setAttribute("aria-live",man?"polite":"off");[].forEach.call(K.children,function(x,k){x.setAttribute("aria-pressed",k===i?"true":"false")});
+s.className="vt-s";s.style.backgroundColor=COLORES[i%4];m.className="vt-m";im.style.transformOrigin=["30% 40%","70% 30%","40% 70%","65% 65%"][i%4];im.alt=o.n;im.width=800;im.height=800;im.src=IMGS[o.n];m.appendChild(im);s.appendChild(m);
+var poner=function(){if(t!==tk)return;while(T.children.length>1)T.removeChild(T.firstChild);var v=T.firstChild;
+if(ant<0||rm||!v){T.textContent="";T.appendChild(s)}else{s.className="vt-s in"+(d<0?" atr":"");v.className="vt-s sale";s.style.setProperty("--d",d);v.style.setProperty("--d",d);T.appendChild(s);
+s.addEventListener("animationend",function(e){if(e.target!==s)return;s.classList.remove("in");if(v.parentNode)v.parentNode.removeChild(v)})}
+P.classList.toggle("muda",ant>=0);P.textContent="";var h=document.createElement("h3");h.textContent=o.n;P.appendChild(h);ponPrecio(P,o);
 var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent="Agregar al carrito";b.setAttribute("aria-label","Agregar "+o.n+" al carrito");
-if(agotado(o)){b.disabled=true;b.textContent="Agotado"}else b.onclick=function(){setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar al carrito"},900)};P.appendChild(b);
-[].forEach.call(K.children,function(x,k){x.setAttribute("aria-pressed",k===i?"true":"false")})};
-V.forEach(function(o,i){var b=document.createElement("button");b.type="button";b.innerHTML="<i style='background:"+COLORES[i%4]+"'></i>";b.appendChild(document.createTextNode(o.d));b.onclick=function(){ver(i)};K.appendChild(b)});
-if(V.length)ver(0);
+if(agotado(o)){b.disabled=true;b.textContent="Agotado"}else b.onclick=function(){setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar al carrito"},900)};P.appendChild(b)};
+if(ant<0||!im.decode)poner();else im.decode().then(poner,poner)};
+V.forEach(function(o,i){var b=document.createElement("button");b.type="button";b.innerHTML="<i style='background:"+COLORES[i%4]+"'></i>";b.appendChild(document.createTextNode(o.d));b.onclick=function(){ver(i,i>cur?1:-1,true)};K.appendChild(b)});
+vit.pasar=function(d,man){if(V.length>1)ver((cur+d+V.length)%V.length,d,man)};
+if(V.length)ver(0,1);
+/* Se detiene con el mouse encima, con el teclado dentro o fuera de pantalla. En celular se cambia deslizando la foto. */
+if(!vit.lista){vit.lista=true;var enc=false,foco=false,fuera=false,x0=null,est=function(){vit.classList.toggle("quieto",enc||foco||fuera)};
+K.addEventListener("animationend",function(e){if(e.animationName==="vt-avance")vit.pasar(1)});
+vit.addEventListener("pointerenter",function(e){if(e.pointerType==="mouse"){enc=true;est()}});vit.addEventListener("pointerleave",function(e){if(e.pointerType==="mouse"){enc=false;est()}});
+vit.addEventListener("focusin",function(e){foco=e.target.matches(":focus-visible");est()});vit.addEventListener("focusout",function(){foco=false;est()});
+if(window.IntersectionObserver)new IntersectionObserver(function(a){fuera=!a[0].isIntersecting;est()}).observe(vit);
+T.addEventListener("pointerdown",function(e){x0=e.pointerType==="touch"?e.clientX:null});T.addEventListener("pointercancel",function(){x0=null});
+T.addEventListener("pointerup",function(e){if(x0===null)return;var dx=e.clientX-x0;x0=null;if(Math.abs(dx)>40)vit.pasar(dx<0?1:-1,true)})}
 var L=document.getElementById("cats");L.textContent="";CATS.forEach(function(C){var n=0;C.g.forEach(function(G){n+=G.l.length});
 var li=document.createElement("li"),b=document.createElement("button");b.type="button";b.innerHTML="<i style='background:"+esc(C.c)+"'></i><b></b><small></small><em></em>";
 b.querySelector("b").textContent=C.n;b.querySelector("small").textContent=C.d;b.querySelector("em").textContent=n+" opciones";b.onclick=function(){irA({cat:C.n})};li.appendChild(b);L.appendChild(li)})}
