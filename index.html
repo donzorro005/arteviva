@@ -117,6 +117,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 .kit-fila figure{margin:0}
 .kit-t{display:flex;align-items:center;justify-content:center;padding:6%}
 .kit-t svg{width:min(78%,260px);height:auto;max-height:90%}
+.kit-t.foto{padding:0;overflow:hidden}
+.kit-t.foto img{display:block;width:100%;height:100%;object-fit:cover}
 .kit-fila figure:nth-child(1) .kit-t{height:clamp(200px,30vh,300px);background:var(--yellow)}
 .kit-fila figure:nth-child(2) .kit-t{height:clamp(260px,44vh,420px);background:var(--blue)}
 .kit-fila figure:nth-child(3) .kit-t{height:clamp(320px,58vh,560px);background:var(--pink)}
@@ -985,7 +987,10 @@ b.querySelector("b").textContent=C.n;b.querySelector("small").textContent=C.d;b.
 /* LO QUE TRAE TU PAQUETE: dibujos de la pieza, los pinceles y las pinturas. */
 (function(){var PAL='<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 12C24 12 8 30 8 50s14 36 34 36c9 0 10-7 6-12-3-4-1-9 5-9h11c14 0 28-8 28-24C92 26 74 12 50 12z" fill="#f6f1e7" stroke="#a89b86" stroke-width="2.5"/><circle cx="30" cy="40" r="7" fill="#4f82c4"/><circle cx="46" cy="28" r="7" fill="#cf5c7c"/><circle cx="64" cy="30" r="7" fill="#e8b93f"/><circle cx="76" cy="46" r="7" fill="#6f8a3a"/><circle cx="26" cy="62" r="6" fill="#141210"/></svg>';
 var D={yeso:'<svg viewBox="0 0 100 100" aria-hidden="true">'+fig("Mariposa")+'</svg>',pinceles:'<svg viewBox="0 0 100 100" aria-hidden="true">'+comp(["r","p","f"],brush)+'</svg>',pinturas:PAL};
-[].forEach.call(document.querySelectorAll("[data-kit]"),function(k){k.innerHTML=D[k.getAttribute("data-kit")]||""})})();
+[].forEach.call(document.querySelectorAll("[data-kit]"),function(k){k.innerHTML=D[k.getAttribute("data-kit")]||""});
+/* Si el panel guardó fotos (ajuste kit_fotos), reemplazan a los dibujos cuando ya cargaron. */
+if(SUPA.url&&SUPA.key&&window.fetch)fetch(SUPA.url+"/rest/v1/ajustes?clave=eq.kit_fotos&select=valor",{headers:hdr()}).then(function(r){return r.ok?r.json():[]}).then(function(f){var v=f&&f[0]&&f[0].valor;if(!v)return;
+[].forEach.call(document.querySelectorAll("[data-kit]"),function(k){var u=v[k.getAttribute("data-kit")];if(typeof u!=="string"||u.indexOf(SUPA.url+"/storage/v1/object/public/")!==0)return;var im=new Image();im.alt=k.parentNode.querySelector("h3").textContent;im.onload=function(){k.textContent="";k.classList.add("foto");k.appendChild(im)};im.src=u})}).catch(function(){})})();
 /* ENTRADAS: cada sección aparece al llegar a ella. */
 (function(){var S=document.querySelectorAll(".rev");if(!("IntersectionObserver" in window)){[].forEach.call(S,function(s){s.classList.add("vis")});return}
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("vis");io.unobserve(e.target)}})},{rootMargin:"0px 0px -8% 0px",threshold:0});

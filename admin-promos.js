@@ -7,7 +7,7 @@
   if (!AV || !AV.tienda) return;
   var api = AV.api, el = AV.el, toast = AV.toast, confirma = AV.confirma, $ = function (i) { return document.getElementById(i); };
   var HEX = /^#[0-9a-f]{6}$/i, FECHA = /^\d{4}-\d{2}-\d{2}$/, MAX_MV = 8;
-  var P = { franja: null, mv: null, ban: [], tar: [], des: [] }, huellaA = "", cargando = false, hay = false, vista = "prod";
+  var P = { franja: null, mv: null, kit: null, ban: [], tar: [], des: [] }, huellaA = "", cargando = false, hay = false, vista = "prod";
 
   /* ---------- utilidades puras ---------- */
   // Una promoción con «hasta» anterior a hoy ya no se muestra en la tienda (catalogo_publico() la omite).
@@ -41,7 +41,7 @@
       var aj = r[0] || [], h = JSON.stringify(r);
       P.ban = r[1]; P.tar = r[2]; P.des = r[3];
       var fr = ajuste(aj, "franja"), mv = ajuste(aj, "mas_vendidos");
-      if (h !== huellaA || !hay) { huellaA = h; hay = true; P.franja = fr; P.mv = mv; pintarFranja(); pintarMv(); }
+      if (h !== huellaA || !hay) { huellaA = h; hay = true; P.franja = fr; P.mv = mv; P.kit = ajuste(aj, "kit_fotos"); pintarFranja(); pintarMv(); pintarKit(); }
       pintarListas();
     } catch (e) {
       if (e.status !== 401) {
@@ -90,6 +90,36 @@
     catch (e) { if (e.status !== 401) M.textContent = AV.errorTxt(e); }
     B.disabled = false;
   };
+
+  /* ---------- fotos de «Lo que trae tu paquete» (ajuste kit_fotos: la tienda lo lee directo, sin SQL nuevo) ---------- */
+  var KIT = [["yeso", "Pieza de yeso"], ["pinceles", "Pinceles"], ["pinturas", "Pinturas"]], kitOcupado = false;
+  function kitUrl(k) { var u = P.kit && P.kit[k]; return typeof u === "string" && u.indexOf(AV.URL + "/storage/v1/object/public/") === 0 ? u : ""; }
+  async function guardaKit(k, url, aviso) {
+    if (kitOcupado) return;
+    var M = $("kit-msg"), n = Object.assign({}, P.kit || {}); M.textContent = "";
+    kitOcupado = true; [].forEach.call($("kit-fotos").querySelectorAll("button"), function (b) { b.disabled = true; });
+    try {
+      if (url === null) delete n[k]; else n[k] = await AV.subirFoto(url);
+      await guardaAjuste("kit_fotos", n);
+      P.kit = n; toast(aviso);
+    } catch (e) { if (e.status !== 401) M.textContent = e.amigable || (e.foto ? "No se pudo subir la foto. Inténtalo de nuevo." : AV.errorTxt(e)); }
+    kitOcupado = false; pintarKit();
+  }
+  function pintarKit() {
+    var L = $("kit-fotos"); L.textContent = "";
+    KIT.forEach(function (x) {
+      var k = x[0], u = kitUrl(k), f = el("div", "fotofila"), m = el("div", "miniatura"), a = el("div", "fotoacc"), inp = el("input");
+      f.style.marginBottom = "10px";
+      if (u) { var i = el("img"); i.src = u; i.alt = ""; m.appendChild(i); } else m.textContent = "Dibujo";
+      f.appendChild(m);
+      inp.type = "file"; inp.accept = "image/*"; inp.hidden = true; inp.id = "kit-" + k; inp.setAttribute("aria-label", "Foto de " + x[1]);
+      inp.onchange = function () { if (inp.files[0]) guardaKit(k, inp.files[0], "Foto guardada"); };
+      a.appendChild(el("div", "nm", x[1])); a.appendChild(inp);
+      var e = el("button", "btn o sm", u ? "Cambiar foto" : "Poner foto"); e.type = "button"; e.setAttribute("aria-label", (u ? "Cambiar foto de " : "Poner foto de ") + x[1]); e.onclick = function () { inp.click(); }; a.appendChild(e);
+      if (u) { var q = el("button", "btn o sm", "Quitar"); q.type = "button"; q.setAttribute("aria-label", "Quitar foto de " + x[1]); q.onclick = function () { guardaKit(k, null, "Foto quitada"); }; a.appendChild(q); }
+      f.appendChild(a); L.appendChild(f);
+    });
+  }
 
   /* ---------- listas: banners, tarjetas, descuentos ---------- */
   function boton(txt, titulo, fn, dis) {
