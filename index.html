@@ -128,7 +128,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 /* Promociones y Lo más vendido */
 #anuncios{padding-top:0}
 .bnr{position:relative;margin-bottom:clamp(1rem,2vw,1.5rem)}
-.bnr-s{min-height:clamp(260px,30vw,380px);display:flex;align-items:center;gap:clamp(1.5rem,4vw,4rem);padding:clamp(1.75rem,4vw,3.5rem) clamp(1.5rem,5vw,5rem) clamp(2.75rem,4.5vw,4rem);color:#fff;text-align:left}
+.bnr-s{min-height:clamp(200px,20vw,260px);display:flex;align-items:center;gap:clamp(1.5rem,4vw,4rem);padding:clamp(1.25rem,2.5vw,2.25rem) clamp(1.5rem,5vw,5rem) clamp(2.5rem,3.5vw,3rem);color:#fff;text-align:left}
 .bnr-s.osc{color:#141210}
 .bnr-t{flex:1;display:flex;flex-direction:column;align-items:flex-start}
 .bnr-t small{order:4;font-size:var(--t1);margin-top:1rem;opacity:.9}
@@ -136,7 +136,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 .bnr-s p{margin:.75rem 0 1.5rem;max-width:40ch}
 .bnr-s .btn{background:#f7f2e7;color:#141210;order:3}
 .bnr-s .btn:hover{background:#fff}
-.bnr-s img{width:auto;height:auto;max-width:min(60%,640px);max-height:min(72vh,560px);flex:none;display:block}
+.bnr-s img{width:auto;height:auto;max-width:min(60%,640px);max-height:min(46vh,320px);flex:none;display:block}
 .bnr-a{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.25);color:#fff;font-size:1.5rem;line-height:1;cursor:pointer;transition:background-color .2s}
 .bnr-a:hover{background:rgba(0,0,0,.45)}
 .bnr-a.pv{left:.75rem}.bnr-a.nx{right:.75rem}
@@ -425,8 +425,9 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 .kit-fila figure:nth-child(2) .kit-t{height:58vw}
 .kit-fila figure:nth-child(3) .kit-t{height:72vw}
 .bnr-a{display:none}
-.bnr-s{flex-direction:column-reverse;align-items:stretch;min-height:0;padding:1.5rem 1.25rem 3rem;gap:1.25rem}
-.bnr-s img{width:100%;max-width:none;max-height:none}
+.bnr-s{flex-direction:column-reverse;align-items:stretch;min-height:0;padding:1rem 1rem 2.25rem;gap:.85rem}
+.bnr-s img{width:100%;max-width:none;max-height:none;height:min(40vw,150px);object-fit:cover}
+.bnr-s h3{font-size:1.75rem}.bnr-s p{margin:.4rem 0 .85rem}.bnr-t small{margin-top:.6rem}
 .mv .item.card .btn{width:100%}
 .accbody{padding:0 1rem 1rem}
 .items.withimg,.items.szgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
