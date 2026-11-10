@@ -211,7 +211,7 @@
     if (S.value !== (item && item.categoria_id != null ? String(item.categoria_id) : "")) S.value = ""; // la categoría ya no existe
     $("dpr-c1").value = colorOk(item && item.color1, "#4f82c4"); $("dpr-c2").value = colorOk(item && item.color2, "#2f55a4");
     $("dpr-osc").checked = !!(item && item.letra_oscura); $("dpr-on").checked = item ? !!item.on : true; $("dpr-hasta").value = item && item.hasta || "";
-    $("dpr-fotobox").hidden = !b; $("dpr-foto").value = ""; fotoPrev();
+    $("dpr-foto").value = ""; fotoPrev();
     $("dpr-borrar").hidden = !item; $("d-promo").returnValue = ""; $("d-promo").showModal();
   }
   $("pr-nban").onclick = function () { abrirPromo("banners", null); };
@@ -244,7 +244,8 @@
       categoria_id: cat, enlace: (pe.item && pe.item.enlace) || "#tienda", color1: colorOk($("dpr-c1").value, "#4f82c4"), color2: colorOk($("dpr-c2").value, "#2f55a4"), letra_oscura: $("dpr-osc").checked, hasta: fe.v };
     B.disabled = true;
     try {
-      if (pe.tabla === "banners") {
+      // En tarjetas solo se manda foto_url si hay foto: así se pueden editar aunque falte correr etapa4-tarjeta-foto.sql.
+      if (pe.tabla === "banners" || pe.file || pe.quitar || (pe.item && pe.item.foto_url)) {
         var foto = pe.item ? pe.item.foto_url : null;
         if (pe.quitar) foto = null;
         if (pe.file) { try { foto = await AV.subirFoto(pe.file); } catch (er) { if (er.foto || er.amigable) { M.textContent = er.amigable || "No se pudo subir la foto. Inténtalo de nuevo o guarda sin foto."; B.disabled = false; return; } throw er; } pe.file = null; }

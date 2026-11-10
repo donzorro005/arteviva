@@ -148,6 +148,11 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 .tj:active{transform:scale(.98)}
 .tj.osc{color:#141210}
 .tj h3{font-size:var(--t4);line-height:1}.tj p{margin:.5rem 0 0}
+/* Tarjeta con foto: la foto entera (sin recortar sus letras) y el texto al lado sobre el color de la tarjeta, para que siempre se lea. En celular, la foto arriba. */
+.tj.fo{grid-column:1/-1;padding:0;display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);overflow:hidden}
+.tj.fo img{width:100%;height:auto;display:block;align-self:center}
+.tj-x{display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(1.5rem,3vw,2.25rem)}
+@media(max-width:700px){.tj.fo{grid-template-columns:1fr}}
 .mv{margin-top:clamp(3rem,6vw,5rem)}
 .mv h2{margin:0 0 clamp(1.5rem,3vw,2.5rem)}
 .mv .items.withimg{grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(1rem,2vw,1.5rem)}
@@ -704,8 +709,9 @@ if(B.length>1){[["pv","‹",-1,"Promoción anterior"],["nx","›",1,"Promoción 
 var dd=document.createElement("div");dd.className="bnr-d";B.forEach(function(x,i){var b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Ver promoción "+(i+1));b.onclick=function(){ver(i);auto()};dots.push(b);dd.appendChild(b)});w.appendChild(dd)}
 w.addEventListener("mouseenter",function(){quieto=true});w.addEventListener("mouseleave",function(){quieto=false});w.addEventListener("focusin",function(){quieto=true});w.addEventListener("focusout",function(){quieto=false});
 ver(0);auto();S.appendChild(w)}
-if(T.length){var g=document.createElement("div");g.className="tjs";T.forEach(function(x){var c=document.createElement("button");c.type="button";c.className="tj"+(x.osc?" osc":"");c.style.background=fondoPromo(x);
-var h=document.createElement("h3");h.textContent=x.t;c.appendChild(h);if(x.d){var p=document.createElement("p");p.textContent=x.d;c.appendChild(p)}c.onclick=function(){irA(x)};g.appendChild(c)});S.appendChild(g)}});
+if(T.length){var g=document.createElement("div");g.className="tjs";T.forEach(function(x){var c=document.createElement("button");c.type="button";c.className="tj"+(x.osc?" osc":"")+(x.foto?" fo":"");c.style.background=fondoPromo(x);
+var tx=c;if(x.foto){var im=document.createElement("img");im.src=x.foto;im.alt="";im.loading="lazy";c.appendChild(im);tx=document.createElement("span");tx.className="tj-x";c.appendChild(tx)}
+var h=document.createElement("h3");h.textContent=x.t;tx.appendChild(h);if(x.d){var p=document.createElement("p");p.textContent=x.d;tx.appendChild(p)}c.onclick=function(){irA(x)};g.appendChild(c)});S.appendChild(g)}});
 var MV=MAS_VENDIDOS.map(function(n){var r=PRODUCTS.filter(function(p){return p.n===n})[0];if(!r)CATS.forEach(function(C){C.g.forEach(function(g){if(g.sz)g.l.forEach(function(o){if(!r&&o.n===n)r=o})})});return r}).filter(Boolean);
 [].forEach.call(document.querySelectorAll(".mv-slot"),function(S){S.textContent="";if(!MV.length)return;var w=document.createElement("div");w.className="mv";var h=document.createElement("h2");h.textContent="Lo más vendido";w.appendChild(h);
 var it=document.createElement("div");it.className="items withimg";MV.forEach(function(o){it.appendChild(o.z?tarjetaTamanos(o):tarjetaProd(o))});w.appendChild(it);S.appendChild(w)});
