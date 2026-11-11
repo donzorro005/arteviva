@@ -112,12 +112,13 @@
     try { datos = await cargarDatos(); aviso(""); }
     catch (e) { if (e.status !== 401) aviso("No se pudieron cargar los datos. Revisa tu internet y recarga la página."); }
     try { if (window.AV && AV.resenas) await AV.resenas.contar(); } catch (e) {}
+    try { if (window.AV && AV.dash) await AV.dash.cargar(); } catch (e) {}
     pintarTodo();
     if (tiendaLista()) AV.tienda.cargar();
     if (window.AV && AV.visitas) AV.visitas.alMostrar();
   }
   function tiendaLista() { return window.AV && window.AV.tienda && !$("s-tienda").hidden; }
-  function pintarTodo() { pintarInicio(); pintarPedidos(); pintarGastos(); pintarCuentas(); }
+  function pintarTodo() { pintarInicio(); pintarPedidos(); pintarGastos(); pintarCuentas(); if (window.AV && AV.dash) AV.dash.pintarFijos(); }
 
   /* ---------- navegación ---------- */
   function mostrar(s) {
@@ -135,12 +136,17 @@
     var mes = mesHoy(), R = C.resumenMes(datos.pedidos, datos.gastos, mes, hoy());
     $("mes-txt").textContent = "Resumen de " + nomMes(mes);
     var K = $("kpis"); K.textContent = "";
-    [["v", "Ventas del mes", C.money(R.ventas), R.nVentas + (R.nVentas === 1 ? " venta" : " ventas")],
+    var cobrar = C.porCobrar(datos.pedidos), ant = C.resumenMes(datos.pedidos, datos.gastos, C.mesMas(mes, -1), hoy()), vr = C.variacion(R.ventas, ant.ventas);
+    var costos = window.AV && AV.dash ? AV.dash.costos() : null, G = costos ? C.gananciaReal(datos.pedidos, datos.gastos, mes, costos, AV.dash.totalFijos()) : null;
+    [["pr", "Por cobrar", C.money(cobrar.monto), cobrar.n + (cobrar.n === 1 ? " pedido pendiente" : " pedidos pendientes"), function () { verPendientes(); }],
+     ["v", "Ingresos del mes", C.money(R.ventas), (vr == null ? "" : (vr >= 0 ? "▲ " : "▼ ") + Math.abs(vr) + "% vs mes anterior · ") + R.nVentas + (R.nVentas === 1 ? " venta" : " ventas")],
      ["ga", "Gastos del mes", C.money(R.gastos), "materiales: " + C.money(R.materiales)],
-     ["gn", "Ganancia", C.money(R.ganancia), R.ventas ? "margen " + R.margen + "%" : "sin ventas aún"],
-     ["pr", "Proyección del mes", C.money(R.proyeccion), "si sigues al ritmo actual"]].forEach(function (k) {
-      var d = el("div", "k " + k[0]); d.appendChild(el("small", "", k[1])); d.appendChild(el("b", "", k[2])); d.appendChild(el("em", "", k[3])); K.appendChild(d);
+     G ? ["gn", "Ganancia real", C.money(G.ganancia), G.ventas ? "margen " + G.margen + "%" + (G.sinCosto.length || G.sinDetalle ? " · aproximada" : "") : "sin ventas aún"]
+       : ["gn", "Ganancia", C.money(R.ganancia), R.ventas ? "margen " + R.margen + "%" : "sin ventas aún"]].forEach(function (k) {
+      var d = el(k[4] ? "button" : "div", "k " + k[0]); d.appendChild(el("small", "", k[1])); d.appendChild(el("b", "", k[2])); d.appendChild(el("em", "", k[3]));
+      if (k[4]) { d.type = "button"; d.onclick = k[4]; } K.appendChild(d);
     });
+    if (window.AV && AV.dash) AV.dash.pintar();
     pintarGrafica(C.serieMeses(datos.pedidos, datos.gastos, mes, 6), R.proyeccion);
     pintarMapa();
     var P = $("pend"); P.textContent = "";
@@ -204,12 +210,15 @@
   }
 
   /* ---------- pedidos ---------- */
+  function ponFiltro(f) { filtro = f; [].forEach.call($("ped-filtro").children, function (x) { x.setAttribute("aria-pressed", x.dataset.f === f ? "true" : "false"); }); pintarPedidos(); }
+  function verPendientes() { ponFiltro("pendiente"); mostrar("pedidos"); }
+  function verPedido(id) { verPendientes(); var c = $("ped-" + id); if (c) c.scrollIntoView({ block: "center" }); }
   function pintarPedidos() {
     var L = $("ped-lista"); L.textContent = "";
     var lst = datos.pedidos.filter(function (p) { return filtro === "todos" || p.estado === filtro; });
     if (!lst.length) { L.appendChild(el("p", "vacio c", filtro === "pendiente" ? "No hay pedidos por confirmar." : "No hay pedidos aquí todavía.")); return; }
     lst.slice(0, 300).forEach(function (p) {
-      var c = el("article", "c ped"), top = el("div", "top");
+      var c = el("article", "c ped"), top = el("div", "top"); c.id = "ped-" + p.id;
       top.appendChild(el("span", "tag " + ({ pendiente: "t-pe", completado: "t-co", cancelado: "t-ca" })[p.estado], p.estado.charAt(0).toUpperCase() + p.estado.slice(1)));
       if (p.origen === "manual") top.appendChild(el("span", "tag t-ma", "A mano"));
       if (p.prueba) top.appendChild(el("span", "tag t-pr", "Prueba"));
@@ -221,6 +230,7 @@
       if (det) c.appendChild(el("span", "mu", det));
       if (p.direccion) c.appendChild(el("span", "mu", "Dirección: " + p.direccion));
       if (p.notas) c.appendChild(el("span", "mu", "Notas: " + p.notas));
+      if (p.fecha_entrega) c.appendChild(el("span", "mu", "Entrega: " + fechaCorta(p.fecha_entrega)));
       if (p.items && p.items.length) { var ul = el("ul"); p.items.forEach(function (i) { ul.appendChild(el("li", "", i.q + " x " + i.n + (i.t ? " · " + C.money(i.t) : ""))); }); c.appendChild(ul); }
       if (p.descuento) c.appendChild(el("span", "mu", "Descuento aplicado: −" + C.money(p.descuento)));
       if (p.monto_final != null && p.monto_final !== p.total) c.appendChild(el("span", "mu", "Total del carrito: " + C.money(p.total)));
@@ -228,6 +238,7 @@
       if (p.estado === "pendiente") {
         var bc = el("button", "btn gr sm", "Completar"); bc.onclick = function () { completar(p); }; acc.appendChild(bc);
         var bx = el("button", "btn o sm", "Cancelar"); bx.onclick = function () { cancelar(p); }; acc.appendChild(bx);
+        if (window.AV && AV.dash && !AV.dash.faltaSql()) { var bf = el("button", "btn o sm", "Fecha de entrega"); bf.onclick = function () { AV.dash.fechaEntrega(p); }; acc.appendChild(bf); }
       } else {
         var br = el("button", "btn o sm", "Volver a pendiente"); br.onclick = function () { cambiaEstado(p, { estado: "pendiente", monto_final: null, cerrado_en: null }, "Pedido devuelto a pendientes"); }; acc.appendChild(br);
       }
@@ -361,7 +372,7 @@
 
   /* ---------- arranque ---------- */
   // Herramientas para admin-tienda.js (catálogo): se carga después de este archivo y se registra en AV.tienda
-  window.AV = { api: api, toast: toast, confirma: confirma, el: el, hoy: hoy, URL: URL_, KEY: KEY, token: token, errorTxt: errorTxt, datos: function () { return datos; } };
+  window.AV = { api: api, toast: toast, confirma: confirma, el: el, hoy: hoy, URL: URL_, KEY: KEY, token: token, errorTxt: errorTxt, datos: function () { return datos; }, mostrar: mostrar, recargar: recargar, repintar: pintarTodo, verPedido: verPedido };
   C.PROVINCIAS.forEach(function (p) { $("dv-prov").appendChild(el("option", "", p)); });
   CATS.forEach(function (c) { $("dg-cat").appendChild(el("option", "", c)); });
   $("g-mes").value = mesHoy(); $("x-mes").value = mesHoy();

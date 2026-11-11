@@ -9,13 +9,18 @@
 
   /* ---------- utilidades ---------- */
   function fechaTxt(f) { var d = new Date(f); return isNaN(d) ? "" : d.toLocaleDateString("es-CR", { day: "numeric", month: "short", year: "numeric" }); }
-  function fotoOk(u) { return typeof u === "string" && /^https:\/\//i.test(u); }
+  // Solo fotos guardadas en este proyecto de Supabase (no se cargan enlaces de otros sitios).
+  function fotoOk(u) { return typeof u === "string" && u.indexOf(AV.URL + "/storage/v1/object/public/") === 0; }
   function enEspera(r) { return r.visible === false; }
-  // Ruta del archivo dentro del bucket «fotos», a partir de su dirección pública; null si no es de ese bucket.
+  // Ruta del archivo dentro del bucket «fotos» de este proyecto, a partir de su dirección pública.
+  // null si el enlace es de otro sitio, está roto o intenta salir de la carpeta: en esos casos no se toca el bucket.
   function rutaFoto(u) {
-    if (!u) return null;
-    var i = String(u).indexOf(RAIZ_FOTOS);
-    return i < 0 ? null : decodeURIComponent(String(u).slice(i + RAIZ_FOTOS.length).split("?")[0]);
+    var raiz = AV.URL + RAIZ_FOTOS;
+    if (typeof u !== "string" || u.indexOf(raiz) !== 0) return null;
+    var r;
+    try { r = decodeURIComponent(u.slice(raiz.length).split(/[?#]/)[0]); } catch (e) { return null; }
+    if (!r || !/^[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/.test(r) || r.split("/").some(function (s) { return s === "." || s === ".."; })) return null;
+    return r;
   }
 
   /* ---------- datos ---------- */
@@ -72,13 +77,25 @@
       await despues();
     } catch (e) { b.disabled = false; aviso(e, "aprobar"); }
   }
+  // Reseñas de antes de la etapa 3: ya publicadas, con la foto esperando aprobación.
+  async function aprobarFoto(x, b) {
+    b.disabled = true;
+    try {
+      var r = await api("/rest/v1/resenas?id=eq." + x.id, { method: "PATCH", body: { foto_aprobada: true }, prefer: "return=representation" });
+      if (!r || !r.length) throw Object.assign(new Error("sin fila"), { status: 404 });
+      toast("Foto aprobada: ya se ve en tu página");
+      await despues();
+    } catch (e) { b.disabled = false; aviso(e, "aprobar la foto"); }
+  }
   async function quitar(x, b, rechazo) {
     var tit = rechazo ? "¿Rechazar esta reseña?" : "¿Borrar esta reseña?";
     var txt = (x.nombre || "Sin nombre") + (x.foto_url ? " · se borra también su foto." : ".") + " No se puede deshacer.";
     if (!(await confirma(tit, txt))) return;
     b.disabled = true;
     try {
-      await borrarFoto(x.foto_url);
+      // si otra reseña usa la misma foto (por ejemplo, un spam que copió el enlace de una aprobada), la foto se queda
+      var compartida = R.some(function (y) { return y.id !== x.id && y.foto_url && y.foto_url === x.foto_url; });
+      if (!compartida) await borrarFoto(x.foto_url);
       await borrarFila(x.id);
       toast(rechazo ? "Reseña rechazada" : "Reseña borrada");
       await despues();
@@ -107,7 +124,10 @@
       var ba = el("button", "btn gr sm", "Aprobar"); ba.onclick = function () { aprobar(x, ba); }; acc.appendChild(ba);
       var br = el("button", "btn o sm", "Rechazar"); br.onclick = function () { quitar(x, br, true); }; acc.appendChild(br);
     } else {
-      if (x.foto_url && !x.foto_aprobada) c.appendChild(el("span", "mu", "La foto de esta reseña no está aprobada y no se muestra."));
+      if (x.foto_url && !x.foto_aprobada) {
+        c.appendChild(el("span", "mu", "La foto de esta reseña no está aprobada y no se muestra."));
+        var bf = el("button", "btn gr sm", "Aprobar foto"); bf.onclick = function () { aprobarFoto(x, bf); }; acc.appendChild(bf);
+      }
       var bb = el("button", "btn o sm", "Borrar"); bb.onclick = function () { quitar(x, bb, false); }; acc.appendChild(bb);
     }
     c.appendChild(acc);

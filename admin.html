@@ -67,6 +67,21 @@ main{padding:16px 0 30px}
 .k em{font-style:normal;font-size:.78rem;opacity:.92}
 .k.v{background:linear-gradient(135deg,#4f82c4,#2f55a4)}.k.ga{background:linear-gradient(135deg,#cf5c7c,#9e2a3b)}
 .k.gn{background:linear-gradient(135deg,#6f8a3a,#4f6a26)}.k.pr{background:linear-gradient(135deg,#e8b93f,#ee8a2e);color:var(--ink)}
+button.k{border:0;text-align:left;cursor:pointer;font:inherit;width:100%}
+.dash-av{margin-top:10px}.dash-av .btn{margin-left:6px}
+.dash-acc{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.dash-num{font:700 1.55rem/1.15 "Cormorant Garamond",Georgia,serif}
+.dash-bar{height:10px;border-radius:99px;background:rgba(239,233,219,.12);overflow:hidden;margin:6px 0 10px}.dash-bar i{display:block;height:100%;border-radius:99px}
+.dash-fila{display:flex;justify-content:space-between;gap:10px}.dash-fila span{overflow-wrap:anywhere}.dash-fila b{white-space:nowrap}
+.dash-h{font:600 .85rem Jost,sans-serif;margin:4px 0 6px}
+.dash-top{display:grid;gap:14px}@media(min-width:900px){.dash-top{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.dash-costo{width:96px;flex:none;margin:0}
+.dash-rango{min-height:0;padding:0;margin-top:10px;accent-color:var(--ye);background:none;border:0}
+.dash-res{margin-top:12px;padding:12px;border:1px solid var(--ln);border-radius:12px;display:grid;gap:6px;justify-items:stretch}.dash-res .tag{justify-self:start}
+.dash-total{font-size:1.15rem;border-top:1px solid var(--ln);padding-top:6px}
+.dash-fijo{display:grid;grid-template-columns:minmax(0,1fr) 104px auto;gap:6px;align-items:center;margin-bottom:6px}.dash-fijo input{margin:0}
+.fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:21;width:56px;height:56px;padding:0;font-size:1.7rem;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+@media(min-width:900px){.fab{display:none}}@media(max-width:899px){#b-mas-pc{display:none}}
 .dos{display:grid;gap:12px}
 @media(min-width:900px){.dos{grid-template-columns:1.3fr 1fr}}
 .lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;margin-bottom:6px}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
@@ -171,7 +186,7 @@ dialog{overflow-y:auto}
 <div id="app" hidden>
 <header class="top"><div class="wrap">
 <b>ARTE VIVA</b>
-<div class="der"><button class="btn o sm" id="b-actualizar" title="Traer los pedidos y gastos más recientes" aria-label="Actualizar">↻<span class="t"> Actualizar</span></button><a class="btn o sm" href="./" target="_blank" rel="noopener"><span class="t">Ver mi </span>página ↗</a><button class="btn o sm" id="b-salir">Salir</button></div>
+<div class="der"><button class="btn sm" id="b-mas-pc" type="button">+ Nuevo</button><button class="btn o sm" id="b-actualizar" title="Traer los pedidos y gastos más recientes" aria-label="Actualizar">↻<span class="t"> Actualizar</span></button><a class="btn o sm" href="./" target="_blank" rel="noopener"><span class="t">Ver mi </span>página ↗</a><button class="btn o sm" id="b-salir">Salir</button></div>
 </div></header>
 <nav class="tabs" aria-label="Secciones">
 <button data-s="inicio"><i style="background:var(--ye)"></i>Inicio</button>
@@ -180,6 +195,7 @@ dialog{overflow-y:auto}
 <button data-s="cuentas"><i style="background:var(--gr)"></i>Cuentas</button>
 <button data-s="tienda"><i style="background:var(--li)"></i>Tienda</button>
 </nav>
+<button class="btn fab" id="b-mas" type="button" aria-label="Agregar venta o gasto">+</button>
 
 <main class="wrap">
 <div class="aviso" id="aviso" role="status" hidden></div>
@@ -187,6 +203,11 @@ dialog{overflow-y:auto}
 <section id="s-inicio" data-sec>
 <div class="hd"><div><h1 id="saludo">¡Hola de nuevo!</h1><div class="mu" id="mes-txt"></div></div></div>
 <div class="kp" id="kpis"></div>
+<div class="aviso dash-av" id="dash-av" role="status" hidden></div>
+<div class="dos" style="margin-top:12px">
+<div class="c"><h3>Por despachar</h3><p class="s">Atrasados, hoy, mañana y los que aún no tienen fecha.</p><div id="dsp"></div></div>
+<div class="c"><h3>Meta del mes</h3><p class="s">Avance de tus ventas hacia la meta.</p><div id="meta"></div></div>
+</div>
 <div class="dos" style="margin-top:12px">
 <div class="c"><h3>Ventas y gastos</h3><p class="s">Últimos 6 meses. Punteado: proyección de este mes.</p>
 <div class="lg"><span><i style="background:var(--bl)"></i>Ventas</span><span><i style="background:var(--pk)"></i>Gastos</span><span><i style="background:var(--gr)"></i>Ganancia</span></div>
@@ -196,6 +217,14 @@ dialog{overflow-y:auto}
 <div id="mapa"></div><p class="mapinfo" id="mapinfo"></p></div>
 </div>
 <div class="c" style="margin-top:12px"><h3>Pendientes</h3><p class="s">Lo que necesita tu atención</p><div id="pend"></div></div>
+<div class="dos" style="margin-top:12px">
+<div class="c"><h3>Embudo de ventas</h3><p class="s">Este mes, de la visita a la venta.</p><div id="emb"></div></div>
+<div class="c"><h3>Tu tienda este mes</h3><p class="s">Cuánta gente la ve y cuánta compra.</p><div id="catm"></div></div>
+</div>
+<div class="c" style="margin-top:12px"><h3>Lo que más se vende</h3><p class="s">Productos y clientes del período.</p>
+<div class="chips" id="top-rango"><button data-r="mes" aria-pressed="true">Este mes</button><button data-r="tres" aria-pressed="false">3 meses</button><button data-r="anio" aria-pressed="false">Este año</button></div>
+<div class="dash-top" id="top"></div></div>
+<div class="c" style="margin-top:12px"><h3>Precios bajos</h3><p class="s">Productos con poco margen entre precio y costo.</p><div id="bajos"></div></div>
 </section>
 
 <section id="s-pedidos" data-sec hidden>
@@ -210,6 +239,7 @@ dialog{overflow-y:auto}
 <div class="hd"><h1>Gastos</h1><div style="display:flex;gap:8px;align-items:center"><input type="month" id="g-mes" aria-label="Mes" style="width:auto"><button class="btn" id="b-gasto">+ Agregar gasto</button></div></div>
 <div class="c" style="margin-bottom:12px"><h3>Total del mes</h3><div id="g-tot"></div></div>
 <div class="c"><div id="g-lista"></div></div>
+<div class="c" style="margin-top:12px"><h3>Costos fijos del mes</h3><p class="s">Lo que pagas todos los meses. Se restan solos de la ganancia real, así que no los anotes también como gasto.</p><div id="fijos"></div></div>
 </section>
 
 <section id="s-cuentas" data-sec hidden>
@@ -377,6 +407,72 @@ dialog{overflow-y:auto}
 <div class="botones"><button class="btn o" value="no">Volver</button><button class="btn pk" value="si">Sí</button></div>
 </form></dialog>
 
+<dialog id="d-mas"><form method="dialog">
+<h2>¿Qué quieres anotar?</h2>
+<div class="botones" style="flex-direction:column"><button class="btn" type="button" id="dmas-venta">Agregar venta</button><button class="btn" type="button" id="dmas-gasto">Agregar gasto</button><button class="btn o" value="no">Volver</button></div>
+</form></dialog>
+
+<dialog id="d-entrega"><form method="dialog" id="f-entrega" novalidate>
+<h2>Fecha de entrega</h2><p class="mu" id="de-txt"></p>
+<label for="de-fecha">Fecha</label><input id="de-fecha" type="date">
+<p class="msg" id="de-msg" role="alert"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn o" value="quitar" formnovalidate>Quitar fecha</button><button class="btn" value="si">Guardar</button></div>
+</form></dialog>
+
+<dialog id="d-meta"><form method="dialog" id="f-meta" novalidate>
+<h2>Meta y margen</h2>
+<label for="dm-meta">Meta de ventas del mes (₡)</label><input id="dm-meta" type="number" inputmode="numeric" min="0" step="1">
+<label for="dm-margen">Avisarme si el margen baja de (%)</label><input id="dm-margen" type="number" inputmode="numeric" min="0" max="100" step="1">
+<p class="msg" id="dm-msg" role="alert"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar</button></div>
+</form></dialog>
+
+<dialog id="d-fijos"><form method="dialog" id="f-fijos" novalidate>
+<h2>Costos fijos del mes</h2><p class="mu">Luz, internet u otros pagos que se repiten cada mes.</p>
+<div id="df-lista"></div>
+<button type="button" class="btn o sm" id="df-add">+ Agregar</button>
+<div class="dash-fila li" style="margin-top:10px"><span>Total mensual</span><b id="df-total"></b></div>
+<p class="msg" id="df-msg" role="alert"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar</button></div>
+</form></dialog>
+
+<dialog id="d-costeo"><form method="dialog" id="f-costeo" novalidate>
+<h2>Calcular un precio</h2>
+<label for="dk-prod">Producto</label><select id="dk-prod"></select>
+<p class="mu" id="dk-actual" style="margin:6px 0 0"></p>
+<div class="fila"><div><label for="dk-mat">Materiales (₡)</label><input id="dk-mat" type="number" inputmode="numeric" min="0" step="1"></div><div><label for="dk-min">Minutos por pieza</label><input id="dk-min" type="number" inputmode="numeric" min="0" step="1"></div></div>
+<label for="dk-horas">Horas que trabajas al mes</label><input id="dk-horas" type="number" inputmode="numeric" min="1" step="1">
+<h3 class="dash-h" style="margin-top:14px">Costos fijos que aplican</h3><div id="dk-fijos"></div>
+<p class="mu" id="dk-reparto" style="margin:6px 0 0"></p>
+<h3 class="dash-h" style="margin-top:14px">Gastos extras</h3><div id="dk-extras"></div>
+<button type="button" class="btn o sm" id="dk-add">+ Línea</button>
+<h3 class="dash-h" style="margin-top:14px">Precio de venta</h3>
+<div class="chips" id="dk-modo"><button type="button" data-m="pct" aria-pressed="true">% ganancia</button><button type="button" data-m="monto" aria-pressed="false">Monto</button><button type="button" data-m="precio" aria-pressed="false">Precio final</button></div>
+<label for="dk-valor" id="dk-valor-l">Margen de ganancia (%)</label><input id="dk-valor" type="number" inputmode="numeric" min="0" step="1">
+<input id="dk-rango" type="range" min="0" max="90" step="1" aria-label="Margen de ganancia" class="dash-rango">
+<div class="dash-res">
+<div class="dash-fila"><span>Materiales y extras</span><b id="dk-directo"></b></div>
+<div class="dash-fila"><span>Costos fijos de la pieza</span><b id="dk-fijo"></b></div>
+<div class="dash-fila"><span>Costo base</span><b id="dk-base"></b></div>
+<div class="dash-fila"><span>Ganancia</span><b id="dk-gan"></b></div>
+<div class="dash-fila"><span>Margen</span><b id="dk-margen"></b></div>
+<div class="dash-fila dash-total"><span>Precio por unidad</span><b id="dk-precio"></b></div>
+<span class="tag" id="dk-estado"></span>
+</div>
+<p class="mu">Al guardar se anotan solo materiales y extras como costo del producto. Los costos fijos ya se restan cada mes de la ganancia real.</p>
+<p class="msg" id="dk-msg" role="alert"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar costo</button></div>
+</form></dialog>
+
+<dialog id="d-costos"><form method="dialog">
+<h2>Costos de tus productos</h2><p class="mu" id="dco-info"></p>
+<label for="dco-buscar">Buscar</label><input id="dco-buscar" autocomplete="off">
+<label class="chk" style="margin-top:10px"><input type="checkbox" id="dco-solo"> Solo los que no tienen costo</label>
+<p class="msg" id="dco-msg" role="alert"></p>
+<div id="dco-lista"></div>
+<div class="botones"><button class="btn" value="no">Listo</button></div>
+</form></dialog>
+
 <div id="toast" role="status" hidden></div>
 
 <script src="supabase-config.js"></script>
@@ -384,6 +480,8 @@ dialog{overflow-y:auto}
 <script src="admin-calc.js"></script>
 <script src="cr-mapa.js"></script>
 <script src="admin.js"></script>
+<script src="admin-dash.js"></script>
+<script src="admin-costeo.js"></script>
 <script src="admin-tienda.js"></script>
 <script src="admin-promos.js"></script>
 <script src="admin-importar.js"></script>

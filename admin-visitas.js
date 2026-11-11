@@ -91,17 +91,23 @@
       f.appendChild(b); L.appendChild(f);
     });
   }
-  var qrHecho = false;
+  var qrHecho = false, qrEspera = 0;
   function qr() {
     if (qrHecho) return;
-    if (!window.qrcode) { $("vi-qr").textContent = "Cargando QR…"; return; }
+    $("vi-qr-baja").hidden = true;
+    if (!window.qrcode) { // el generador viene de internet (cdnjs); si no llega, se avisa en vez de quedar «cargando»
+      $("vi-qr").textContent = "Cargando QR…";
+      clearTimeout(qrEspera);
+      qrEspera = setTimeout(function () { if (!window.qrcode) $("vi-qr").textContent = "No se pudo cargar el QR. Revisa tu internet y vuelve a abrir esta sección."; else qr(); }, 8000);
+      return;
+    }
     var q = window.qrcode(0, "M"); q.addData(BASE + "?de=qr"); q.make();
     var n = q.getModuleCount(), cel = 10, margen = 4, lado = (n + margen * 2) * cel, cv = document.createElement("canvas");
     cv.width = lado; cv.height = lado; cv.setAttribute("role", "img"); cv.setAttribute("aria-label", "Código QR que lleva a " + BASE + "?de=qr");
     var g = cv.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, lado, lado); g.fillStyle = "#141210";
     for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) if (q.isDark(r, c)) g.fillRect((c + margen) * cel, (r + margen) * cel, cel, cel);
     cv.style.width = "220px"; var Q = $("vi-qr"); Q.textContent = ""; Q.appendChild(cv);
-    $("vi-qr-baja").href = cv.toDataURL("image/png");
+    $("vi-qr-baja").href = cv.toDataURL("image/png"); $("vi-qr-baja").hidden = false;
     qrHecho = true;
   }
 
