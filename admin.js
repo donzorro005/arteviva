@@ -2,6 +2,8 @@
    Habla con Supabase directo por fetch, igual que la página. Sesión guardada en este navegador. */
 (function () {
   "use strict";
+  // El panel no se deja abrir dentro de otra página: evita que engañen al dueño para hacer clic en algo que no ve.
+  if (window.top !== window.self) { document.body.textContent = "El panel no se puede abrir dentro de otra página."; throw new Error("panel dentro de otra página"); }
   var C = window.AVCalc, $ = function (i) { return document.getElementById(i); };
   var CFG = window.SUPA_CFG || {}, URL_ = String(CFG.url || "").trim().replace(/\/+$/, ""), KEY = String(CFG.key || "").trim();
   var CATS = ["Yeso", "Pinturas", "Pinceles", "Moldes", "Empaque", "Envíos", "Otros"];
@@ -397,12 +399,16 @@
   window.addEventListener("hashchange", function () { if (!$("app").hidden) mostrar(location.hash.slice(1)); });
 
   if (!URL_ || !KEY) { $("e-msg").textContent = "Falta supabase-config.js junto a admin.html."; $("b-entrar").disabled = true; return; }
-  var s = leeSes();
-  if (s && s.refresh_token) {
-    ses = s;
-    abrirPanel().catch(function (e) {
-      if (e.status === 0) { $("e-msg").textContent = "No se pudo conectar. Revisa tu internet y recarga la página."; return; } // se conserva la sesión
-      salir(e.message === "no admin" ? "Esta cuenta no tiene acceso al panel." : "Tu sesión venció. Vuelve a entrar.");
-    });
+  // Se arranca con todos los archivos del panel ya cargados: si no, los bloques que se registran después no pintarían.
+  function arrancar() {
+    var s = leeSes();
+    if (s && s.refresh_token) {
+      ses = s;
+      abrirPanel().catch(function (e) {
+        if (e.status === 0) { $("e-msg").textContent = "No se pudo conectar. Revisa tu internet y recarga la página."; return; } // se conserva la sesión
+        salir(e.message === "no admin" ? "Esta cuenta no tiene acceso al panel." : "Tu sesión venció. Vuelve a entrar.");
+      });
+    }
   }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
 })();
