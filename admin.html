@@ -84,6 +84,8 @@ button.k{border:0;text-align:left;cursor:pointer;font:inherit;width:100%}
 .dash-fijo{display:grid;grid-template-columns:minmax(0,1fr) 104px auto;gap:6px;align-items:center;margin-bottom:6px}.dash-fijo input{margin:0}
 .fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:21;width:56px;height:56px;padding:0;font-size:1.7rem;box-shadow:0 6px 18px rgba(0,0,0,.45)}
 @media(min-width:900px){.fab{display:none}}@media(max-width:899px){#b-mas-pc{display:none}}
+.k-periodo{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+#k-vistas{overflow-x:auto;flex-wrap:nowrap}#k-vistas button{white-space:nowrap;flex:none}
 .dos{display:grid;gap:12px}
 @media(min-width:900px){.dos{grid-template-columns:1.3fr 1fr}}
 .lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;margin-bottom:6px}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
@@ -193,8 +195,7 @@ dialog{overflow-y:auto}
 <nav class="tabs" aria-label="Secciones">
 <button data-s="inicio"><i style="background:var(--ye)"></i>Inicio</button>
 <button data-s="pedidos"><i style="background:var(--bl)"></i>Pedidos</button>
-<button data-s="gastos"><i style="background:var(--pk)"></i>Gastos</button>
-<button data-s="cuentas"><i style="background:var(--gr)"></i>Cuentas</button>
+<button data-s="conta"><i style="background:var(--gr)"></i>Contabilidad</button>
 <button data-s="tienda"><i style="background:var(--li)"></i>Tienda</button>
 </nav>
 <button class="btn fab" id="b-mas" type="button" aria-label="Agregar venta o gasto">+</button>
@@ -237,38 +238,38 @@ dialog{overflow-y:auto}
 <div class="g" id="ped-lista"></div>
 </section>
 
-<section id="s-gastos" data-sec hidden>
-<div class="hd"><h1>Gastos</h1><div style="display:flex;gap:8px;align-items:center"><input type="month" id="g-mes" aria-label="Mes" style="width:auto"><button class="btn" id="b-gasto">+ Agregar gasto</button></div></div>
-<div class="c" style="margin-bottom:12px"><h3>Total del mes</h3><div id="g-tot"></div></div>
-<div class="c"><div id="g-lista"></div></div>
-<div class="c" style="margin-top:12px"><h3>Costos fijos del mes</h3><p class="s">Lo que pagas todos los meses. Se restan solos de la ganancia real, así que no los anotes también como gasto.</p><div id="fijos"></div></div>
-</section>
-
-<section id="s-cuentas" data-sec hidden>
-<div class="hd"><h1>Cuentas</h1><div class="chips" id="c-vistas" style="margin:0"><button data-v="mes" aria-pressed="true">Por mes</button><button data-v="vis" aria-pressed="false">Visitas</button></div></div>
-<div id="c-v-mes">
-<div style="margin-bottom:10px"><select id="c-anio" aria-label="Año" style="width:auto"></select></div>
+<section id="s-conta" data-sec hidden>
+<div class="hd"><h1>Contabilidad</h1></div>
+<div class="aviso" id="k-aviso" role="status" hidden></div>
+<div class="chips" id="k-vistas"><button data-v="resumen" aria-pressed="true">Resumen</button><button data-v="ventas" aria-pressed="false">Ventas</button><button data-v="gastos" aria-pressed="false">Gastos</button><button data-v="pagar" aria-pressed="false">Por pagar</button><button data-v="planilla" aria-pressed="false">Planilla</button><button data-v="reportes" aria-pressed="false">Reportes</button><button data-v="ajustes" aria-pressed="false">Ajustes</button></div>
+<div id="k-periodo" class="k-periodo"><div class="chips" id="k-rango" style="margin:0"><button data-r="mes" aria-pressed="true">Mes</button><button data-r="anio" aria-pressed="false">Año</button></div><input type="month" id="k-mes" aria-label="Mes" style="width:auto"><select id="k-anio" aria-label="Año" style="width:auto" hidden></select></div>
+<div id="k-resumen"><div class="kp" id="k-kpis"></div><div class="aviso dash-av" id="k-compras" role="status" hidden></div>
+<div class="c" style="margin-top:12px"><h3>Gastos por tipo</h3><div id="k-tipos"></div></div></div>
+<div id="k-ventas" hidden><div class="hd"><b id="k-vtot"></b><button class="btn" id="k-venta" type="button">+ Agregar venta</button></div><div class="c"><div id="k-vlista"></div></div></div>
+<div id="k-gastos" hidden><div class="hd"><div class="k-periodo" style="margin:0"><select id="g-tipo" aria-label="Filtrar por tipo" style="width:auto"><option value="">Todos los tipos</option><option value="variable">Variables</option><option value="fijo">Fijos</option><option value="salario">Salarios</option><option value="otro">Otros</option></select><select id="g-cat" aria-label="Filtrar por categoría" style="width:auto"></select></div><button class="btn" id="b-gasto">+ Agregar gasto</button></div>
+<div class="c" style="margin-bottom:12px"><h3>Total</h3><div id="g-tot"></div></div><div class="c"><div id="g-lista"></div></div></div>
+<div id="k-pagar" hidden><div class="c"><h3>Por pagar</h3><p class="s">Toca «Pagado» cuando lo pagues; puedes ajustar el monto real.</p><div id="k-plista"></div><div id="k-omit" style="margin-top:8px"></div></div>
+<div class="c" style="margin-top:12px"><h3>Pagos que se repiten</h3><p class="s">Luz, internet, alquiler y otros costos fijos.</p><div id="k-comps"></div><button class="btn o sm" id="k-comp-add" type="button" style="margin-top:8px">+ Agregar pago</button></div></div>
+<div id="k-planilla" hidden><div class="c"><h3>Personas</h3><p class="s">Marca «En planilla» solo a quien tenga cargas sociales.</p><div id="k-gente"></div><button class="btn o sm" id="k-gente-add" type="button" style="margin-top:8px">+ Agregar persona</button></div>
+<div class="c" style="margin-top:12px"><h3>Inscrito como patrono desde</h3><p class="s">Déjalo vacío hasta inscribirte en la CCSS. Solo cuenta desde esa fecha.</p><input type="date" id="kp-patrono" aria-label="Fecha de inscripción como patrono"><p class="msg" id="kp-msg" role="alert"></p></div>
+<div class="c" style="margin-top:12px"><h3>Este mes</h3><div id="k-cargas"></div></div></div>
+<div id="k-reportes" hidden><div style="margin-bottom:10px"><select id="c-anio" aria-label="Año" style="width:auto"></select></div>
 <div class="c scroll"><div id="c-tabla"></div></div>
-<div class="c" style="margin-top:12px"><h3>Descargar en Excel</h3><p class="s">Hojas: Resumen por mes, Ventas y Gastos.</p>
+<div class="c" style="margin-top:12px"><h3>Descargar en Excel</h3><p class="s">Hojas: Resumen por mes, Ventas, Gastos, Planilla e IVA, para llevarle al contador.</p>
 <div class="fila"><div><label for="x-rango">Rango</label><select id="x-rango"><option value="mes">Este mes</option><option value="unmes">Un mes…</option><option value="anio">Este año</option><option value="todo">Todo</option></select></div>
 <div id="x-mesbox" hidden><label for="x-mes">Mes</label><input type="month" id="x-mes"></div></div>
 <div class="botones" style="justify-content:flex-start"><button class="btn gr" id="b-excel">Descargar Excel</button></div></div>
 </div>
-<div id="c-v-vis" hidden>
-<div class="chips" id="vi-modo"><button data-m="dia" aria-pressed="false">Por día</button><button data-m="semana" aria-pressed="false">Por semana</button><button data-m="mes" aria-pressed="true">Por mes</button></div>
-<div class="c"><h3 id="vi-tit">Visitas por mes</h3><p class="s">Una visita por persona y por sesión. Sin cookies ni datos personales.</p>
-<div class="lg"><span><i style="background:var(--pk)"></i>Instagram</span><span><i style="background:var(--bl)"></i>Facebook</span><span><i style="background:var(--ye)"></i>QR</span><span><i style="background:var(--gr)"></i>Otros</span></div>
-<div id="vi-graf"></div><div id="vi-tot" class="chips" style="margin:10px 0 0"></div></div>
-<div class="c" style="margin-top:12px"><h3 id="vi-mes-tit">Este mes</h3><p class="s">Cuántas visitas terminaron en compra por la tienda.</p><div class="kp" id="vi-kpis"></div></div>
-<div class="c" style="margin-top:12px"><h3>Tus enlaces</h3><p class="s">Usa uno distinto en cada lugar para saber de dónde llegan.</p><div id="vi-links"></div></div>
-<div class="c" style="margin-top:12px"><h3>QR para imprimir</h3><p class="s">Lleva a tu página y cuenta como «QR». Ponlo en tus paquetes y volantes.</p>
-<div id="vi-qr" style="background:#fff;border-radius:12px;padding:12px;width:max-content;max-width:100%"></div>
-<div class="botones" style="justify-content:flex-start"><a class="btn" id="vi-qr-baja" download="ARTEVIVA-QR.png">Descargar QR</a></div></div>
-</div>
+<div id="k-ajustes" hidden><div class="c"><h3>Categorías de gasto</h3><p class="s">«Va en el costo del producto» quiere decir que no se resta otra vez de la ganancia real.</p><div id="k-cats"></div><button class="btn o sm" id="k-cat-add" type="button" style="margin-top:8px">+ Agregar categoría</button></div>
+<div class="c" style="margin-top:12px"><h3>Porcentajes</h3><p class="s">CCSS 2026 según KPMG Costa Rica. Confírmalos con tu contador o en la CCSS. La póliza del INS depende de tu contrato.</p>
+<div class="fila"><div><label for="kt-ccss_patronal">CCSS patronal (%)</label><input id="kt-ccss_patronal" type="number" step="0.01" min="0" max="100"></div><div><label for="kt-ccss_trabajador">CCSS trabajador (%)</label><input id="kt-ccss_trabajador" type="number" step="0.01" min="0" max="100"></div></div>
+<div class="fila"><div><label for="kt-ins">Póliza INS (%)</label><input id="kt-ins" type="number" step="0.01" min="0" max="100"></div><div><label for="kt-aguinaldo">Aguinaldo (%)</label><input id="kt-aguinaldo" type="number" step="0.01" min="0" max="100"></div></div>
+<label for="kt-vacaciones">Vacaciones (%)</label><input id="kt-vacaciones" type="number" step="0.01" min="0" max="100">
+<p class="msg" id="kt-msg" role="alert"></p><div class="botones" style="justify-content:flex-start"><button class="btn" id="kt-guardar" type="button">Guardar porcentajes</button></div></div></div>
 </section>
 
 <section id="s-tienda" data-sec hidden>
-<div class="hd"><h1>Tienda</h1><div class="chips" id="t-vistas" style="margin:0"><button data-v="prod" aria-pressed="true">Productos</button><button data-v="promo" aria-pressed="false">Promociones</button><button data-v="res" aria-pressed="false">Reseñas</button></div></div>
+<div class="hd"><h1>Tienda</h1><div class="chips" id="t-vistas" style="margin:0"><button data-v="prod" aria-pressed="true">Productos</button><button data-v="promo" aria-pressed="false">Promociones</button><button data-v="res" aria-pressed="false">Reseñas</button><button data-v="vis" aria-pressed="false">Visitas</button></div></div>
 <div id="t-v-prod">
 <div class="c" id="im-card" style="margin-bottom:12px" hidden><h3>Importar mi catálogo actual</h3><p class="s" id="im-ayuda">Carga en el panel los productos, fotos y promociones que hoy tiene la página. Se hace una sola vez; si se corta, vuelve a tocar el botón y continúa sin duplicar nada.</p>
 <div class="botones" style="justify-content:flex-start"><button class="btn" id="im-ir" type="button">Importar mi catálogo actual</button></div>
@@ -307,6 +308,17 @@ dialog{overflow-y:auto}
 <p class="msg" id="mv-msg" role="alert"></p>
 <div class="botones"><button class="btn" id="mv-ok" type="button">Guardar</button></div></div>
 </div>
+<div id="t-v-vis" hidden>
+<div class="chips" id="vi-modo"><button data-m="dia" aria-pressed="false">Por día</button><button data-m="semana" aria-pressed="false">Por semana</button><button data-m="mes" aria-pressed="true">Por mes</button></div>
+<div class="c"><h3 id="vi-tit">Visitas por mes</h3><p class="s">Una visita por persona y por sesión. Sin cookies ni datos personales.</p>
+<div class="lg"><span><i style="background:var(--pk)"></i>Instagram</span><span><i style="background:var(--bl)"></i>Facebook</span><span><i style="background:var(--ye)"></i>QR</span><span><i style="background:var(--gr)"></i>Otros</span></div>
+<div id="vi-graf"></div><div id="vi-tot" class="chips" style="margin:10px 0 0"></div></div>
+<div class="c" style="margin-top:12px"><h3 id="vi-mes-tit">Este mes</h3><p class="s">Cuántas visitas terminaron en compra por la tienda.</p><div class="kp" id="vi-kpis"></div></div>
+<div class="c" style="margin-top:12px"><h3>Tus enlaces</h3><p class="s">Usa uno distinto en cada lugar para saber de dónde llegan.</p><div id="vi-links"></div></div>
+<div class="c" style="margin-top:12px"><h3>QR para imprimir</h3><p class="s">Lleva a tu página y cuenta como «QR». Ponlo en tus paquetes y volantes.</p>
+<div id="vi-qr" style="background:#fff;border-radius:12px;padding:12px;width:max-content;max-width:100%"></div>
+<div class="botones" style="justify-content:flex-start"><a class="btn" id="vi-qr-baja" download="ARTEVIVA-QR.png">Descargar QR</a></div></div>
+</div>
 </section>
 </main>
 </div>
@@ -319,10 +331,11 @@ dialog{overflow-y:auto}
 </form></dialog>
 
 <dialog id="d-venta"><form method="dialog" id="f-venta">
-<h2>Agregar venta</h2><p class="mu" style="margin:0">Para ventas que no pasaron por la página.</p>
+<h2 id="dv-tit">Agregar venta</h2><p class="mu" style="margin:0">Para ventas que no pasaron por la página.</p>
 <div class="fila"><div><label for="dv-fecha">Fecha</label><input id="dv-fecha" type="date" required></div><div><label for="dv-monto">Monto (₡)</label><input id="dv-monto" type="number" inputmode="numeric" min="1" step="1" required></div></div>
 <label for="dv-nombre">Cliente (opcional)</label><input id="dv-nombre" maxlength="80">
 <label for="dv-prov">Provincia (opcional)</label><select id="dv-prov"><option value="">Sin provincia</option></select>
+<label for="dv-pago">Forma de pago</label><select id="dv-pago"><option value="">Sin indicar</option><option>Efectivo</option><option>SINPE</option><option>Transferencia</option></select>
 <label for="dv-items">Productos (opcional, uno por línea)</label><textarea id="dv-items" rows="3" placeholder="2 x Figura: Sol&#10;1 x Paquete de relajación: Flores"></textarea>
 <p class="msg" id="dv-msg"></p>
 <div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar venta</button></div>
@@ -332,7 +345,8 @@ dialog{overflow-y:auto}
 <h2 id="dg-tit">Agregar gasto</h2>
 <div class="fila"><div><label for="dg-fecha">Fecha</label><input id="dg-fecha" type="date" required></div><div><label for="dg-monto">Monto (₡)</label><input id="dg-monto" type="number" inputmode="numeric" min="1" step="1" required></div></div>
 <label for="dg-desc">Descripción</label><input id="dg-desc" maxlength="200" required placeholder="Yeso 10 kg">
-<label for="dg-cat">Categoría</label><select id="dg-cat"></select>
+<div class="fila"><div><label for="dg-tipo">Tipo</label><select id="dg-tipo"><option value="variable">Variable</option><option value="fijo">Fijo</option><option value="salario">Salario</option><option value="otro">Otro</option></select></div><div><label for="dg-cat">Categoría</label><select id="dg-cat"></select></div></div>
+<div class="fila"><div><label for="dg-factura">N.º de factura (opcional)</label><input id="dg-factura" maxlength="60" autocomplete="off"></div><div><label for="dg-iva">IVA pagado (₡, opcional)</label><input id="dg-iva" type="number" inputmode="numeric" min="0" step="1"></div></div>
 <p class="msg" id="dg-msg"></p>
 <div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar</button></div>
 </form></dialog>
@@ -429,13 +443,32 @@ dialog{overflow-y:auto}
 <div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar</button></div>
 </form></dialog>
 
-<dialog id="d-fijos"><form method="dialog" id="f-fijos" novalidate>
-<h2>Costos fijos del mes</h2><p class="mu">Luz, internet u otros pagos que se repiten cada mes.</p>
-<div id="df-lista"></div>
-<button type="button" class="btn o sm" id="df-add">+ Agregar</button>
-<div class="dash-fila li" style="margin-top:10px"><span>Total mensual</span><b id="df-total"></b></div>
-<p class="msg" id="df-msg" role="alert"></p>
-<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn" value="si">Guardar</button></div>
+<dialog id="d-pagado"><form method="dialog" id="f-pagado" novalidate>
+<h2 id="dpa-tit"></h2><p class="mu" id="dpa-sub"></p>
+<div class="fila"><div><label for="dpa-fecha">Fecha de pago</label><input id="dpa-fecha" type="date"></div><div><label for="dpa-monto" id="dpa-monto-l">Monto real (₡)</label><input id="dpa-monto" type="number" inputmode="numeric" min="1" step="1"></div></div>
+<p class="mu" id="dpa-nota"></p><p class="msg" id="dpa-msg" role="alert"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn o" value="omitir" id="dpa-omitir" formnovalidate>Omitir este período</button><button class="btn gr" value="si">Pagado</button></div>
+</form></dialog>
+
+<dialog id="d-comp"><form method="dialog" id="f-comp" novalidate>
+<h2 id="dc2-tit"></h2>
+<label for="dc2-nombre">Nombre</label><input id="dc2-nombre" maxlength="60" autocomplete="off">
+<div class="fila"><div><label for="dc2-tipo">Tipo</label><select id="dc2-tipo"><option value="fijo">Costo fijo</option><option value="salario">Salario</option></select></div><div><label for="dc2-monto">Monto (₡)</label><input id="dc2-monto" type="number" inputmode="numeric" min="1" step="1"></div></div>
+<div class="fila"><div><label for="dc2-frec">Cada cuánto</label><select id="dc2-frec"><option value="mensual">Mensual</option><option value="quincenal">Quincenal</option></select></div><div><label for="dc2-cat">Categoría</label><select id="dc2-cat"></select></div></div>
+<div class="fila"><div><label for="dc2-desde">Empieza en</label><input id="dc2-desde" type="month"></div><div id="dc2-qbox"><label for="dc2-q">Quincena</label><select id="dc2-q"><option value="Q1">Primera</option><option value="Q2">Segunda</option></select></div></div>
+<div id="dc2-planbox"><label class="chk" style="margin-top:10px"><input type="checkbox" id="dc2-plan"> En planilla (lleva CCSS y aguinaldo)</label></div>
+<p class="mu" id="dc2-nota"></p><p class="msg" id="dc2-msg" role="alert"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn o" value="off" id="dc2-off" formnovalidate>Desactivar</button><button class="btn" value="si">Guardar</button></div>
+</form></dialog>
+
+<dialog id="d-cat"><form method="dialog" id="f-cat" novalidate>
+<h2 id="dcg-tit"></h2>
+<label for="dcg-nombre">Nombre</label><input id="dcg-nombre" maxlength="60" autocomplete="off">
+<label for="dcg-tipo">Tipo</label><select id="dcg-tipo"><option value="variable">Variable</option><option value="fijo">Fijo</option><option value="salario">Salario</option><option value="otro">Otro</option></select>
+<label class="chk" style="margin-top:10px"><input type="checkbox" id="dcg-costo"> Va en el costo del producto</label>
+<label class="chk"><input type="checkbox" id="dcg-activo"> Activa</label>
+<p class="msg" id="dcg-msg" role="alert"></p>
+<div class="botones"><button class="btn o" value="no" formnovalidate>Volver</button><button class="btn pk" value="borrar" id="dcg-borrar" formnovalidate>Borrar</button><button class="btn" value="si">Guardar</button></div>
 </form></dialog>
 
 <dialog id="d-costeo"><form method="dialog" id="f-costeo" novalidate>
@@ -482,6 +515,8 @@ dialog{overflow-y:auto}
 <script src="admin-calc.js"></script>
 <script src="cr-mapa.js"></script>
 <script src="admin.js"></script>
+<script src="admin-conta.js"></script>
+<script src="admin-conta-pagos.js"></script>
 <script src="admin-dash.js"></script>
 <script src="admin-costeo.js"></script>
 <script src="admin-tienda.js"></script>

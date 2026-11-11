@@ -3,7 +3,7 @@
 (function () {
   "use strict";
   var C = window.AVCalc, AV = window.AV, el = AV.el, api = AV.api, $ = function (i) { return document.getElementById(i); };
-  var E = { costos: {}, ajustes: { meta: 0, margen: 20 }, fijos: [], visitas: [], catalogo: [], faltaSql: false, cargado: false, errores: {} }, periodoTop = "mes";
+  var E = { costos: {}, ajustes: { meta: 0, margen: 20 }, visitas: [], catalogo: [], faltaSql: false, cargado: false, errores: {} }, periodoTop = "mes";
 
   function mesHoy() { return AV.hoy().slice(0, 7); }
   function plural(n, uno, varios) { return n + " " + (n === 1 ? uno : varios); }
@@ -34,7 +34,7 @@
     if (r[0]) { E.costos = {}; r[0].forEach(function (x) { E.costos[x.clave] = x.costo; }); }
     if (r[1]) {
       var aj = function (k) { return (r[1].filter(function (x) { return x.clave === k; })[0] || {}).valor; };
-      E.ajustes = Object.assign({ meta: 0, margen: 20 }, aj("panel")); E.fijos = aj("fijos") || [];
+      E.ajustes = Object.assign({ meta: 0, margen: 20 }, aj("panel"));
     }
     if (r[2]) E.visitas = r[2];
     if (r[3]) E.catalogo = aplanar(r[3]);
@@ -47,7 +47,7 @@
     var D = AV.datos();
     pintarAviso(D); pintarDespacho(D); pintarMeta(D); pintarEmbudo(D); pintarCatalogo(D); pintarTop(D); pintarBajos();
   }
-  function gananciaMes(D) { return C.gananciaReal(D.pedidos, D.gastos, mesHoy(), E.costos, C.totalFijos(E.fijos)); }
+  function gananciaMes(D) { return C.gananciaReal(D.pedidos, D.gastos, mesHoy(), E.costos, AV.conta.categoriasOk(), AV.conta.provision(mesHoy())); }
   function pintarAviso(D) {
     var A = $("dash-av"); A.textContent = ""; A.hidden = true;
     if (E.faltaSql) { A.hidden = false; A.textContent = "Para ver la ganancia real, la meta y las fechas de entrega, falta correr supabase/etapa5-panel.sql en Supabase."; return; }
@@ -115,7 +115,7 @@
   function pintarEmbudo(D) {
     var L = $("emb"), R = C.embudo(E.visitas, D.pedidos, mesHoy()); L.textContent = "";
     if (E.errores.visitas) { L.appendChild(el("p", "vacio", "No se pudieron cargar las visitas.")); return; }
-    if (!R.visitas && !R.pedidos) { vacio(L, "Todavía no hay visitas ni pedidos este mes. Comparte tu tienda.", "Ver mis enlaces", function () { AV.mostrar("cuentas"); }); return; }
+    if (!R.visitas && !R.pedidos) { vacio(L, "Todavía no hay visitas ni pedidos este mes. Comparte tu tienda.", "Ver mis enlaces", function () { AV.mostrar("tienda"); AV.visitas.abrir(); }); return; }
     var max = Math.max(R.visitas, R.tienda, R.pedidos, R.completados, 1);
     [["Visitas", R.visitas, null, "var(--li)"], ["Entraron a la tienda", R.tienda, null, "var(--bl)"], ["Pedidos", R.pedidos, R.montoPedidos, "var(--ye)"], ["Completados", R.completados, R.montoCompletados, "var(--gr)"]].forEach(function (x) {
       var f = el("div", "dash-emb"), t = el("div", "dash-fila"); t.appendChild(el("span", "", x[0])); t.appendChild(el("b", "", x[1] + (x[2] != null ? " · " + C.money(x[2]) : ""))); f.appendChild(t);
@@ -129,7 +129,7 @@
     [["Visitas", R.visitas], ["Clics a WhatsApp", R.whatsapp], ["Ventas desde la tienda", R.ventas], ["% que compró", R.conversion == null ? "—" : R.conversion + "%"]].forEach(function (x) {
       var l = el("div", "dash-fila li"); l.appendChild(el("span", "", x[0])); l.appendChild(el("b", "", String(x[1]))); L.appendChild(l);
     });
-    var b = el("button", "btn o sm", "Ver detalle"); b.type = "button"; b.style.marginTop = "8px"; b.onclick = function () { AV.mostrar("cuentas"); }; L.appendChild(b);
+    var b = el("button", "btn o sm", "Ver detalle"); b.type = "button"; b.style.marginTop = "8px"; b.onclick = function () { AV.mostrar("tienda"); AV.visitas.abrir(); }; L.appendChild(b);
   }
 
   function rangoTop() {
@@ -201,52 +201,7 @@
     } catch (er) { if (er.status !== 401) M.textContent = AV.errorTxt(er); }
   }
 
-  /* ---------- costos fijos del mes ---------- */
-  function pintarFijos() {
-    var L = $("fijos"); L.textContent = "";
-    if (!E.cargado) { L.appendChild(el("p", "vacio", "Cargando…")); return; }
-    if (E.faltaSql) { L.appendChild(el("p", "vacio", "Falta correr supabase/etapa5-panel.sql en Supabase.")); return; }
-    if (!E.fijos.length) { vacio(L, "Anota lo que pagas todos los meses, como luz, internet o alquiler.", "Agregar costos fijos", abrirFijos); return; }
-    E.fijos.forEach(function (f) { var l = el("div", "dash-fila li"); l.appendChild(el("span", "", f.n)); l.appendChild(el("b", "", C.money(f.monto) + " /mes")); L.appendChild(l); });
-    var t = el("div", "dash-fila li"); t.appendChild(el("b", "", "Total mensual")); t.appendChild(el("b", "", C.money(C.totalFijos(E.fijos)))); L.appendChild(t);
-    var b = el("button", "btn o sm", "Editar"); b.type = "button"; b.style.marginTop = "8px"; b.onclick = abrirFijos; L.appendChild(b);
-  }
-  function filaFijo(f) {
-    var r = el("div", "dash-fijo"), n = el("input"), m = el("input"), x = el("button", "ico", "✕");
-    n.maxLength = 60; n.placeholder = "Luz, internet, alquiler…"; n.autocomplete = "off"; n.setAttribute("aria-label", "Nombre del costo fijo"); n.value = f ? f.n : "";
-    m.type = "number"; m.min = "0"; m.step = "1"; m.inputMode = "numeric"; m.placeholder = "₡"; m.setAttribute("aria-label", "Monto por mes"); m.value = f ? f.monto : "";
-    n.oninput = m.oninput = totalDialogo;
-    x.type = "button"; x.title = "Quitar"; x.setAttribute("aria-label", "Quitar este costo fijo"); x.onclick = function () { r.remove(); totalDialogo(); };
-    r.appendChild(n); r.appendChild(m); r.appendChild(x); $("df-lista").appendChild(r);
-    return n;
-  }
-  function totalDialogo() {
-    var t = 0; [].forEach.call($("df-lista").children, function (r) { t += Math.round(+r.children[1].value) || 0; });
-    $("df-total").textContent = C.money(t);
-  }
-  function abrirFijos() {
-    if (E.faltaSql) { AV.toast("Falta correr supabase/etapa5-panel.sql en Supabase."); return; }
-    $("df-lista").textContent = ""; $("df-msg").textContent = "";
-    E.fijos.forEach(filaFijo); if (!E.fijos.length) filaFijo(null);
-    totalDialogo(); var D = $("d-fijos"); D.returnValue = ""; D.showModal();
-  }
-  async function guardarFijos(e) {
-    if (e.submitter && e.submitter.value === "no") return; e.preventDefault();
-    var M = $("df-msg"), lista = [], mal = false; M.textContent = "";
-    [].forEach.call($("df-lista").children, function (r) {
-      var n = r.children[0].value.trim(), t = r.children[1].value.trim(), v = Math.round(+t);
-      if (!n && !t) return;
-      if (!n || !t || !(v >= 0)) { mal = true; return; }
-      lista.push({ n: n, monto: v });
-    });
-    if (mal) { M.textContent = "Cada costo fijo necesita nombre y monto."; return; }
-    try { await api("/rest/v1/panel_ajustes", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: { clave: "fijos", valor: lista } }); E.fijos = lista; $("d-fijos").close(); AV.toast("Costos fijos guardados"); AV.repintar(); }
-    catch (er) { if (er.status !== 401) M.textContent = faltaTabla(er) ? "Falta correr supabase/etapa5-panel.sql en Supabase." : AV.errorTxt(er); }
-  }
-
   /* ---------- arranque ---------- */
-  $("f-fijos").addEventListener("submit", guardarFijos);
-  $("df-add").onclick = function () { filaFijo(null).focus(); };
   $("f-meta").addEventListener("submit", guardarMeta);
   $("dco-buscar").oninput = pintarCostos; $("dco-solo").onchange = pintarCostos;
   $("d-costos").addEventListener("close", function () { AV.repintar(); });
@@ -256,8 +211,8 @@
   $("dmas-venta").onclick = function () { $("d-mas").close(); $("b-venta").click(); };
   $("dmas-gasto").onclick = function () { $("d-mas").close(); $("b-gasto").click(); };
 
-  AV.dash = { cargar: cargar, pintar: pintar, costos: function () { return E.faltaSql || !E.cargado ? null : E.costos; }, fechaEntrega: fechaEntrega, faltaSql: function () { return E.faltaSql; }, totalFijos: function () { return C.totalFijos(E.fijos); }, pintarFijos: pintarFijos,
-    catalogo: function () { return E.catalogo; }, costosMapa: function () { return E.costos; }, fijos: function () { return E.fijos; }, ajustes: function () { return E.ajustes; },
+  AV.dash = { cargar: cargar, pintar: pintar, costos: function () { return E.faltaSql || !E.cargado ? null : E.costos; }, fechaEntrega: fechaEntrega, faltaSql: function () { return E.faltaSql; }, 
+    catalogo: function () { return E.catalogo; }, costosMapa: function () { return E.costos; }, fijos: function () { return AV.conta.fijos(); }, ajustes: function () { return E.ajustes; },
     guardarCosto: async function (n, v) { await api("/rest/v1/costos", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: { clave: n, costo: v, actualizado: new Date().toISOString() } }); E.costos[n] = v; },
     guardarAjustes: async function (c) { var v = Object.assign({}, E.ajustes, c); await api("/rest/v1/panel_ajustes", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: { clave: "panel", valor: v } }); E.ajustes = v; } };
 })();

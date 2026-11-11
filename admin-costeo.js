@@ -55,7 +55,7 @@
     if (nombre) S.value = nombre;
     $("dk-horas").value = AV.dash.ajustes().horas || 160; $("dk-min").value = ""; $("dk-extras").textContent = "";
     var F = $("dk-fijos"); F.textContent = "";
-    if (!AV.dash.fijos().length) F.appendChild(el("p", "mu", "Aún no tienes costos fijos. Anótalos en Gastos."));
+    if (!AV.dash.fijos().length) F.appendChild(el("p", "mu", "Aún no tienes costos fijos. Anótalos en Contabilidad → Por pagar."));
     AV.dash.fijos().forEach(function (f) {
       var l = el("label", "chk dash-fila"), iz = el("span"), c = el("input"); c.type = "checkbox"; c.checked = true; c.dataset.monto = f.monto; c.onchange = pintar;
       iz.appendChild(c); iz.appendChild(document.createTextNode(" " + f.n)); l.appendChild(iz); l.appendChild(el("b", "", C.money(f.monto) + " /mes")); F.appendChild(l);

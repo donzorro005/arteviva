@@ -151,7 +151,7 @@
     if (on) {
       vista = "res";
       [].forEach.call(chips.children, function (b) { b.setAttribute("aria-pressed", b === chipRes ? "true" : "false"); });
-      $("t-v-prod").hidden = true; $("t-v-promo").hidden = true;
+      $("t-v-prod").hidden = true; $("t-v-promo").hidden = true; $("t-v-vis").hidden = true;
       cargar();
     } else vista = "otra";
   }

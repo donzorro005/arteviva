@@ -111,17 +111,16 @@
     qrHecho = true;
   }
 
-  /* ---------- vistas de Cuentas: Por mes | Visitas ---------- */
-  function ponerVista(v) {
-    vista = v;
-    [].forEach.call($("c-vistas").children, function (b) { b.setAttribute("aria-pressed", b.dataset.v === v ? "true" : "false"); });
-    $("c-v-mes").hidden = v !== "mes"; $("c-v-vis").hidden = v !== "vis";
-    if (v === "vis") { enlaces(); qr(); cargar(); }
+  /* ---------- cuarta vista de Tienda: Visitas ---------- */
+  var chips = $("t-vistas"), chipVis = chips.querySelector('[data-v="vis"]');
+  function ponerVista(on) {
+    vista = on ? "vis" : "otra"; $("t-v-vis").hidden = !on;
+    if (on) { [].forEach.call(chips.children, function (b) { b.setAttribute("aria-pressed", b === chipVis ? "true" : "false"); }); $("t-v-prod").hidden = true; $("t-v-promo").hidden = true; $("t-v-res").hidden = true; enlaces(); qr(); cargar(); }
   }
-  [].forEach.call($("c-vistas").children, function (b) { b.onclick = function () { ponerVista(b.dataset.v); }; });
+  [].forEach.call(chips.children, function (b) { b.addEventListener("click", function () { ponerVista(b === chipVis); }); });
   [].forEach.call($("vi-modo").children, function (b) {
     b.onclick = function () { modo = b.dataset.m; [].forEach.call($("vi-modo").children, function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); if (hay) pintar(); };
   });
   window.addEventListener("load", function () { if (vista === "vis") qr(); });
-  AV.visitas = { alMostrar: function () { if (!$("s-cuentas").hidden && vista === "vis") { qr(); cargar(); } }, abrir: function () { ponerVista("vis"); } };
+  AV.visitas = { alMostrar: function () { if (!$("s-tienda").hidden && vista === "vis") { qr(); cargar(); } }, abrir: function () { ponerVista(true); } };
 })();

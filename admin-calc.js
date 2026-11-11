@@ -65,10 +65,10 @@
       return [p.fecha, p.nombre || "", p.provincia || "", p.origen === "manual" ? "A mano" : "Tienda",
         (p.items || []).map(function (i) { return i.q + " x " + i.n; }).join(", "), p.total || 0, montoVenta(p)];
     }));
-    var gastosF = [["Fecha", "Descripción", "Categoría", "Monto"]].concat(gs.map(function (g) { return [g.fecha, g.descripcion, g.categoria, g.monto]; }));
+    var gastosF = [["Fecha", "Descripción", "Tipo", "Categoría", "Monto", "N.º de factura", "IVA pagado", "Anotó"]].concat(gs.map(function (g) { return [g.fecha, g.descripcion, g.tipo || "", g.categoria, g.monto, g.factura || "", g.iva || 0, g.registrado_por || ""]; }));
     var meses = [], m = mesDe(desde);
     while (m <= mesDe(hasta)) { meses.push(m); m = mesMas(m, 1); }
-    var resumen = [["Mes", "Ventas", "Gastos", "Materiales", "Ganancia", "Margen %", "Ventas (n)"]].concat(meses.map(function (mm) {
+    var resumen = [["Mes", "Ventas", "Gastos", "Materiales", "Ventas menos gastos", "Margen %", "Ventas (n)"]].concat(meses.map(function (mm) {
       var r = resumenMes(ps, gs, mm, mm + "-01");
       return [mm, r.ventas, r.gastos, r.materiales, r.ganancia, r.margen, r.nVentas];
     }));
@@ -120,8 +120,8 @@
   }
 
   // Las compras de materiales ya están en el costo de cada producto: aquí solo se restan los demás gastos, para no contarlas dos veces.
-  function gananciaReal(pedidos, gastos, mes, costos, fijos) {
-    var r = { ventas: 0, costoVendido: 0, operativos: 0, fijos: fijos || 0, ganancia: 0, margen: 0, sinCosto: [], sinDetalle: 0 }, faltan = {};
+  function gananciaReal(pedidos, gastos, mes, costos, categorias, provision) {
+    var r = { ventas: 0, costoVendido: 0, operativos: 0, provision: provision || 0, ganancia: 0, margen: 0, sinCosto: [], sinDetalle: 0 }, faltan = {};
     pedidos.forEach(function (p) {
       if (!esVenta(p) || mesDe(p.fecha) !== mes) return;
       r.ventas += montoVenta(p);
@@ -131,9 +131,13 @@
         if (costos[b] != null) r.costoVendido += costos[b] * (i.q || 1); else faltan[b] = true;
       });
     });
-    gastos.forEach(function (g) { if (mesDe(g.fecha) === mes && GASTOS_OPERATIVOS.indexOf(g.categoria) > -1) r.operativos += g.monto; });
+    var enCosto = {}; (categorias || []).forEach(function (c) { enCosto[c.nombre] = c.en_costo; });
+    gastos.forEach(function (g) {
+      if (mesDe(g.fecha) !== mes) return;
+      if (categorias ? !enCosto[g.categoria] : GASTOS_OPERATIVOS.indexOf(g.categoria) > -1) r.operativos += g.monto;
+    });
     r.sinCosto = Object.keys(faltan).sort();
-    r.ganancia = r.ventas - r.costoVendido - r.operativos - r.fijos;
+    r.ganancia = r.ventas - r.costoVendido - r.operativos - r.provision;
     r.margen = r.ventas ? Math.round(r.ganancia / r.ventas * 100) : 0;
     return r;
   }
@@ -185,6 +189,72 @@
     return r;
   }
 
+  /* ---------- contabilidad ---------- */
+  // Períodos: "AAAA-MM" (mensual), "AAAA-MM-Q1" (días 1 a 15) y "AAAA-MM-Q2" (16 a fin de mes).
+  function periodoDeFecha(fecha, frecuencia) {
+    var f = String(fecha).slice(0, 10), m = f.slice(0, 7);
+    return frecuencia === "quincenal" ? m + (+f.slice(8, 10) <= 15 ? "-Q1" : "-Q2") : m;
+  }
+  function periodosEntre(desde, hasta, frecuencia) {
+    var quin = frecuencia === "quincenal", norm_ = function (x, fin) { x = String(x); return quin ? (x.length === 7 ? x + (fin ? "-Q2" : "-Q1") : x) : x.slice(0, 7); };
+    var d = norm_(desde, false), h = norm_(hasta, true), l = [], m = d.slice(0, 7);
+    for (; m <= h.slice(0, 7); m = mesMas(m, 1)) (quin ? [m + "-Q1", m + "-Q2"] : [m]).forEach(function (p) { if (p >= d && p <= h) l.push(p); });
+    return l;
+  }
+  function porPagar(compromisos, pagos, omisiones, hoy) {
+    var hechos = {}, l = [], marca = function (x) { hechos[x.compromiso_id + "|" + x.periodo] = true; };
+    pagos.forEach(marca); omisiones.forEach(marca);
+    compromisos.forEach(function (c) {
+      if (!c.activo && !c.hasta) return;
+      var actual = periodoDeFecha(hoy, c.frecuencia), fin = c.hasta && c.hasta < actual ? c.hasta : actual;
+      periodosEntre(c.desde, fin, c.frecuencia).forEach(function (p) { if (!hechos[c.id + "|" + p]) l.push({ compromiso: c, periodo: p, atrasado: p < actual }); });
+    });
+    return l.sort(function (a, b) { return a.periodo < b.periodo ? -1 : a.periodo > b.periodo ? 1 : a.compromiso.id - b.compromiso.id; });
+  }
+  function planilla(bruto, tasas) {
+    var t = tasas || {}, pct = function (k) { return Math.round(bruto * (+t[k] || 0) / 100); }, r = { bruto: bruto, ccssPatronal: pct("ccss_patronal"), ccssTrabajador: pct("ccss_trabajador"), ins: pct("ins"), aguinaldo: pct("aguinaldo"), vacaciones: pct("vacaciones") };
+    r.neto = bruto - r.ccssTrabajador; r.costo = bruto + r.ccssPatronal + r.ins;
+    return r;
+  }
+  // Salarios en planilla del mes, período por período: lo pagado vale lo que se pagó, lo omitido no cuenta y lo demás usa el salario actual.
+  function brutoMes(compromisos, mes, pagos, omisiones) {
+    var pago = {}, omit = {};
+    (pagos || []).forEach(function (p) { pago[p.compromiso_id + "|" + p.periodo] = p.monto; });
+    (omisiones || []).forEach(function (o) { omit[o.compromiso_id + "|" + o.periodo] = true; });
+    return compromisos.reduce(function (t, c) {
+      if (c.tipo !== "salario" || !c.en_planilla || (!c.activo && !c.hasta)) return t;
+      var fin = c.hasta && String(c.hasta).slice(0, 7) <= mes ? c.hasta : mes;
+      periodosEntre(c.desde, fin, c.frecuencia).forEach(function (p) {
+        var k = c.id + "|" + p;
+        if (p.slice(0, 7) === mes && !omit[k]) t += pago[k] != null ? pago[k] : c.monto;
+      });
+      return t;
+    }, 0);
+  }
+  function provisionAguinaldo(compromisos, mes, tasas, pagos, omisiones) { return planilla(brutoMes(compromisos, mes, pagos, omisiones), tasas).aguinaldo; }
+  // Lo pagado de aguinaldo que supera lo apartado en los 12 meses anteriores (por ejemplo, tiempo trabajado antes de usar el panel) sí se resta.
+  function aguinaldoExcedente(gastos, compromisos, mes, tasas, pagos, omisiones) {
+    var pagado = gastos.reduce(function (t, g) { return t + (mesDe(g.fecha) === mes && g.categoria === "Aguinaldo pagado" ? g.monto : 0); }, 0), apartado = 0;
+    if (!pagado) return 0;
+    for (var d = 0; d < 12; d++) apartado += provisionAguinaldo(compromisos, mesMas(mes, -d), tasas, pagos, omisiones);
+    return Math.max(0, pagado - apartado);
+  }
+  function cargasDelMes(compromisos, mes, tasas, patronoDesde, pagos, omisiones) {
+    var P = planilla(brutoMes(compromisos, mes, pagos, omisiones), tasas);
+    return { bruto: P.bruto, ccssPatronal: P.ccssPatronal, ccssTrabajador: P.ccssTrabajador, ccss: P.ccssPatronal + P.ccssTrabajador, ins: P.ins, estimado: !patronoDesde || mes < String(patronoDesde).slice(0, 7) };
+  }
+  // Lo que se paga a la CCSS incluye la parte del trabajador, que ya se contó dentro del salario bruto.
+  function gastoCcss(totalPagado, ccssTrabajador) { return Math.max(0, totalPagado - ccssTrabajador); }
+  function comprasVsCargado(gastos, pedidos, mes, costos, categorias) {
+    var mat = {}; categorias.forEach(function (c) { if (c.en_costo && c.tipo === "variable") mat[c.nombre] = true; });
+    return { comprado: gastos.reduce(function (t, g) { return t + (mesDe(g.fecha) === mes && mat[g.categoria] ? g.monto : 0); }, 0), cargado: gananciaReal(pedidos, [], mes, costos, categorias).costoVendido };
+  }
+  // Mientras los precios no incluyan IVA, lo cobrado es cero.
+  function resumenIva(gastos, desde, hasta) {
+    var filas = gastos.filter(function (g) { var f = String(g.fecha).slice(0, 10); return f >= desde && f <= hasta; });
+    return { pagado: filas.reduce(function (t, g) { return t + (g.iva || 0); }, 0), cobrado: 0, filas: filas };
+  }
+
   function top(pedidos, desde, hasta, costos, n) {
     var prods = {}, clientes = {};
     pedidos.forEach(function (p) {
@@ -206,7 +276,7 @@
     };
   }
 
-  return { nombreBase: nombreBase, variacion: variacion, porCobrar: porCobrar, gananciaReal: gananciaReal, totalFijos: totalFijos, costeo: costeo, metaProgreso: metaProgreso, preciosBajos: preciosBajos, porDespachar: porDespachar, embudo: embudo, top: top, diaMas: diaMas,
+  return { nombreBase: nombreBase, variacion: variacion, porCobrar: porCobrar, gananciaReal: gananciaReal, totalFijos: totalFijos, costeo: costeo, periodoDeFecha: periodoDeFecha, periodosEntre: periodosEntre, porPagar: porPagar, planilla: planilla, provisionAguinaldo: provisionAguinaldo, aguinaldoExcedente: aguinaldoExcedente, cargasDelMes: cargasDelMes, gastoCcss: gastoCcss, comprasVsCargado: comprasVsCargado, resumenIva: resumenIva, metaProgreso: metaProgreso, preciosBajos: preciosBajos, porDespachar: porDespachar, embudo: embudo, top: top, diaMas: diaMas,
     ORIGENES: ORIGENES, visitasPor: visitasPor, resumenVisitasMes: resumenVisitasMes, lunesDe: lunesDe,
     PROVINCIAS: PROVINCIAS, MATERIALES: MATERIALES, money: money, montoVenta: montoVenta, esVenta: esVenta,
     mesMas: mesMas, diasMes: diasMes, resumenMes: resumenMes, serieMeses: serieMeses, porProvincia: porProvincia, filasExcel: filasExcel };

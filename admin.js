@@ -63,6 +63,7 @@
     var txt = await r.text(); // al guardar con return=minimal Supabase responde 201 sin contenido
     return txt ? JSON.parse(txt) : null;
   }
+  function correo() { return ses && ses.email || null; }
   function errorTxt(e) { return e && e.status === 0 ? "No se pudo conectar. Revisa tu internet." : "No se pudo guardar. Inténtalo de nuevo."; }
 
   /* ---------- entrar y salir ---------- */
@@ -114,17 +115,19 @@
     try { datos = await cargarDatos(); aviso(""); }
     catch (e) { if (e.status !== 401) aviso("No se pudieron cargar los datos. Revisa tu internet y recarga la página."); }
     try { if (window.AV && AV.resenas) await AV.resenas.contar(); } catch (e) {}
+    try { if (window.AV && AV.conta) await AV.conta.cargar(); } catch (e) {}
     try { if (window.AV && AV.dash) await AV.dash.cargar(); } catch (e) {}
     pintarTodo();
     if (tiendaLista()) AV.tienda.cargar();
     if (window.AV && AV.visitas) AV.visitas.alMostrar();
   }
   function tiendaLista() { return window.AV && window.AV.tienda && !$("s-tienda").hidden; }
-  function pintarTodo() { pintarInicio(); pintarPedidos(); pintarGastos(); pintarCuentas(); if (window.AV && AV.dash) AV.dash.pintarFijos(); }
+  function pintarTodo() { pintarInicio(); pintarPedidos(); pintarGastos(); pintarCuentas(); if (window.AV && AV.conta) AV.conta.pintar(); }
 
   /* ---------- navegación ---------- */
   function mostrar(s) {
-    if (["inicio", "pedidos", "gastos", "cuentas", "tienda"].indexOf(s) < 0) s = "inicio";
+    if (s === "gastos" || s === "cuentas") { var sub = s === "gastos" ? "gastos" : "reportes"; s = "conta"; if (window.AV && AV.conta) AV.conta.ponerVista(sub); }
+    if (["inicio", "pedidos", "conta", "tienda"].indexOf(s) < 0) s = "inicio";
     [].forEach.call(document.querySelectorAll("[data-sec]"), function (x) { x.hidden = x.id !== "s-" + s; });
     [].forEach.call(document.querySelectorAll("nav.tabs button"), function (b) { if (b.dataset.s === s) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     if (location.hash !== "#" + s) history.replaceState(null, "", "#" + s);
@@ -139,7 +142,7 @@
     $("mes-txt").textContent = "Resumen de " + nomMes(mes);
     var K = $("kpis"); K.textContent = "";
     var cobrar = C.porCobrar(datos.pedidos), ant = C.resumenMes(datos.pedidos, datos.gastos, C.mesMas(mes, -1), hoy()), vr = C.variacion(R.ventas, ant.ventas);
-    var costos = window.AV && AV.dash ? AV.dash.costos() : null, G = costos ? C.gananciaReal(datos.pedidos, datos.gastos, mes, costos, AV.dash.totalFijos()) : null;
+    var costos = window.AV && AV.dash ? AV.dash.costos() : null, G = costos ? C.gananciaReal(datos.pedidos, datos.gastos, mes, costos, AV.conta.categoriasOk(), AV.conta.provision(mes)) : null;
     [["pr", "Por cobrar", C.money(cobrar.monto), cobrar.n + (cobrar.n === 1 ? " pedido pendiente" : " pedidos pendientes"), function () { verPendientes(); }],
      ["v", "Ingresos del mes", C.money(R.ventas), (vr == null ? "" : (vr >= 0 ? "▲ " : "▼ ") + Math.abs(vr) + "% vs mes anterior · ") + R.nVentas + (R.nVentas === 1 ? " venta" : " ventas")],
      ["ga", "Gastos del mes", C.money(R.gastos), "materiales: " + C.money(R.materiales)],
@@ -270,33 +273,51 @@
       var m = l.match(/^(\d+)\s*[x×]\s*(.+)$/i); return m ? { n: m[2].trim().slice(0, 120), q: Math.min(999, +m[1]), p: 0, t: 0 } : { n: l.slice(0, 120), q: 1, p: 0, t: 0 };
     });
   }
+  var vEdit = null;
   function guardarVentaManual(v) {
-    return api("/rest/v1/pedidos", { method: "POST", prefer: "return=minimal", body: { origen: "manual", estado: "completado", fecha: v.fecha, total: v.monto, nombre: v.nombre || null, provincia: v.provincia || null, items: v.items || [], cerrado_en: new Date().toISOString() } });
+    var cuerpo = { fecha: v.fecha, total: v.monto, nombre: v.nombre || null, provincia: v.provincia || null, items: v.items || [], pago: v.pago || null };
+    if (!v.id && window.AV && AV.conta && !AV.conta.faltaSql()) cuerpo.registrado_por = correo();
+    if (v.id) { cuerpo.monto_final = null; return api("/rest/v1/pedidos?id=eq." + v.id, { method: "PATCH", prefer: "return=minimal", body: cuerpo }); }
+    return api("/rest/v1/pedidos", { method: "POST", prefer: "return=minimal", body: Object.assign(cuerpo, { origen: "manual", estado: "completado", cerrado_en: new Date().toISOString() }) });
   }
-  function abrirVenta() {
-    var D = $("d-venta"); $("f-venta").reset(); $("dv-fecha").value = hoy(); $("dv-msg").textContent = "";
+  function abrirVenta(p) {
+    if (p && p.origen !== "manual") return; // las de la tienda no se editan: conservan lo que pidió el cliente
+    vEdit = p || null; var D = $("d-venta"); $("f-venta").reset(); $("dv-msg").textContent = ""; $("dv-tit").textContent = p ? "Editar venta" : "Agregar venta";
+    $("dv-fecha").value = p ? String(p.fecha).slice(0, 10) : hoy(); $("dv-monto").value = p ? C.montoVenta(p) : ""; $("dv-nombre").value = p && p.nombre || ""; $("dv-prov").value = p && p.provincia || ""; $("dv-pago").value = p && p.pago || "";
+    $("dv-items").value = p ? (p.items || []).map(function (i) { return i.q + " x " + i.n; }).join("\n") : "";
     D.returnValue = ""; D.showModal();
+  }
+  async function borrarVenta(p) {
+    if (p.origen !== "manual" || !(await confirma("¿Borrar esta venta?", (p.nombre || "Sin nombre") + " · " + C.money(C.montoVenta(p)) + ". No se puede deshacer."))) return;
+    try { await api("/rest/v1/pedidos?id=eq." + p.id, { method: "DELETE", prefer: "return=minimal" }); toast("Venta borrada"); await recargar(); } catch (e) { if (e.status !== 401) toast(errorTxt(e)); }
   }
   $("f-venta").addEventListener("submit", async function (e) {
     if (e.submitter && e.submitter.value !== "si") return;
     e.preventDefault();
     var monto = Math.round(+$("dv-monto").value), fecha = $("dv-fecha").value;
     if (!fecha || !(monto > 0)) { $("dv-msg").textContent = "La fecha y un monto mayor a cero son obligatorios."; return; }
-    try { await guardarVentaManual({ fecha: fecha, monto: monto, nombre: $("dv-nombre").value.trim(), provincia: $("dv-prov").value, items: leerItems($("dv-items").value) }); $("d-venta").close(); toast("Venta guardada"); await recargar(); }
+    try { await guardarVentaManual({ id: vEdit && vEdit.id, fecha: fecha, monto: monto, nombre: $("dv-nombre").value.trim(), provincia: $("dv-prov").value, pago: $("dv-pago").value, items: leerItems($("dv-items").value) }); $("d-venta").close(); toast(vEdit ? "Venta actualizada" : "Venta guardada"); await recargar(); }
     catch (er) { if (er.status !== 401) $("dv-msg").textContent = errorTxt(er); }
   });
 
   /* ---------- gastos ---------- */
   var gEdit = null;
+  function catsGasto() { var c = window.AV && AV.conta && AV.conta.categoriasOk(); return c || CATS.map(function (n) { return { nombre: n, tipo: n === "Otros" ? "otro" : "variable", activo: true }; }); }
+  function llenarFiltroCat() {
+    var S = $("g-cat"), v = S.value, t = $("g-tipo").value; S.textContent = ""; var o0 = el("option", "", "Todas las categorías"); o0.value = ""; S.appendChild(o0);
+    catsGasto().forEach(function (c) { if (!t || c.tipo === t) { var o = el("option", "", c.nombre); o.value = c.nombre; S.appendChild(o); } }); S.value = v; if (S.value !== v) S.value = "";
+  }
   function pintarGastos() {
-    var mes = $("g-mes").value || mesHoy(), lst = datos.gastos.filter(function (g) { return String(g.fecha).slice(0, 7) === mes; });
+    llenarFiltroCat();
+    var R = window.AV && AV.conta ? AV.conta.rango() : { desde: mesHoy() + "-01", hasta: mesHoy() + "-31", etiqueta: nomMes(mesHoy()) }, tipo = $("g-tipo").value, cat = $("g-cat").value;
+    var lst = datos.gastos.filter(function (g) { var f = String(g.fecha).slice(0, 10); return f >= R.desde && f <= R.hasta && (!tipo || (g.tipo || "otro") === tipo) && (!cat || g.categoria === cat); });
     var T = $("g-tot"), L = $("g-lista"); T.textContent = ""; L.textContent = "";
     var tot = 0, porCat = {}; lst.forEach(function (g) { tot += g.monto; porCat[g.categoria] = (porCat[g.categoria] || 0) + g.monto; });
     T.appendChild(el("b", "", C.money(tot))); T.firstChild.style.font = "700 1.6rem 'Cormorant Garamond',Georgia,serif";
     var cs = el("div", "chips"); cs.style.margin = "8px 0 0"; Object.keys(porCat).forEach(function (k) { cs.appendChild(el("span", "tag t-ma", k + " " + C.money(porCat[k]))); }); T.appendChild(cs);
-    if (!lst.length) { L.appendChild(el("p", "vacio", "No hay gastos en " + nomMes(mes) + ".")); return; }
+    if (!lst.length) { L.appendChild(el("p", "vacio", "No hay gastos en " + R.etiqueta + ".")); return; }
     lst.forEach(function (g) {
-      var l = el("div", "li"), iz = el("div"); iz.appendChild(el("b", "", g.descripcion)); iz.appendChild(el("div", "mu", fechaCorta(g.fecha) + " · " + g.categoria));
+      var l = el("div", "li"), iz = el("div"); iz.appendChild(el("b", "", g.descripcion)); iz.appendChild(el("div", "mu", [fechaCorta(g.fecha), g.categoria, g.factura ? "Factura " + g.factura : "", g.iva ? "IVA " + C.money(g.iva) : "", g.registrado_por ? "Anotó " + g.registrado_por : ""].filter(Boolean).join(" · ")));
       var de = el("div"); de.style.cssText = "display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end";
       de.appendChild(el("b", "", C.money(g.monto)));
       var be = el("button", "btn o sm", "Editar"); be.onclick = function () { abrirGasto(g); }; de.appendChild(be);
@@ -306,13 +327,20 @@
   }
   function guardarGasto(g) {
     var cuerpo = { fecha: g.fecha, descripcion: g.descripcion, categoria: g.categoria, monto: g.monto };
+    if (window.AV && AV.conta && !AV.conta.faltaSql()) { cuerpo.tipo = g.tipo; cuerpo.factura = g.factura || null; cuerpo.iva = g.iva == null ? null : g.iva; if (!g.id) cuerpo.registrado_por = correo(); }
     return g.id ? api("/rest/v1/gastos?id=eq." + g.id, { method: "PATCH", body: cuerpo, prefer: "return=minimal" }) : api("/rest/v1/gastos", { method: "POST", body: cuerpo, prefer: "return=minimal" });
   }
   function borrarGasto(id) { return api("/rest/v1/gastos?id=eq." + id, { method: "DELETE", prefer: "return=minimal" }); }
+  function llenarCatGasto(actual) {
+    var S = $("dg-cat"), t = $("dg-tipo").value; S.textContent = "";
+    catsGasto().forEach(function (c) { if ((c.activo || c.nombre === actual) && c.tipo === t) S.appendChild(el("option", "", c.nombre)); });
+    if (actual && ![].some.call(S.options, function (o) { return o.value === actual; })) S.appendChild(el("option", "", actual)); // categoría que ya no existe: no se pierde al editar
+    if (actual) S.value = actual;
+  }
   function abrirGasto(g) {
     gEdit = g || null; $("f-gasto").reset(); $("dg-msg").textContent = "";
     $("dg-tit").textContent = g ? "Editar gasto" : "Agregar gasto";
-    $("dg-fecha").value = g ? g.fecha : hoy(); $("dg-monto").value = g ? g.monto : ""; $("dg-desc").value = g ? g.descripcion : ""; $("dg-cat").value = g ? g.categoria : "Yeso";
+    $("dg-fecha").value = g ? g.fecha : hoy(); $("dg-monto").value = g ? g.monto : ""; $("dg-desc").value = g ? g.descripcion : ""; $("dg-tipo").value = g && g.tipo || "variable"; llenarCatGasto(g ? g.categoria : ""); $("dg-factura").value = g && g.factura || ""; $("dg-iva").value = g && g.iva != null ? g.iva : "";
     var D = $("d-gasto"); D.returnValue = ""; D.showModal();
   }
   async function borrarGastoUI(g) {
@@ -322,13 +350,15 @@
   $("f-gasto").addEventListener("submit", async function (e) {
     if (e.submitter && e.submitter.value !== "si") return;
     e.preventDefault();
-    var g = { id: gEdit && gEdit.id, fecha: $("dg-fecha").value, monto: Math.round(+$("dg-monto").value), descripcion: $("dg-desc").value.trim(), categoria: $("dg-cat").value };
-    if (!g.fecha || !(g.monto > 0) || !g.descripcion) { $("dg-msg").textContent = "Fecha, descripción y un monto mayor a cero son obligatorios."; return; }
-    try { await guardarGasto(g); $("d-gasto").close(); toast(g.id ? "Gasto actualizado" : "Gasto guardado"); $("g-mes").value = g.fecha.slice(0, 7); await recargar(); }
+    var iva = $("dg-iva").value.trim(), g = { id: gEdit && gEdit.id, fecha: $("dg-fecha").value, monto: Math.round(+$("dg-monto").value), descripcion: $("dg-desc").value.trim(), categoria: $("dg-cat").value, tipo: $("dg-tipo").value, factura: $("dg-factura").value.trim(), iva: iva === "" ? null : Math.round(+iva) };
+    if (!g.fecha || !(g.monto > 0) || !g.descripcion || !g.categoria) { $("dg-msg").textContent = "Fecha, descripción, categoría y un monto mayor a cero son obligatorios."; return; }
+    if (g.iva != null && !(g.iva >= 0)) { $("dg-msg").textContent = "Escribe un IVA válido."; return; }
+    try { await guardarGasto(g); $("d-gasto").close(); toast(g.id ? "Gasto actualizado" : "Gasto guardado"); if (window.AV && AV.conta) AV.conta.irMes(g.fecha.slice(0, 7)); await recargar(); }
     catch (er) { if (er.status !== 401) $("dg-msg").textContent = errorTxt(er); }
   });
 
   /* ---------- cuentas y Excel ---------- */
+  function gananciaRealMes(mes) { return C.gananciaReal(datos.pedidos, datos.gastos, mes, (window.AV && AV.dash && AV.dash.costos()) || {}, window.AV && AV.conta ? AV.conta.categoriasOk() : null, window.AV && AV.conta ? AV.conta.provision(mes) : 0).ganancia; }
   function pintarCuentas() {
     var S = $("c-anio"), anioHoy = +hoy().slice(0, 4);
     if (!S.options.length) [anioHoy, anioHoy - 1].forEach(function (a) { S.appendChild(el("option", "", String(a))); });
@@ -338,12 +368,12 @@
     var hay = serie.some(function (s) { return s.ventas || s.gastos; });
     if (!hay) { T.appendChild(el("p", "vacio", "Aún no hay datos en " + anio + ".")); return; }
     var tb = el("table", "tabla"), th = el("tr");
-    ["Mes", "Ventas", "Gastos", "Ganancia", "Margen", "Ventas (n)", "vs mes anterior"].forEach(function (h, i) { th.appendChild(el("th", i ? "n" : "", h)); });
+    ["Mes", "Ventas", "Gastos", "Ventas menos gastos", "Ganancia real", "Ventas (n)", "vs mes anterior"].forEach(function (h, i) { th.appendChild(el("th", i ? "n" : "", h)); });
     tb.appendChild(th);
     serie.forEach(function (s) {
       var R = C.resumenMes(datos.pedidos, datos.gastos, s.mes, hoy()), A = C.resumenMes(datos.pedidos, datos.gastos, C.mesMas(s.mes, -1), hoy());
       var tr = el("tr"); tr.appendChild(el("td", "", nomMes(s.mes)));
-      [C.money(R.ventas), C.money(R.gastos), C.money(R.ganancia), R.margen + "%", String(R.nVentas)].forEach(function (v) { tr.appendChild(el("td", "n", v)); });
+      [C.money(R.ventas), C.money(R.gastos), C.money(R.ganancia), C.money(gananciaRealMes(s.mes)), String(R.nVentas)].forEach(function (v) { tr.appendChild(el("td", "n", v)); });
       var td = el("td", "n");
       if (A.ventas) { var pct = Math.round((R.ventas - A.ventas) / A.ventas * 100); td.textContent = (pct >= 0 ? "▲ " : "▼ ") + Math.abs(pct) + "%"; td.className = "n " + (pct >= 0 ? "sube" : "baja"); } else td.textContent = "—";
       tr.appendChild(td); tb.appendChild(tr);
@@ -353,7 +383,11 @@
   function descargarExcel(desde, hasta) {
     if (!window.XLSX) { toast("No se pudo cargar la herramienta de Excel. Revisa tu internet."); return; }
     var F = C.filasExcel(datos.pedidos, datos.gastos, desde, hasta), wb = XLSX.utils.book_new();
-    [["Resumen por mes", F.resumen], ["Ventas", F.ventas], ["Gastos", F.gastos]].forEach(function (h) {
+    var iva = C.resumenIva(datos.gastos, desde, hasta), plan = window.AV && AV.conta ? AV.conta.compromisos() : [], tasas = window.AV && AV.conta ? AV.conta.tasas() : {};
+    var filasIva = [["Fecha", "Descripción", "Categoría", "N.º de factura", "Monto", "IVA pagado"]].concat(iva.filas.map(function (g) { return [g.fecha, g.descripcion, g.categoria, g.factura || "", g.monto, g.iva || 0]; })).concat([[], ["IVA pagado", iva.pagado], ["IVA cobrado", iva.cobrado]]);
+    var filasPlan = [["Mes", "Salarios", "CCSS patronal", "CCSS trabajador", "Póliza INS", "Aguinaldo apartado", "¿Estimación?"]].concat(C.periodosEntre(desde.slice(0, 7), hasta.slice(0, 7), "mensual").map(function (m) { var pg = AV.conta.pagos(), om = AV.conta.omisiones(), G = C.cargasDelMes(plan, m, tasas, tasas.patrono_desde, pg, om); return [m, G.bruto, G.ccssPatronal, G.ccssTrabajador, G.ins, C.provisionAguinaldo(plan, m, tasas, pg, om), G.estimado ? "Sí" : "No"]; }));
+    F.resumen.forEach(function (r, i) { r.push(i ? gananciaRealMes(r[0]) : "Ganancia real"); });
+    [["Resumen por mes", F.resumen], ["Ventas", F.ventas], ["Gastos", F.gastos], ["Planilla", filasPlan], ["IVA", filasIva]].forEach(function (h) {
       var ws = XLSX.utils.aoa_to_sheet(h[1]); ws["!cols"] = h[1][0].map(function (_, i) { return { wch: i === 4 && h[0] === "Ventas" ? 40 : 16 }; });
       XLSX.utils.book_append_sheet(wb, ws, h[0]);
     });
@@ -374,13 +408,13 @@
 
   /* ---------- arranque ---------- */
   // Herramientas para admin-tienda.js (catálogo): se carga después de este archivo y se registra en AV.tienda
-  window.AV = { api: api, toast: toast, confirma: confirma, el: el, hoy: hoy, URL: URL_, KEY: KEY, token: token, errorTxt: errorTxt, datos: function () { return datos; }, mostrar: mostrar, recargar: recargar, repintar: pintarTodo, verPedido: verPedido };
+  window.AV = { api: api, toast: toast, confirma: confirma, el: el, hoy: hoy, URL: URL_, KEY: KEY, token: token, errorTxt: errorTxt, datos: function () { return datos; }, mostrar: mostrar, recargar: recargar, repintar: pintarTodo, verPedido: verPedido, abrirVenta: abrirVenta, borrarVenta: borrarVenta, correo: correo };
   C.PROVINCIAS.forEach(function (p) { $("dv-prov").appendChild(el("option", "", p)); });
-  CATS.forEach(function (c) { $("dg-cat").appendChild(el("option", "", c)); });
-  $("g-mes").value = mesHoy(); $("x-mes").value = mesHoy();
-  $("g-mes").addEventListener("change", pintarGastos);
+  $("dg-tipo").addEventListener("change", function () { llenarCatGasto(""); });
+  $("g-tipo").addEventListener("change", pintarGastos); $("g-cat").addEventListener("change", pintarGastos);
+  $("x-mes").value = mesHoy();
   $("c-anio").addEventListener("change", pintarCuentas);
-  $("b-venta").onclick = abrirVenta; $("b-gasto").onclick = function () { abrirGasto(null); };
+  $("b-venta").onclick = function () { abrirVenta(null); }; $("b-gasto").onclick = function () { abrirGasto(null); };
   $("b-salir").onclick = function () { salir(""); };
   // Actualizar: con el botón, cada minuto y al volver a la pestaña (nunca con una ventana de edición abierta)
   var actualizando = false;
