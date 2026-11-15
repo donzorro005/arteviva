@@ -218,6 +218,15 @@
   function ponFiltro(f) { filtro = f; [].forEach.call($("ped-filtro").children, function (x) { x.setAttribute("aria-pressed", x.dataset.f === f ? "true" : "false"); }); pintarPedidos(); }
   function verPendientes() { ponFiltro("pendiente"); mostrar("pedidos"); }
   function verPedido(id) { verPendientes(); var c = $("ped-" + id); if (c) c.scrollIntoView({ block: "center" }); }
+  // Teléfono del cliente con enlaces para escribirle o llamarle.
+  function telWa(t) { var d = String(t).replace(/\D/g, ""); return d.length === 8 ? "506" + d : d; }
+  function contacto(t) {
+    var s = el("span", "tel"), w = el("a", "btn o sm", "WhatsApp"), l = el("a", "btn o sm", "Llamar");
+    s.appendChild(el("span", "", "Tel: " + t));
+    w.href = "https://wa.me/" + telWa(t); w.target = "_blank"; w.rel = "noopener"; w.setAttribute("aria-label", "Escribir por WhatsApp al " + t);
+    l.href = "tel:" + (String(t).indexOf("+") === 0 ? "+" : "") + String(t).replace(/\D/g, ""); l.setAttribute("aria-label", "Llamar al " + t);
+    s.appendChild(w); s.appendChild(l); return s;
+  }
   function pintarPedidos() {
     var L = $("ped-lista"); L.textContent = "";
     var lst = datos.pedidos.filter(function (p) { return filtro === "todos" || p.estado === filtro; });
@@ -231,6 +240,7 @@
       top.appendChild(el("span", "tot", C.money(C.montoVenta(p))));
       c.appendChild(top);
       c.appendChild(el("b", "", p.nombre || "Sin nombre"));
+      if (p.telefono) c.appendChild(contacto(p.telefono));
       var det = [p.provincia, p.entrega, p.pago].filter(Boolean).join(" · ");
       if (det) c.appendChild(el("span", "mu", det));
       if (p.direccion) c.appendChild(el("span", "mu", "Dirección: " + p.direccion));
@@ -276,6 +286,7 @@
   var vEdit = null;
   function guardarVentaManual(v) {
     var cuerpo = { fecha: v.fecha, total: v.monto, nombre: v.nombre || null, provincia: v.provincia || null, items: v.items || [], pago: v.pago || null };
+    if (v.telefono != null) cuerpo.telefono = v.telefono || null;
     if (!v.id && window.AV && AV.conta && !AV.conta.faltaSql()) cuerpo.registrado_por = correo();
     if (v.id) { cuerpo.monto_final = null; return api("/rest/v1/pedidos?id=eq." + v.id, { method: "PATCH", prefer: "return=minimal", body: cuerpo }); }
     return api("/rest/v1/pedidos", { method: "POST", prefer: "return=minimal", body: Object.assign(cuerpo, { origen: "manual", estado: "completado", cerrado_en: new Date().toISOString() }) });
@@ -283,7 +294,7 @@
   function abrirVenta(p) {
     if (p && p.origen !== "manual") return; // las de la tienda no se editan: conservan lo que pidió el cliente
     vEdit = p || null; var D = $("d-venta"); $("f-venta").reset(); $("dv-msg").textContent = ""; $("dv-tit").textContent = p ? "Editar venta" : "Agregar venta";
-    $("dv-fecha").value = p ? String(p.fecha).slice(0, 10) : hoy(); $("dv-monto").value = p ? C.montoVenta(p) : ""; $("dv-nombre").value = p && p.nombre || ""; $("dv-prov").value = p && p.provincia || ""; $("dv-pago").value = p && p.pago || "";
+    $("dv-fecha").value = p ? String(p.fecha).slice(0, 10) : hoy(); $("dv-monto").value = p ? C.montoVenta(p) : ""; $("dv-nombre").value = p && p.nombre || ""; $("dv-prov").value = p && p.provincia || ""; $("dv-pago").value = p && p.pago || ""; $("dv-tel").value = p && p.telefono || "";
     $("dv-items").value = p ? (p.items || []).map(function (i) { return i.q + " x " + i.n; }).join("\n") : "";
     D.returnValue = ""; D.showModal();
   }
@@ -296,7 +307,11 @@
     e.preventDefault();
     var monto = Math.round(+$("dv-monto").value), fecha = $("dv-fecha").value;
     if (!fecha || !(monto > 0)) { $("dv-msg").textContent = "La fecha y un monto mayor a cero son obligatorios."; return; }
-    try { await guardarVentaManual({ id: vEdit && vEdit.id, fecha: fecha, monto: monto, nombre: $("dv-nombre").value.trim(), provincia: $("dv-prov").value, pago: $("dv-pago").value, items: leerItems($("dv-items").value) }); $("d-venta").close(); toast(vEdit ? "Venta actualizada" : "Venta guardada"); await recargar(); }
+    var tel = $("dv-tel").value.replace(/[^0-9+]/g, "").slice(0, 20), venta = { id: vEdit && vEdit.id, fecha: fecha, monto: monto, nombre: $("dv-nombre").value.trim(), telefono: tel, provincia: $("dv-prov").value, pago: $("dv-pago").value, items: leerItems($("dv-items").value) };
+    try {
+      try { await guardarVentaManual(venta); }
+      catch (e0) { if (e0.status !== 400 || !/telefono/.test(e0.message)) throw e0; delete venta.telefono; await guardarVentaManual(venta); } // sin etapa8-telefono.sql aún
+      $("d-venta").close(); toast(vEdit ? "Venta actualizada" : "Venta guardada"); await recargar(); }
     catch (er) { if (er.status !== 401) $("dv-msg").textContent = errorTxt(er); }
   });
 

@@ -86,6 +86,7 @@ button.k{border:0;text-align:left;cursor:pointer;font:inherit;width:100%}
 @media(min-width:900px){.fab{display:none}}@media(max-width:899px){#b-mas-pc{display:none}}
 .k-periodo{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 #k-vistas{overflow-x:auto;flex-wrap:nowrap}#k-vistas button{white-space:nowrap;flex:none}
+.tel{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:2px 0}
 .dos{display:grid;gap:12px}
 @media(min-width:900px){.dos{grid-template-columns:1.3fr 1fr}}
 .lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;margin-bottom:6px}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
@@ -334,6 +335,7 @@ dialog{overflow-y:auto}
 <h2 id="dv-tit">Agregar venta</h2><p class="mu" style="margin:0">Para ventas que no pasaron por la página.</p>
 <div class="fila"><div><label for="dv-fecha">Fecha</label><input id="dv-fecha" type="date" required></div><div><label for="dv-monto">Monto (₡)</label><input id="dv-monto" type="number" inputmode="numeric" min="1" step="1" required></div></div>
 <label for="dv-nombre">Cliente (opcional)</label><input id="dv-nombre" maxlength="80">
+<label for="dv-tel">Teléfono (opcional)</label><input id="dv-tel" type="tel" inputmode="tel" autocomplete="off" maxlength="20" placeholder="8888 8888">
 <label for="dv-prov">Provincia (opcional)</label><select id="dv-prov"><option value="">Sin provincia</option></select>
 <label for="dv-pago">Forma de pago</label><select id="dv-pago"><option value="">Sin indicar</option><option>Efectivo</option><option>SINPE</option><option>Transferencia</option></select>
 <label for="dv-items">Productos (opcional, uno por línea)</label><textarea id="dv-items" rows="3" placeholder="2 x Figura: Sol&#10;1 x Paquete de relajación: Flores"></textarea>

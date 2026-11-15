@@ -253,7 +253,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 .ofrm fieldset{border:0;padding:0;margin:0;display:grid;gap:.35rem}
 .ofrm .opt{display:flex;align-items:center;gap:.6rem;font-weight:400;cursor:pointer;padding:.15rem 0;margin:0}
 .ofrm .opt input{width:20px;height:20px;accent-color:var(--ink);flex:none}
-.ofrm input[type=text],.ofrm textarea,.ofrm select{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;padding:.7rem .85rem}
+.ofrm input[type=text],.ofrm input[type=tel],.ofrm textarea,.ofrm select{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;padding:.7rem .85rem}
 .ofrm input[type=file]{font:inherit;color:var(--ink);max-width:100%}
 .ofrm small{color:var(--muted);font-size:var(--t1)}
 .wa{background:#1f7a4d;color:#fff;display:flex;width:100%;text-align:center}
@@ -550,6 +550,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 <div class="cart" id="carrito"><h3>Tu carrito</h3><div id="lines"></div><div class="total" id="total"></div><p class="envg" id="envg" role="status"></p>
 <div class="ofrm" id="ofrm">
 <div><label for="f-nombre">Tu nombre</label><input type="text" id="f-nombre" autocomplete="name"></div>
+<div><label for="f-tel">Tu teléfono (WhatsApp)</label><input type="tel" id="f-tel" autocomplete="tel" inputmode="tel" placeholder="8888 8888" maxlength="20"><small>Para avisarte si hay algún problema con tu pedido.</small></div>
 <div><label for="f-prov">Provincia</label><select id="f-prov"><option value="">Elige tu provincia</option><option>San José</option><option>Alajuela</option><option>Cartago</option><option>Heredia</option><option>Guanacaste</option><option>Puntarenas</option><option>Limón</option></select></div>
 <fieldset><legend>¿Cómo recibes tu pedido?</legend>
 <label class="opt"><input type="radio" name="f-entrega" value="Retiro en persona"> Retiro en persona</label>
@@ -752,8 +753,8 @@ var b2=document.createElement("span");b2.textContent="Total: "+money(K.t);T.appe
 if(activo(FRANJA)&&FRANJA.envioMin!=null){var zn=FRANJA.prov?" en "+FRANJA.prov:"",enZona=!FRANJA.prov||F.prov===FRANJA.prov;if(F.prov&&!enZona)EG.textContent="El envío gratis aplica solo"+zn+".";else if(K.t>=FRANJA.envioMin){EG.textContent="¡Tu pedido califica para envío gratis"+zn+"!";if(F.prov&&F.entrega.indexOf("Envío")===0)msg+="Califica para envío gratis.\n"}else EG.textContent="Te faltan "+money(FRANJA.envioMin-K.t)+" para el envío gratis"+zn+"."}
 var ENV=costoEnvio(F,K);if(ENV){var txe="Envío por "+ENV.v+": "+(ENV.c?money(ENV.c):"gratis"),se=document.createElement("span");se.textContent=txe;T.appendChild(se);var st=document.createElement("span");st.textContent="Total con envío: "+money(K.t+ENV.c);T.appendChild(st);msg+=txe+"\nTotal con envío: "+money(K.t+ENV.c)+"\n"}}
 else{msg+="\nTotal de artículos: "+n+"\n"}}
-var miss=[];if(ids.length){if(!F.nombre)miss.push("tu nombre");if(!F.prov)miss.push("tu provincia");if(!F.entrega)miss.push("cómo recibes el pedido");else if(F.entrega.indexOf("Envío")===0&&!F.dir)miss.push("la dirección de envío");if(!F.pago)miss.push("la forma de pago")}
-msg+="\nNombre: "+F.nombre+"\nProvincia: "+F.prov+"\nEntrega: "+F.entrega+(F.dir?"\nDirección: "+F.dir:"")+"\nPago: "+F.pago+(F.nota?"\nNotas: "+F.nota:"")+"\n\n¡Gracias!";var ok=ids.length&&!miss.length;document.getElementById("falta").textContent=!ids.length?"Agrega al menos un producto de la tienda.":miss.length?"Falta: "+miss.join(", ")+".":"";
+var miss=[];if(ids.length){if(!F.nombre)miss.push("tu nombre");if(!F.tel)miss.push("tu teléfono");else if(!telOk(F.tel))miss.push("un teléfono válido (8 dígitos)");if(!F.prov)miss.push("tu provincia");if(!F.entrega)miss.push("cómo recibes el pedido");else if(F.entrega.indexOf("Envío")===0&&!F.dir)miss.push("la dirección de envío");if(!F.pago)miss.push("la forma de pago")}
+msg+="\nNombre: "+F.nombre+"\nTeléfono: "+F.tel+"\nProvincia: "+F.prov+"\nEntrega: "+F.entrega+(F.dir?"\nDirección: "+F.dir:"")+"\nPago: "+F.pago+(F.nota?"\nNotas: "+F.nota:"")+"\n\n¡Gracias!";var ok=ids.length&&!miss.length;document.getElementById("falta").textContent=!ids.length?"Agrega al menos un producto de la tienda.":miss.length?"Falta: "+miss.join(", ")+".":"";
 W.setAttribute("aria-disabled",ok?"false":"true");
 if(ok)W.href="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);else W.removeAttribute("href");
 B.textContent="Carrito ("+n+")";B.className="btn sm cartbar"+(n?" on":"");document.getElementById("vaciar-box").hidden=!ids.length;guardarCarrito();try{yesito()}catch(e){}}
@@ -833,7 +834,7 @@ if(!YS.rm)setInterval(function(){if(document.hidden)return;[].forEach.call(Y.que
 var ultimoPedido={k:"",t:0};
 function guardarPedido(){if(!SUPA.url||!SUPA.key)return;var ids=Object.keys(cart);if(!ids.length)return;var K=cuenta(),F=readForm();
 var it=ids.map(function(id){var p=find(id);return{n:p.n,q:cart[id],p:p.p==null?0:p.p,t:K.l[id].t}});
-var p={nombre:F.nombre,provincia:F.prov,entrega:F.entrega,direccion:F.dir,pago:F.pago,notas:F.nota,items:it,subtotal:K.o,descuento:K.desc,total:K.t,prueba:DEMO};
+var p={nombre:F.nombre,telefono:F.tel,provincia:F.prov,entrega:F.entrega,direccion:F.dir,pago:F.pago,notas:F.nota,items:it,subtotal:K.o,descuento:K.desc,total:K.t,prueba:DEMO};
 var k=JSON.stringify(p),ah=Date.now();if(k===ultimoPedido.k&&ah-ultimoPedido.t<60000)return;ultimoPedido={k:k,t:ah};
 try{fetch(SUPA.url+"/rest/v1/rpc/crear_pedido",{method:"POST",keepalive:true,headers:hdr({"Content-Type":"application/json"}),body:JSON.stringify({p:p})}).catch(function(){})}catch(e){}}
 document.getElementById("wa").addEventListener("click",function(){if(this.getAttribute("aria-disabled")==="false"){guardarPedido();registrarVisita("whatsapp")}})
@@ -843,7 +844,9 @@ if(!o){var m=/[?&]de=([a-z]+)/i.exec(location.search),d=m?m[1].toLowerCase():"";
 function registrarVisita(evento){if(typeof DEMO!=="undefined"&&DEMO)return;if(!SUPA.url||!SUPA.key)return;
 try{if(sessionStorage.getItem("av-ev-"+evento))return;sessionStorage.setItem("av-ev-"+evento,"1")}catch(e){}
 try{fetch(SUPA.url+"/rest/v1/rpc/registrar_visita",{method:"POST",keepalive:true,headers:hdr({"Content-Type":"application/json"}),body:JSON.stringify({origen:origenVisita(),evento:evento})}).catch(function(){})}catch(e){}};
-function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),prov:g("f-prov"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
+/* Teléfono: 8 dígitos de Costa Rica, o un número internacional con + (8 a 15 dígitos). */
+function telOk(t){var d=String(t).replace(/\D/g,"");return d.length===8||(d.length===11&&d.indexOf("506")===0)||(/^\s*\+/.test(t)&&d.length>=8&&d.length<=15)}
+function readForm(){var g=function(i){return(document.getElementById(i).value||"").trim()},r=function(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:""};var en=r("f-entrega");return{nombre:g("f-nombre"),tel:g("f-tel"),prov:g("f-prov"),entrega:en,dir:en.indexOf("Envío")===0?g("f-dir"):"",pago:r("f-pago"),nota:g("f-nota")}}
 /* ENVÍOS: tarifa fija por provincia. Fuera del GAM va por Correos de Costa Rica y se paga solo por SINPE (s:1). */
 var ENVIOS={"Cartago":{c:1500,v:"mensajería"},"San José":{c:2500,v:"mensajería"},"Alajuela":{c:2500,v:"mensajería"},"Heredia":{c:2500,v:"mensajería"},"Guanacaste":{c:3500,v:"Correos de Costa Rica",s:1},"Puntarenas":{c:3500,v:"Correos de Costa Rica",s:1},"Limón":{c:3500,v:"Correos de Costa Rica",s:1}};
 function costoEnvio(F,K){var e=ENVIOS[F.prov];if(!e||F.entrega.indexOf("Envío")!==0)return null;var g=activo(FRANJA)&&FRANJA.envioMin!=null&&(!FRANJA.prov||F.prov===FRANJA.prov)&&K.t>=FRANJA.envioMin;return{v:e.v,c:g?0:e.c}}
