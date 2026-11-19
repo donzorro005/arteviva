@@ -91,7 +91,7 @@ footer{text-align:center;padding:2rem 1rem;font-family:"Cormorant Garamond",seri
 <h2>Escríbenos</h2>
 <p class="lead">Cuéntanos cómo quedó tu obra o pide tu próximo paquete.</p>
 <div class="contact">
-<a href="tel:+50660319306"><b style="background:var(--green)"></b><div><small>Celular</small><span>6031 9306</span></div></a>
+<a class="wa-info" href="https://wa.me/50660319306?text=Buenas%20me%20gustar%C3%ADa%20informaci%C3%B3n%20sobre%20" target="_blank" rel="noopener"><b style="background:var(--green)"></b><div><small>Celular</small><span>6031 9306</span></div></a>
 <a href="https://www.instagram.com/arteviva005/" target="_blank" rel="noopener"><b style="background:var(--pink)"></b><div><small>Instagram</small><span>@arteviva005</span></div></a>
 <a href="https://www.facebook.com/ARTEVIVA" target="_blank" rel="noopener"><b style="background:var(--blue)"></b><div><small>Facebook</small><span>ARTEVIVA</span></div></a>
 </div></div></section>
@@ -113,4 +113,5 @@ d.s.forEach(function(x){var l=document.createElement("li");l.textContent=x;idea.
 IDEAS.forEach(function(d,i){var b=document.createElement("button");b.type="button";b.setAttribute("role","tab");
 b.innerHTML="<b style='background:"+d.c+"'></b>"+d.n;b.onclick=function(){show(i)};tabs.appendChild(b)});
 show(0);
-</script></body></html>
+</script><script>/* En computadora abre WhatsApp Web directo (sin pedir abrir la app); en celular usa wa.me */(function(){if(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent))return;document.querySelectorAll("a.wa-info").forEach(function(a){var u=new URL(a.href);a.href="https://web.whatsapp.com/send?phone="+u.pathname.replace(/\D/g,"")+"&text="+encodeURIComponent(u.searchParams.get("text")||"");});})();</script>
+</body></html>
