@@ -290,6 +290,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 .items.withimg{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.75rem}
 .item.card{flex-direction:column;align-items:stretch;padding:.75rem}
 .item.card .nm{flex:none}
+.item .cm{display:block;font-size:.8rem;opacity:.75;line-height:1.2}
 .item.card .btn{width:100%}
 .ph{aspect-ratio:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:var(--t1);overflow:hidden;background:var(--paper)}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
@@ -612,7 +613,7 @@ function usarCatalogo(J){var tx=function(v){return v==null?"":String(v)};
 CATS=[];IMGS={};PRODUCTS=[];NUEVOS=[];AGOTADOS=[];
 J.categorias.forEach(function(C){var c={n:tx(C.n),d:tx(C.d),c:C.c||"#8b8b8b",g:[]};
 (C.g||[]).forEach(function(G){var g={t:tx(G.t),k:tx(G.k),im:!!G.im,sz:!!G.sz,l:[]};
-(G.l||[]).forEach(function(P){var n=g.k+tx(P.d),o={id:"p"+P.id,n:n,d:tx(P.d),c:P.c||c.c,cat:c.n,grp:g.t,base:n,p:typeof P.p==="number"?P.p:null};
+(G.l||[]).forEach(function(P){var n=g.k+tx(P.d),o={id:"p"+P.id,n:n,d:tx(P.d),c:P.c||c.c,cat:c.n,grp:g.t,base:n,p:typeof P.p==="number"?P.p:null,cm:tx(P.cm)};
 if(P.foto)IMGS[n]=P.foto;if(P.nuevo)NUEVOS.push(n);if(P.agotado)AGOTADOS.push(n);
 if(g.sz){o.z=(P.v||[]).map(function(V){var x={id:o.id+"v"+V.id,n:n+" – "+tx(V.d),d:tx(V.d),c:o.c,cat:c.n,grp:g.t,base:n,p:typeof V.p==="number"?V.p:null};if(V.agotado)AGOTADOS.push(x.n);PRODUCTS.push(x);return x})}else PRODUCTS.push(o);
 g.l.push(o)});c.g.push(g)});CATS.push(c)});
@@ -727,7 +728,7 @@ var SUB=C.n==="Figuras de yeso";C.g.forEach(function(G){var h=document.createEle
 var it=document.createElement("div");it.className="items"+(G.im?" withimg":"")+(G.sz?" szgrid":"");
 G.l.forEach(function(o){if(G.sz){it.appendChild(tarjetaTamanos(o));return}var r=document.createElement("div");r.className="item"+(G.im?" card":"");
 if(G.im){var ph=document.createElement("div");ph.className="ph";if(IMGS[o.n]){var im=document.createElement("img");im.src=IMGS[o.n];im.alt=o.n;ph.appendChild(im)}else{var sv=artFor(o,G);if(sv){ph.className="ph art";ph.innerHTML=sv}else{ph.textContent="Foto"}}r.appendChild(ph)}else{var sw=document.createElement("span");sw.className="sw2";sw.style.background=o.c;r.appendChild(sw)}
-var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;r.appendChild(nm);ponPrecio(r,o);
+var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;r.appendChild(nm);if(SUB&&o.cm){var cm=document.createElement("span");cm.className="cm";cm.textContent="Tamaño: "+o.cm+" cm";r.appendChild(cm)}ponPrecio(r,o);
 var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent=pideFiguras(o)?"Elegir figuras":"Agregar";b.setAttribute("aria-label",(pideFiguras(o)?"Elegir figuras de ":"Agregar ")+o.n);
 b.onclick=function(){if(pideFiguras(o)){abrirElegir(o);return}setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar"},900)};
 marca(r,b,o);r.appendChild(b);it.appendChild(r)});dst.appendChild(it)});

@@ -129,7 +129,7 @@
     var f = el("div", "prod"), i = hermanos.indexOf(p);
     f.appendChild(miniatura(p));
     var t = el("div"); t.appendChild(el("div", "nm", p.nombre));
-    var pr = el("div", "pr", textoPrecio(p, g));
+    var pr = el("div", "pr", textoPrecio(p, g) + (p.medida ? " · " + textoMedida(p.medida) : ""));
     if (p.agotado) pr.appendChild(el("span", "tag t-ca", "Agotado")).style.marginLeft = "6px";
     if (p.nuevo) pr.appendChild(el("span", "tag t-pe", "Nuevo")).style.marginLeft = "6px";
     t.appendChild(pr); f.appendChild(t);
@@ -299,13 +299,21 @@
   function ajustaGrupo() {
     var g = grupoActual(), t = !!(g && g.con_tamanos);
     $("dp-colorbox").hidden = !t; $("dp-tambox").hidden = !t;
+    $("dp-medbox").hidden = !esFiguras(g);
   }
+  // Las figuras de yeso llevan su tamaño en cm.
+  function esFiguras(g) {
+    var c = g && D.cats.filter(function (x) { return x.id === g.categoria_id; })[0];
+    return !!(c && /figura/i.test(c.nombre));
+  }
+  function textoMedida(m) { return m ? m + " cm" : ""; }
   function abrirProducto(p, grupoId) {
     if (!D.grupos.length) { toast("Primero crea un grupo."); return; }
     pe = { prod: p || null, blob: null, urlPrev: "", quitar: false };
     $("dp-msg").textContent = ""; $("dp-tit").textContent = p ? "Editar producto" : "Nuevo producto";
     opcionesGrupos($("dp-grupo"), p ? p.grupo_id : (grupoId || D.grupos[0].id));
     $("dp-nombre").value = p ? p.nombre : ""; $("dp-precio").value = p && p.precio != null ? p.precio : "";
+    $("dp-medida").value = p && p.medida || "";
     $("dp-color").value = p && colorOk(p.color) || ""; $("dp-colorp").value = colorOk(p && p.color) || "#999999"; ligaColor("dp-colorp", "dp-color", "dp-colorx");
     $("dp-foto").value = ""; $("dp-tams").textContent = "";
     if (p) hijos(D.vars, "producto_id", p.id).forEach(filaTam);
@@ -346,7 +354,13 @@
         tams.push({ fila: rows[i], id: rows[i].dataset.id ? +rows[i].dataset.id : null, nombre: tn, precio: tp.v, agotado: rows[i].querySelector(".t-ago").checked, orden: i });
       }
     } else color = pe.prod ? pe.prod.color : null;
-    return { nombre: nombre, grupo: g, precio: pr.v, color: color, tams: tams };
+    var medida = pe.prod ? pe.prod.medida || null : null;
+    if (esFiguras(g)) {
+      medida = $("dp-medida").value.replace(/\s*cm\.?\s*$/i, "").replace(/\s+/g, " ").trim() || null;
+      if (medida && medida.length > 30) return { error: "El tamaño es muy largo (máximo 30 letras)." };
+      if (medida && !/\d/.test(medida)) return { error: "El tamaño debe llevar números, por ejemplo 8 x 6." };
+    }
+    return { nombre: nombre, grupo: g, precio: pr.v, color: color, medida: medida, tams: tams };
   }
   async function guardarProducto() {
     var d = leerProducto(), M = $("dp-msg"), B = $("dp-ok"); M.textContent = "";
@@ -357,6 +371,7 @@
       if (pe.quitar) foto = null;
       if (pe.blob) { try { foto = await subirBlob(pe.blob); } catch (er) { if (er.foto) { M.textContent = "No se pudo subir la foto. Inténtalo de nuevo o guarda sin foto."; enviando(B, false); return; } throw er; } pe.blob = null; }
       var cuerpo = { grupo_id: d.grupo.id, nombre: d.nombre, precio: d.precio, color: d.color, foto_url: foto };
+      if (esFiguras(d.grupo) || (pe.prod && pe.prod.medida)) cuerpo.medida = d.medida;
       if (!pe.prod || pe.prod.grupo_id !== d.grupo.id) cuerpo.orden = sigOrden(D.prods.filter(function (x) { return x.grupo_id === d.grupo.id; }));
       var id;
       if (pe.prod) { id = pe.prod.id; await api("/rest/v1/productos?id=eq." + id, { method: "PATCH", body: cuerpo, prefer: "return=minimal" }); pe.prod = Object.assign({}, pe.prod, cuerpo); }
