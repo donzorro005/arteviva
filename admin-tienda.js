@@ -111,9 +111,25 @@
     a.appendChild(ed); s.appendChild(a);
     return s;
   }
+  // Deja abierto solo «clave» entre los desplegables de su mismo nivel (c = categorías, g = grupos).
+  function soloAbierto(clave) {
+    Object.keys(abiertos).forEach(function (k) { if (k.charAt(0) === clave.charAt(0)) abiertos[k] = false; });
+    abiertos[clave] = true;
+  }
   function conAbierto(det, clave) {
     det.open = !!abiertos[clave];
-    det.addEventListener("toggle", function () { abiertos[clave] = det.open; });
+    det.addEventListener("toggle", function () {
+      abiertos[clave] = det.open;
+      if (!det.open || !det.parentNode) return;
+      // Solo un desplegable abierto por nivel: al abrir este se cierran los demás del mismo nivel,
+      // sin que la página salte (se mantiene a la vista el que se acaba de abrir).
+      var otros = [].filter.call(det.parentNode.children, function (x) { return x !== det && x.tagName === "DETAILS" && x.open; });
+      if (!otros.length) return;
+      var s = det.querySelector("summary"), antes = s.getBoundingClientRect().top;
+      otros.forEach(function (x) { x.open = false; });
+      var despues = s.getBoundingClientRect().top;
+      if (despues !== antes) window.scrollBy(0, despues - antes);
+    });
     return det;
   }
   function textoPrecio(p, g) {
@@ -273,7 +289,7 @@
     try {
       if (gEd) await api("/rest/v1/grupos?id=eq." + gEd.id, { method: "PATCH", body: cuerpo, prefer: "return=minimal" });
       else await api("/rest/v1/grupos", { method: "POST", body: cuerpo, prefer: "return=representation" });
-      abiertos["c" + cat] = true; $("d-grupo").close(); toast(gEd ? "Grupo actualizado" : "Grupo creado"); await cargar();
+      soloAbierto("c" + cat); $("d-grupo").close(); toast(gEd ? "Grupo actualizado" : "Grupo creado"); await cargar();
     } catch (er) { if (er.status !== 401) M.textContent = errMsg(er); }
     enviando(B, false);
   });
@@ -377,7 +393,7 @@
       if (pe.prod) { id = pe.prod.id; await api("/rest/v1/productos?id=eq." + id, { method: "PATCH", body: cuerpo, prefer: "return=minimal" }); pe.prod = Object.assign({}, pe.prod, cuerpo); }
       else { var r = await api("/rest/v1/productos", { method: "POST", body: cuerpo, prefer: "return=representation" }); pe.prod = r && r[0]; id = pe.prod && pe.prod.id; if (!id) throw new Error("sin id"); }
       if (d.grupo.con_tamanos) await guardarTamanos(id, d.tams);
-      abiertos["g" + d.grupo.id] = true; abiertos["c" + d.grupo.categoria_id] = true;
+      soloAbierto("g" + d.grupo.id); soloAbierto("c" + d.grupo.categoria_id);
       var nuevo = !D.prods.some(function (x) { return x.id === id; });
       $("d-producto").close(); toast(nuevo ? "Producto creado" : "Producto actualizado"); await cargar();
     } catch (er) { if (er.status !== 401) { M.textContent = errMsg(er) + (pe.prod && pe.prod.id && !D.prods.some(function (x) { return x.id === pe.prod.id; }) ? " (El producto ya se creó; revisa los tamaños y vuelve a guardar.)" : ""); } }
