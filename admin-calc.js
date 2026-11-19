@@ -76,7 +76,7 @@
   }
 
   /* ---------- visitas (etapa 3) ---------- */
-  var ORIGENES = ["ig", "fb", "qr", "otros"];
+  var ORIGENES = ["ig", "fb", "wa", "qr", "otros"];
   function diaMas(dia, d) { var t = new Date(dia + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + d); return t.toISOString().slice(0, 10); }
   function lunesDe(dia) { var t = new Date(dia + "T12:00:00Z"), w = (t.getUTCDay() + 6) % 7; return diaMas(dia, -w); }
   function clavePor(dia, modo) { return modo === "mes" ? String(dia).slice(0, 7) : modo === "semana" ? lunesDe(String(dia).slice(0, 10)) : String(dia).slice(0, 10); }
@@ -85,7 +85,7 @@
     var claves = [], ult = clavePor(hasta, modo), i;
     for (i = n - 1; i >= 0; i--) claves.push(modo === "mes" ? mesMas(ult, -i) : diaMas(ult, -i * (modo === "semana" ? 7 : 1)));
     var por = {};
-    claves.forEach(function (k) { por[k] = { clave: k, ig: 0, fb: 0, qr: 0, otros: 0, total: 0 }; });
+    claves.forEach(function (k) { por[k] = { clave: k, ig: 0, fb: 0, wa: 0, qr: 0, otros: 0, total: 0 }; });
     visitas.forEach(function (v) {
       if (v.evento !== "visita" || ORIGENES.indexOf(v.origen) < 0) return;
       var f = por[clavePor(v.dia, modo)]; if (!f) return;
@@ -95,7 +95,7 @@
   }
   // Mes: visitas, aperturas de tienda, toques de WhatsApp, ventas de la tienda web y % de visitas que compraron (null si no hubo visitas).
   function resumenVisitasMes(visitas, pedidos, mes) {
-    var r = { visitas: 0, tienda: 0, whatsapp: 0, ventas: 0, conversion: null, porOrigen: { ig: 0, fb: 0, qr: 0, otros: 0 } };
+    var r = { visitas: 0, tienda: 0, whatsapp: 0, ventas: 0, conversion: null, porOrigen: { ig: 0, fb: 0, wa: 0, qr: 0, otros: 0 } };
     visitas.forEach(function (v) {
       if (mesDe(v.dia) !== mes) return;
       if (v.evento === "visita") { r.visitas += v.n || 0; if (r.porOrigen[v.origen] != null) r.porOrigen[v.origen] += v.n || 0; }

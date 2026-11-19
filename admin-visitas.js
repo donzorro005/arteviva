@@ -6,8 +6,8 @@
   if (!AV || !C) return;
   var api = AV.api, el = AV.el, toast = AV.toast, $ = function (i) { return document.getElementById(i); };
   var VIS = [], hay = false, cargando = false, vista = "mes", modo = "mes";
-  var N = { dia: 14, semana: 8, mes: 6 }, COLOR = { ig: "#cf5c7c", fb: "#4f82c4", qr: "#e8b93f", otros: "#6f8a3a" };
-  var NOMBRE = { ig: "Instagram", fb: "Facebook", qr: "QR", otros: "Otros" };
+  var N = { dia: 14, semana: 8, mes: 6 }, COLOR = { ig: "#cf5c7c", fb: "#4f82c4", wa: "#25a35a", qr: "#e8b93f", otros: "#6f8a3a" };
+  var NOMBRE = { ig: "Instagram", fb: "Facebook", wa: "WhatsApp", qr: "QR", otros: "Otros" };
   var MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
   /* ---------- datos ---------- */
@@ -61,7 +61,7 @@
     $("vi-tit").textContent = { dia: "Visitas por día (últimos 14 días)", semana: "Visitas por semana (últimas 8)", mes: "Visitas por mes (últimos 6)" }[modo];
     grafica(serie);
     var T = $("vi-tot"); T.textContent = "";
-    var tot = { ig: 0, fb: 0, qr: 0, otros: 0 }; serie.forEach(function (s) { C.ORIGENES.forEach(function (o) { tot[o] += s[o]; }); });
+    var tot = { ig: 0, fb: 0, wa: 0, qr: 0, otros: 0 }; serie.forEach(function (s) { C.ORIGENES.forEach(function (o) { tot[o] += s[o]; }); });
     C.ORIGENES.forEach(function (o) { var t = el("span", "tag", NOMBRE[o] + ": " + tot[o]); t.style.background = COLOR[o]; t.style.color = o === "qr" ? "#141210" : "#fff"; T.appendChild(t); });
     // resumen del mes con comparación
     var mes = hoy.slice(0, 7), R = C.resumenVisitasMes(VIS, AV.datos().pedidos || [], mes), A = C.resumenVisitasMes(VIS, AV.datos().pedidos || [], C.mesMas(mes, -1));
@@ -79,7 +79,7 @@
   var BASE = location.origin + location.pathname.replace(/[^/]*$/, "");
   function enlaces() {
     var L = $("vi-links"); L.textContent = "";
-    [["ig", "Instagram (bio)"], ["fb", "Facebook"], ["qr", "QR de paquetes y volantes"]].forEach(function (x) {
+    [["ig", "Instagram (bio)"], ["fb", "Facebook"], ["wa", "WhatsApp (estados y mensajes)"], ["qr", "QR de paquetes y volantes"]].forEach(function (x) {
       var u = BASE + "?de=" + x[0], f = el("div", "vi-link");
       f.appendChild(el("b", "", x[1])); f.appendChild(el("code", "", u));
       var b = el("button", "btn o sm", "Copiar"); b.type = "button";

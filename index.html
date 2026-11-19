@@ -841,7 +841,9 @@ try{fetch(SUPA.url+"/rest/v1/rpc/crear_pedido",{method:"POST",keepalive:true,hea
 document.getElementById("wa").addEventListener("click",function(){if(this.getAttribute("aria-disabled")==="false"){guardarPedido();registrarVisita("whatsapp")}})
 /* VISITAS: contadores por día, origen (?de=ig, fb, qr u otros) y evento. Sin cookies ni datos personales. La vista ?demo no cuenta. */
 function origenVisita(){var o=null;try{o=sessionStorage.getItem("av-origen")}catch(e){}
-if(!o){var m=/[?&]de=([a-z]+)/i.exec(location.search),d=m?m[1].toLowerCase():"";o=d==="ig"||d==="fb"||d==="qr"?d:"otros";try{sessionStorage.setItem("av-origen",o)}catch(e){}}return o}
+if(!o){var m=/[?&](?:de|o)=([a-z]+)/i.exec(location.search),d=m?m[1].toLowerCase():"";if(d==="whatsapp")d="wa";if(d!=="ig"&&d!=="fb"&&d!=="wa"&&d!=="qr")d=origenAuto();o=d;try{sessionStorage.setItem("av-origen",o)}catch(e){}}return o}
+/* Sin ?de=: se deduce por el navegador de la app o la página de donde viene. */
+function origenAuto(){var u=navigator.userAgent||"",r="";try{r=document.referrer||""}catch(e){}if(/Instagram/i.test(u)||/instagram\.com/i.test(r))return"ig";if(/FBAN|FBAV|FB_IAB|FBIOS/i.test(u)||/facebook\.com|fb\.com|fb\.me/i.test(r))return"fb";if(/WhatsApp/i.test(u)||/whatsapp\.com|wa\.me/i.test(r))return"wa";return"otros"}
 function registrarVisita(evento){if(typeof DEMO!=="undefined"&&DEMO)return;if(!SUPA.url||!SUPA.key)return;
 try{if(sessionStorage.getItem("av-ev-"+evento))return;sessionStorage.setItem("av-ev-"+evento,"1")}catch(e){}
 try{fetch(SUPA.url+"/rest/v1/rpc/registrar_visita",{method:"POST",keepalive:true,headers:hdr({"Content-Type":"application/json"}),body:JSON.stringify({origen:origenVisita(),evento:evento})}).catch(function(){})}catch(e){}};
