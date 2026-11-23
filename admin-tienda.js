@@ -103,9 +103,17 @@
     return b;
   }
   function resumen(clave, nombre, extra, lista, item, tabla, ed) {
-    var s = el("summary"), n = el("span", "nom", nombre); if (extra) n.appendChild(el("small", "", extra));
+    var s = el("summary"), n = el("span", "nom" + (item.oculto ? " oculto" : ""), nombre);
+    if (item.oculto) n.appendChild(el("span", "tag t-oc", "Oculto"));
+    if (extra) n.appendChild(el("small", "", extra));
     s.appendChild(n);
     var a = el("span", "sacc"), i = lista.indexOf(item);
+    if (tabla === "categorias" || tabla === "grupos") {
+      var vb = el("button", "btn o sm vis", item.oculto ? "Mostrar" : "Ocultar"); vb.type = "button";
+      vb.title = (item.oculto ? "Mostrar en la tienda: " : "Ocultar de la tienda: ") + nombre; vb.setAttribute("aria-label", vb.title);
+      vb.onclick = function (e) { e.preventDefault(); e.stopPropagation(); alternarVis(item, tabla, vb); };
+      a.appendChild(vb);
+    }
     a.appendChild(boton("▲", "Subir " + nombre, function () { mover(lista, item, -1, tabla); }, i <= 0));
     a.appendChild(boton("▼", "Bajar " + nombre, function () { mover(lista, item, 1, tabla); }, i >= lista.length - 1));
     a.appendChild(ed); s.appendChild(a);
@@ -142,15 +150,16 @@
     return p.precio == null ? "Sin precio" : money(p.precio);
   }
   function filaProducto(p, g, hermanos) {
-    var f = el("div", "prod"), i = hermanos.indexOf(p);
+    var f = el("div", "prod" + (p.oculto ? " oculto" : "")), i = hermanos.indexOf(p);
     f.appendChild(miniatura(p));
     var t = el("div"); t.appendChild(el("div", "nm", p.nombre));
     var pr = el("div", "pr", textoPrecio(p, g) + (p.medida ? " · " + textoMedida(p.medida) : ""));
     if (p.agotado) pr.appendChild(el("span", "tag t-ca", "Agotado")).style.marginLeft = "6px";
     if (p.nuevo) pr.appendChild(el("span", "tag t-pe", "Nuevo")).style.marginLeft = "6px";
+    if (p.oculto) pr.appendChild(el("span", "tag t-oc", "Oculto")).style.marginLeft = "6px";
     t.appendChild(pr); f.appendChild(t);
     var c = el("div", "ctl");
-    [["agotado", "Agotado"], ["nuevo", "Nuevo"]].forEach(function (k) {
+    [["agotado", "Agotado"], ["nuevo", "Nuevo"], ["oculto", "Oculto"]].forEach(function (k) {
       var l = el("label", "sw"), ch = el("input"); ch.type = "checkbox"; ch.checked = !!p[k[0]];
       ch.setAttribute("aria-label", k[1] + ": " + p.nombre);
       ch.onchange = function () { alternar(p, k[0], ch); };
@@ -189,8 +198,18 @@
   /* ---------- acciones rápidas ---------- */
   async function alternar(p, campo, ch) {
     var v = ch.checked, cuerpo = {}; cuerpo[campo] = v; ch.disabled = true;
-    try { await api("/rest/v1/productos?id=eq." + p.id, { method: "PATCH", body: cuerpo, prefer: "return=minimal" }); p[campo] = v; huella = ""; toast((campo === "agotado" ? (v ? "Marcado como agotado: " : "Ya hay de nuevo: ") : (v ? "Marcado como nuevo: " : "Ya no es nuevo: ")) + p.nombre); pintar(); }
+    try { await api("/rest/v1/productos?id=eq." + p.id, { method: "PATCH", body: cuerpo, prefer: "return=minimal" }); p[campo] = v; huella = ""; toast(({ agotado: v ? "Marcado como agotado: " : "Ya hay de nuevo: ", nuevo: v ? "Marcado como nuevo: " : "Ya no es nuevo: ", oculto: v ? "Oculto de la tienda: " : "Ya se ve en la tienda: " })[campo] + p.nombre); pintar(); }
     catch (e) { ch.checked = !v; ch.disabled = false; if (e.status !== 401) toast(AV.errorTxt(e)); }
+  }
+  // Oculta o muestra en la tienda pública una categoría o un grupo completo.
+  async function alternarVis(item, tabla, b) {
+    var v = !item.oculto; b.disabled = true;
+    try {
+      await api("/rest/v1/" + tabla + "?id=eq." + item.id, { method: "PATCH", body: { oculto: v }, prefer: "return=minimal" });
+      item.oculto = v; huella = "";
+      toast((v ? "Oculto de la tienda: " : "Ya se ve en la tienda: ") + item.nombre + (v ? (tabla === "categorias" ? " (con todo lo de adentro)" : " (con sus productos)") : ""));
+      pintar();
+    } catch (e) { b.disabled = false; if (e.status !== 401) toast(AV.errorTxt(e)); }
   }
   // Cambia de lugar con el vecino y renumera la lista (0, 1, 2…) para no depender de órdenes repetidos.
   async function mover(lista, item, dir, tabla) {
