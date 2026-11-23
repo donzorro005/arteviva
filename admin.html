@@ -149,6 +149,7 @@ dialog h2{margin-bottom:.3rem}
 .sw{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:400;font-size:.9rem;min-height:36px;cursor:pointer}
 .sw input{width:20px;height:20px;min-height:0;padding:0;accent-color:var(--gr)}
 .prod .ctl .ed{margin-left:auto}
+.h-fila{display:grid;grid-template-columns:minmax(0,1fr) 120px auto;gap:6px;align-items:center;padding:4px 0}.h-fila input{margin:0}.dash-fila.h-res{border-top:1px solid var(--ln);padding-top:8px;margin-top:2px}.h-neg b{color:#e0705a}
 .t-oc{background:#3d3a36;color:#fff;margin-left:6px}.prod.oculto>.miniatura,.prod.oculto>div:not(.ctl),.nom.oculto{opacity:.55}#t-lista .sacc .vis{padding:4px 10px;min-height:32px}
 .chk{display:flex;align-items:center;gap:8px;font-weight:400}
 .chk input{width:20px;height:20px;min-height:0;padding:0;flex:none}
@@ -243,7 +244,7 @@ dialog{overflow-y:auto}
 <section id="s-conta" data-sec hidden>
 <div class="hd"><h1>Contabilidad</h1></div>
 <div class="aviso" id="k-aviso" role="status" hidden></div>
-<div class="chips" id="k-vistas"><button data-v="resumen" aria-pressed="true">Resumen</button><button data-v="ventas" aria-pressed="false">Ventas</button><button data-v="gastos" aria-pressed="false">Gastos</button><button data-v="pagar" aria-pressed="false">Por pagar</button><button data-v="planilla" aria-pressed="false">Planilla</button><button data-v="reportes" aria-pressed="false">Reportes</button><button data-v="ajustes" aria-pressed="false">Ajustes</button></div>
+<div class="chips" id="k-vistas"><button data-v="resumen" aria-pressed="true">Resumen</button><button data-v="ventas" aria-pressed="false">Ventas</button><button data-v="gastos" aria-pressed="false">Gastos</button><button data-v="pagar" aria-pressed="false">Por pagar</button><button data-v="planilla" aria-pressed="false">Planilla</button><button data-v="reportes" aria-pressed="false">Reportes</button><button data-v="hogar" aria-pressed="false">Hogar</button><button data-v="ajustes" aria-pressed="false">Ajustes</button></div>
 <div id="k-periodo" class="k-periodo"><div class="chips" id="k-rango" style="margin:0"><button data-r="mes" aria-pressed="true">Mes</button><button data-r="anio" aria-pressed="false">Año</button></div><input type="month" id="k-mes" aria-label="Mes" style="width:auto"><select id="k-anio" aria-label="Año" style="width:auto" hidden></select></div>
 <div id="k-resumen"><div class="kp" id="k-kpis"></div><div class="aviso dash-av" id="k-compras" role="status" hidden></div>
 <div class="c" style="margin-top:12px"><h3>Gastos por tipo</h3><div id="k-tipos"></div></div></div>
@@ -262,6 +263,15 @@ dialog{overflow-y:auto}
 <div id="x-mesbox" hidden><label for="x-mes">Mes</label><input type="month" id="x-mes"></div></div>
 <div class="botones" style="justify-content:flex-start"><button class="btn gr" id="b-excel">Descargar Excel</button></div></div>
 </div>
+<div id="k-hogar" hidden><div class="kp" id="h-kpis"></div>
+<div class="c" style="margin-top:12px"><h3 id="h-tit">Cómo se reparte</h3><p class="s">De la ganancia real se aparta la reinversión; el resto se suma al salario para los gastos fijos, y lo que sobra es ahorro.</p><div id="h-reparto"></div></div>
+<div class="c" style="margin-top:12px"><h3>Ingreso y reinversión</h3>
+<div class="fila"><div><label for="h-nombre">De quién es el salario</label><input id="h-nombre" maxlength="40" placeholder="Mi esposa" autocomplete="off"></div><div><label for="h-salario">Salario por mes (₡)</label><input id="h-salario" type="text" inputmode="numeric" placeholder="0" autocomplete="off"></div></div>
+<div class="fila"><div><label for="h-pct">Reinversión en materiales (%)</label><input id="h-pct" type="number" min="0" max="100" step="1" placeholder="20"></div><div><label for="h-mes-sal" id="h-mes-lbl">Salario de este mes (₡)</label><input id="h-mes-sal" type="text" inputmode="numeric" placeholder="Igual al de siempre" autocomplete="off"></div></div>
+<p class="s" style="margin:0">«Salario de este mes» solo cambia el mes elegido arriba. Déjalo vacío para usar el de siempre.</p>
+<p class="msg" id="h-msg" role="alert"></p><div class="botones" style="justify-content:flex-start"><button class="btn" id="h-guardar" type="button">Guardar</button></div></div>
+<div class="c" style="margin-top:12px"><h3>Gastos fijos de la casa</h3><p class="s">Alquiler, luz, agua, comida, internet… Los fijos del negocio ya están en «Por pagar».</p><div id="h-casa"></div>
+<div class="botones" style="justify-content:flex-start"><button class="btn o sm" id="h-casa-add" type="button">+ Agregar gasto de la casa</button><button class="btn sm" id="h-casa-guardar" type="button">Guardar gastos de la casa</button></div><p class="msg" id="h-cmsg" role="alert"></p></div></div>
 <div id="k-ajustes" hidden><div class="c"><h3>Categorías de gasto</h3><p class="s">«Va en el costo del producto» quiere decir que no se resta otra vez de la ganancia real.</p><div id="k-cats"></div><button class="btn o sm" id="k-cat-add" type="button" style="margin-top:8px">+ Agregar categoría</button></div>
 <div class="c" style="margin-top:12px"><h3>Porcentajes</h3><p class="s">CCSS 2026 según KPMG Costa Rica. Confírmalos con tu contador o en la CCSS. La póliza del INS depende de tu contrato.</p>
 <div class="fila"><div><label for="kt-ccss_patronal">CCSS patronal (%)</label><input id="kt-ccss_patronal" type="number" step="0.01" min="0" max="100"></div><div><label for="kt-ccss_trabajador">CCSS trabajador (%)</label><input id="kt-ccss_trabajador" type="number" step="0.01" min="0" max="100"></div></div>
@@ -521,6 +531,7 @@ dialog{overflow-y:auto}
 <script src="admin.js"></script>
 <script src="admin-conta.js"></script>
 <script src="admin-conta-pagos.js"></script>
+<script src="admin-hogar.js"></script>
 <script src="admin-dash.js"></script>
 <script src="admin-costeo.js"></script>
 <script src="admin-tienda.js"></script>

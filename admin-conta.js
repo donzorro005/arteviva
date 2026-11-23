@@ -48,7 +48,7 @@
   function pintar() {
     var A = $("k-aviso"); A.hidden = !(E.faltaSql || E.error); A.textContent = E.faltaSql ? FALTA : E.error ? "No se pudieron cargar algunos datos. Revisa tu internet y toca Actualizar." : "";
     if (!E.cargado) { $("k-kpis").textContent = "Cargando…"; return; }
-    pintarResumen(); pintarVentas(); if (AV.contaPagos) AV.contaPagos.pintar();
+    pintarResumen(); pintarVentas(); if (AV.contaPagos) AV.contaPagos.pintar(); if (AV.hogar) AV.hogar.pintar();
   }
   function kpi(cont, cls, tit, val, sub) { var d = el("div", "k " + cls); d.appendChild(el("small", "", tit)); d.appendChild(el("b", "", val)); d.appendChild(el("em", "", sub)); cont.appendChild(d); }
   function pintarResumen() {
@@ -95,8 +95,8 @@
 
   function ponerVista(v) {
     vista = v; [].forEach.call($("k-vistas").children, function (b) { b.setAttribute("aria-pressed", b.dataset.v === v ? "true" : "false"); });
-    ["resumen", "ventas", "gastos", "pagar", "planilla", "reportes", "ajustes"].forEach(function (x) { $("k-" + x).hidden = x !== v; });
-    $("k-periodo").hidden = ["resumen", "ventas", "gastos"].indexOf(v) < 0;
+    ["resumen", "ventas", "gastos", "pagar", "planilla", "reportes", "ajustes", "hogar"].forEach(function (x) { $("k-" + x).hidden = x !== v; });
+    $("k-periodo").hidden = ["resumen", "ventas", "gastos", "hogar"].indexOf(v) < 0;
   }
   function repintar() { AV.repintar(); }
   function irMes(m) { modo = "mes"; $("k-mes").value = m; marcaModo(); repintar(); }
@@ -109,7 +109,7 @@
   [].forEach.call($("k-rango").children, function (b) { b.onclick = function () { modo = b.dataset.r; marcaModo(); repintar(); }; });
   $("k-venta").onclick = function () { AV.abrirVenta(null); };
 
-  AV.conta = { cargar: cargar, pintar: pintar, rango: rango, irMes: irMes, ponerVista: ponerVista, categorias: function () { return E.categorias; }, categoriasOk: categoriasOk, compromisos: function () { return E.compromisos; }, omisiones: function () { return E.omisiones; }, pagos: function () { return E.pagos; },
+  AV.conta = { cargar: cargar, pintar: pintar, rango: rango, ganancia: ganancia, irMes: irMes, ponerVista: ponerVista, categorias: function () { return E.categorias; }, categoriasOk: categoriasOk, compromisos: function () { return E.compromisos; }, omisiones: function () { return E.omisiones; }, pagos: function () { return E.pagos; },
     tasas: function () { return E.tasas; }, ponerTasas: function (t) { E.tasas = t; }, faltaSql: function () { return E.faltaSql; }, cargado: function () { return E.cargado; }, provision: provision, FALTA: FALTA, faltaTabla: faltaTabla, nombreMes: nombreMes,
     fijos: function () { return E.compromisos.filter(function (c) { return c.tipo === "fijo" && c.activo; }).map(function (c) { return { n: c.nombre, monto: c.monto }; }); } };
 })();

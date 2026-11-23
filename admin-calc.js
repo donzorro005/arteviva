@@ -276,7 +276,19 @@
     };
   }
 
-  return { nombreBase: nombreBase, variacion: variacion, porCobrar: porCobrar, gananciaReal: gananciaReal, totalFijos: totalFijos, costeo: costeo, periodoDeFecha: periodoDeFecha, periodosEntre: periodosEntre, porPagar: porPagar, planilla: planilla, provisionAguinaldo: provisionAguinaldo, aguinaldoExcedente: aguinaldoExcedente, cargasDelMes: cargasDelMes, gastoCcss: gastoCcss, comprasVsCargado: comprasVsCargado, resumenIva: resumenIva, metaProgreso: metaProgreso, preciosBajos: preciosBajos, porDespachar: porDespachar, embudo: embudo, top: top, diaMas: diaMas,
+  /* Presupuesto de la casa de un mes: de la ganancia real se aparta el % de reinversión (solo si hubo ganancia);
+     lo que queda del negocio se suma al salario y de ahí salen los fijos de la casa y los fijos del negocio aún sin pagar.
+     Lo que sobra es el ahorro (negativo = faltó plata). Todo en colones enteros. */
+  function presupuestoHogar(o) {
+    var n = function (v) { v = Math.round(+v || 0); return isFinite(v) ? v : 0; };
+    var ganancia = n(o.ganancia), pct = Math.min(100, Math.max(0, +o.reinversion || 0));
+    var reinversion = ganancia > 0 ? Math.round(ganancia * pct / 100) : 0, aporte = ganancia - reinversion;
+    var salario = Math.max(0, n(o.salario)), casa = (o.casa || []).reduce(function (t, x) { return t + Math.max(0, n(x.monto)); }, 0);
+    var negocio = Math.max(0, n(o.negocioPendiente)), disponible = aporte + salario, fijos = casa + negocio;
+    return { ganancia: ganancia, pct: pct, reinversion: reinversion, aporte: aporte, salario: salario, disponible: disponible, casa: casa, negocio: negocio, fijos: fijos, ahorro: disponible - fijos };
+  }
+
+  return { presupuestoHogar: presupuestoHogar, nombreBase: nombreBase, variacion: variacion, porCobrar: porCobrar, gananciaReal: gananciaReal, totalFijos: totalFijos, costeo: costeo, periodoDeFecha: periodoDeFecha, periodosEntre: periodosEntre, porPagar: porPagar, planilla: planilla, provisionAguinaldo: provisionAguinaldo, aguinaldoExcedente: aguinaldoExcedente, cargasDelMes: cargasDelMes, gastoCcss: gastoCcss, comprasVsCargado: comprasVsCargado, resumenIva: resumenIva, metaProgreso: metaProgreso, preciosBajos: preciosBajos, porDespachar: porDespachar, embudo: embudo, top: top, diaMas: diaMas,
     ORIGENES: ORIGENES, visitasPor: visitasPor, resumenVisitasMes: resumenVisitasMes, lunesDe: lunesDe,
     PROVINCIAS: PROVINCIAS, MATERIALES: MATERIALES, money: money, montoVenta: montoVenta, esVenta: esVenta,
     mesMas: mesMas, diasMes: diasMes, resumenMes: resumenMes, serieMeses: serieMeses, porProvincia: porProvincia, filasExcel: filasExcel };
