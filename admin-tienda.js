@@ -153,7 +153,7 @@
     var f = el("div", "prod" + (p.oculto ? " oculto" : "")), i = hermanos.indexOf(p);
     f.appendChild(miniatura(p));
     var t = el("div"); t.appendChild(el("div", "nm", p.nombre));
-    var pr = el("div", "pr", textoPrecio(p, g) + (p.medida ? " · " + textoMedida(p.medida) : ""));
+    var pr = el("div", "pr", textoPrecio(p, g) + (p.medida ? " · " + textoMedida(p.medida) : "") + (esSuelta(g) && p.precio != null ? " · combo " + money(p.precio_combo != null ? p.precio_combo : p.precio + sumaCombo()) + (p.precio_combo != null ? "" : " (auto)") : ""));
     if (p.agotado) pr.appendChild(el("span", "tag t-ca", "Agotado")).style.marginLeft = "6px";
     if (p.nuevo) pr.appendChild(el("span", "tag t-pe", "Nuevo")).style.marginLeft = "6px";
     if (p.oculto) pr.appendChild(el("span", "tag t-oc", "Oculto")).style.marginLeft = "6px";
@@ -335,7 +335,12 @@
     var g = grupoActual(), t = !!(g && g.con_tamanos);
     $("dp-colorbox").hidden = !t; $("dp-tambox").hidden = !t;
     $("dp-medbox").hidden = !esFiguras(g);
+    $("dp-pcbox").hidden = !esSuelta(g); placeholderCombo();
   }
+  // Figuras sueltas: las del grupo con prefijo «Figura:». Solo ellas llevan combo.
+  function esSuelta(g) { return !!(g && /^figura\s*:?$/i.test(String(g.prefijo || "").trim())); }
+  function sumaCombo() { var c = AV.comboAjuste; return c && c.suma != null ? c.suma : 1350; }
+  function placeholderCombo() { var p = leePrecio($("dp-precio").value, false); $("dp-pcombo").placeholder = p.v != null && !p.error ? "Automático: " + money(p.v + sumaCombo()) : "Automático: precio + " + money(sumaCombo()); }
   // Las figuras de yeso llevan su tamaño en cm.
   function esFiguras(g) {
     var c = g && D.cats.filter(function (x) { return x.id === g.categoria_id; })[0];
@@ -349,6 +354,7 @@
     opcionesGrupos($("dp-grupo"), p ? p.grupo_id : (grupoId || D.grupos[0].id));
     $("dp-nombre").value = p ? p.nombre : ""; $("dp-precio").value = p && p.precio != null ? p.precio : "";
     $("dp-medida").value = p && p.medida || "";
+    $("dp-pcombo").value = p && p.precio_combo != null ? p.precio_combo : "";
     $("dp-color").value = p && colorOk(p.color) || ""; $("dp-colorp").value = colorOk(p && p.color) || "#999999"; ligaColor("dp-colorp", "dp-color", "dp-colorx");
     $("dp-foto").value = ""; $("dp-tams").textContent = "";
     if (p) hijos(D.vars, "producto_id", p.id).forEach(filaTam);
@@ -357,6 +363,7 @@
   }
   $("dp-grupo").onchange = function () { ajustaGrupo(); if (!$("dp-tams").children.length && grupoActual() && grupoActual().con_tamanos) filaTam(null); };
   $("dp-addtam").onclick = function () { filaTam(null); };
+  $("dp-precio").addEventListener("input", function () { if (!$("dp-pcbox").hidden) placeholderCombo(); });
   $("dp-elegir").onclick = function () { $("dp-foto").click(); };
   $("dp-quitar").onclick = function () { if (pe.urlPrev) URL.revokeObjectURL(pe.urlPrev); pe.blob = null; pe.urlPrev = ""; pe.quitar = true; $("dp-foto").value = ""; fotoPrev(); };
   $("dp-foto").onchange = async function () {
@@ -395,7 +402,9 @@
       if (medida && medida.length > 30) return { error: "El tamaño es muy largo (máximo 30 letras)." };
       if (medida && !/\d/.test(medida)) return { error: "El tamaño debe llevar números, por ejemplo 8 x 6." };
     }
-    return { nombre: nombre, grupo: g, precio: pr.v, color: color, medida: medida, tams: tams };
+    var pcombo = pe.prod ? (pe.prod.precio_combo != null ? pe.prod.precio_combo : null) : null;
+    if (esSuelta(g)) { var pcx = leePrecio($("dp-pcombo").value, false); if (pcx.error) return { error: "Precio en combo: " + pcx.error.charAt(0).toLowerCase() + pcx.error.slice(1) }; pcombo = pcx.v; }
+    return { nombre: nombre, grupo: g, precio: pr.v, color: color, medida: medida, pcombo: pcombo, tams: tams };
   }
   async function guardarProducto() {
     var d = leerProducto(), M = $("dp-msg"), B = $("dp-ok"); M.textContent = "";
@@ -407,6 +416,7 @@
       if (pe.blob) { try { foto = await subirBlob(pe.blob); } catch (er) { if (er.foto) { M.textContent = "No se pudo subir la foto. Inténtalo de nuevo o guarda sin foto."; enviando(B, false); return; } throw er; } pe.blob = null; }
       var cuerpo = { grupo_id: d.grupo.id, nombre: d.nombre, precio: d.precio, color: d.color, foto_url: foto };
       if (esFiguras(d.grupo) || (pe.prod && pe.prod.medida)) cuerpo.medida = d.medida;
+      if (esSuelta(d.grupo) || (pe.prod && pe.prod.precio_combo != null)) cuerpo.precio_combo = d.pcombo;
       if (!pe.prod || pe.prod.grupo_id !== d.grupo.id) cuerpo.orden = sigOrden(D.prods.filter(function (x) { return x.grupo_id === d.grupo.id; }));
       var id;
       if (pe.prod) { id = pe.prod.id; await api("/rest/v1/productos?id=eq." + id, { method: "PATCH", body: cuerpo, prefer: "return=minimal" }); pe.prod = Object.assign({}, pe.prod, cuerpo); }

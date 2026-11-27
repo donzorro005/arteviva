@@ -93,17 +93,17 @@
 
   /* ---------- combo de figura (ajuste «combo»: la tienda y crear_pedido usan este precio; etapa14-combo.sql) ---------- */
   function pintarCombo() {
-    var c = P.combo || {}; $("cb-on").checked = !!c.on; $("cb-precio").value = c.precio != null ? c.precio : ""; $("cb-msg").textContent = "";
-    $("cb-ref").textContent = "Por separado: figura ₡850 + pincel ₡500 + 3 tarritos de ₡400 = ₡2.550. Con ₡2.200 el cliente ahorra ₡350.";
+    var c = P.combo || {}, s = c.suma != null ? c.suma : 1350; AV.comboAjuste = { on: !!c.on, suma: s };
+    $("cb-on").checked = !!c.on; $("cb-precio").value = s; $("cb-msg").textContent = "";
+    $("cb-ref").textContent = "Pincel ₡500 + 3 tarritos ₡1.200 = ₡1.700. Si se suman ₡1.350, el cliente ahorra ₡350. Ej.: figura de ₡850 → combo ₡2.200; figura de ₡1.200 → combo ₡2.550.";
   }
   $("cb-guardar").onclick = async function () {
-    var M = $("cb-msg"), B = this, on = $("cb-on").checked, pr = AV.tienda.validarPrecio($("cb-precio").value.trim(), on);
+    var M = $("cb-msg"), B = this, on = $("cb-on").checked, pr = AV.tienda.validarPrecio($("cb-precio").value.trim(), true);
     M.textContent = "";
-    if (pr.error) { M.textContent = "Precio del combo: " + pr.error.charAt(0).toLowerCase() + pr.error.slice(1); return; }
-    if (on && !pr.v) { M.textContent = "El precio del combo debe ser mayor a 0."; return; }
-    var valor = { on: on, precio: pr.v };
+    if (pr.error) { M.textContent = "Monto que se suma: " + pr.error.charAt(0).toLowerCase() + pr.error.slice(1); return; }
+    var valor = { on: on, suma: pr.v };
     B.disabled = true;
-    try { await guardaAjuste("combo", valor); P.combo = valor; huellaA = ""; toast(on ? "Combo guardado" : "Combo apagado"); }
+    try { await guardaAjuste("combo", valor); P.combo = valor; AV.comboAjuste = valor; huellaA = ""; toast(on ? "Combo guardado" : "Combo apagado"); }
     catch (e) { if (e.status !== 401) M.textContent = AV.errorTxt(e); }
     B.disabled = false;
   };

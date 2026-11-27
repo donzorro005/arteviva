@@ -308,9 +308,9 @@ dialog{overflow-y:auto}
 <label for="fr-hasta">Hasta (opcional)</label><input id="fr-hasta" type="date">
 <p class="msg" id="fr-msg" role="alert"></p>
 <div class="botones"><button class="btn" id="fr-ok" type="button">Guardar franja</button></div></div>
-<div class="c" style="margin-bottom:12px"><h3>Combo de figura</h3><p class="s">En cada figura suelta, el cliente puede marcar «En combo»: la figura, un pincel fino y 3 tarritos de pintura con los colores que elija.</p>
+<div class="c" style="margin-bottom:12px"><h3>Combo de figura</h3><p class="s">En cada figura suelta, el cliente puede marcar «En combo»: la figura, un pincel fino y 3 tarritos de pintura con los colores que elija. El precio del combo es el de la figura más este monto, salvo las figuras a las que les pongas su propio «Precio en combo» al editarlas.</p>
 <label class="chk"><input type="checkbox" id="cb-on"> Ofrecer el combo en la tienda</label>
-<label for="cb-precio">Precio del combo (₡)</label><input id="cb-precio" type="text" inputmode="numeric" placeholder="2200" autocomplete="off">
+<label for="cb-precio">Se suma al precio de la figura (₡)</label><input id="cb-precio" type="text" inputmode="numeric" placeholder="1350" autocomplete="off">
 <p class="s" id="cb-ref" style="margin:4px 0 0"></p>
 <p class="msg" id="cb-msg" role="alert"></p><div class="botones"><button class="btn" id="cb-guardar" type="button">Guardar combo</button></div></div>
 <div class="c" style="margin-bottom:12px"><h3>Lo que trae tu paquete</h3><p class="s">Las tres fotos de esa parte de la portada. Si quitas una, vuelve a verse el dibujo.</p><div id="kit-fotos"></div><p class="msg" id="kit-msg" role="alert"></p></div>
@@ -374,6 +374,7 @@ dialog{overflow-y:auto}
 <label for="dp-nombre">Nombre</label><input id="dp-nombre" maxlength="80" autocomplete="off">
 <label for="dp-grupo">Grupo</label><select id="dp-grupo"></select>
 <label for="dp-precio">Precio (₡, entero; vacío = sin precio)</label><input id="dp-precio" type="text" inputmode="numeric" autocomplete="off" placeholder="500">
+<div id="dp-pcbox" hidden><label for="dp-pcombo" id="dp-pclbl">Precio en combo (₡)</label><input id="dp-pcombo" type="text" inputmode="numeric" autocomplete="off"><p class="s" style="margin:2px 0 0">Figura + pincel fino + 3 pinturas. Déjalo vacío para usar el automático.</p></div>
 <div id="dp-medbox" hidden><label for="dp-medida">Tamaño en cm (opcional, ej. 8 x 6)</label><input id="dp-medida" maxlength="30" autocomplete="off" placeholder="8 x 6"></div>
 <div id="dp-colorbox" hidden><label for="dp-color">Color (opcional)</label>
 <div class="colorfila"><input id="dp-colorp" type="color" aria-label="Elegir color" value="#999999"><input id="dp-color" maxlength="7" placeholder="#f2d12e" autocomplete="off"><button type="button" class="btn o sm" id="dp-colorx">Quitar</button></div></div>
