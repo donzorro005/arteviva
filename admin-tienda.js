@@ -153,7 +153,7 @@
     var f = el("div", "prod" + (p.oculto ? " oculto" : "")), i = hermanos.indexOf(p);
     f.appendChild(miniatura(p));
     var t = el("div"); t.appendChild(el("div", "nm", p.nombre));
-    var pr = el("div", "pr", textoPrecio(p, g) + (p.medida ? " · " + textoMedida(p.medida) : "") + (esSuelta(g) && p.precio != null ? " · combo " + money(p.precio_combo != null ? p.precio_combo : p.precio + sumaCombo()) + (p.precio_combo != null ? "" : " (auto)") : ""));
+    var pr = el("div", "pr", textoPrecio(p, g) + (p.medida ? " · " + textoMedida(p.medida) : "") + (esSuelta(g) && p.precio != null ? " · combo " + money(p.precio_combo != null ? p.precio_combo : p.precio + sumaCombo(g)) + (p.precio_combo != null ? "" : " (auto)") : ""));
     if (p.agotado) pr.appendChild(el("span", "tag t-ca", "Agotado")).style.marginLeft = "6px";
     if (p.nuevo) pr.appendChild(el("span", "tag t-pe", "Nuevo")).style.marginLeft = "6px";
     if (p.oculto) pr.appendChild(el("span", "tag t-oc", "Oculto")).style.marginLeft = "6px";
@@ -337,10 +337,12 @@
     $("dp-medbox").hidden = !esFiguras(g);
     $("dp-pcbox").hidden = !esSuelta(g); placeholderCombo();
   }
-  // Figuras sueltas: las del grupo con prefijo «Figura:». Solo ellas llevan combo.
-  function esSuelta(g) { return !!(g && /^figura\s*:?$/i.test(String(g.prefijo || "").trim())); }
-  function sumaCombo() { var c = AV.comboAjuste; return c && c.suma != null ? c.suma : 1350; }
-  function placeholderCombo() { var p = leePrecio($("dp-precio").value, false); $("dp-pcombo").placeholder = p.v != null && !p.error ? "Automático: " + money(p.v + sumaCombo()) : "Automático: precio + " + money(sumaCombo()); }
+  // Llevan combo: figuras sueltas (prefijo «Figura») y piezas o macetas (prefijo «Pieza»/«Maceta» o grupo que lo diga). Igual que la tienda.
+  function tipoCombo(g) { if (!g) return null; var k = String(g.prefijo || "").trim(); if (/^figura/i.test(k)) return "figura"; if (/^(pieza|maceta)/i.test(k) || /(pieza|maceta)/i.test(g.nombre || "")) return "pieza"; return null; }
+  function esSuelta(g) { return !!tipoCombo(g); }
+  function sumaCombo(g) { var c = AV.comboAjuste || {}; return tipoCombo(g) === "pieza" ? (c.suma_pieza != null ? c.suma_pieza : 2500) : (c.suma != null ? c.suma : 1350); }
+  function placeholderCombo() { var g = grupoActual(), p = leePrecio($("dp-precio").value, false); $("dp-pcombo").placeholder = p.v != null && !p.error ? "Automático: " + money(p.v + sumaCombo(g)) : "Automático: precio + " + money(sumaCombo(g));
+    $("dp-pcnota").textContent = (tipoCombo(g) === "pieza" ? "Pieza + pincel cuadrado + pincel fino + 5 pinturas." : "Figura + pincel fino + 3 pinturas.") + " Déjalo vacío para usar el automático."; }
   // Las figuras de yeso llevan su tamaño en cm.
   function esFiguras(g) {
     var c = g && D.cats.filter(function (x) { return x.id === g.categoria_id; })[0];

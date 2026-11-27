@@ -93,15 +93,16 @@
 
   /* ---------- combo de figura (ajuste «combo»: la tienda y crear_pedido usan este precio; etapa14-combo.sql) ---------- */
   function pintarCombo() {
-    var c = P.combo || {}, s = c.suma != null ? c.suma : 1350; AV.comboAjuste = { on: !!c.on, suma: s };
-    $("cb-on").checked = !!c.on; $("cb-precio").value = s; $("cb-msg").textContent = "";
-    $("cb-ref").textContent = "Pincel ₡500 + 3 tarritos ₡1.200 = ₡1.700. Si se suman ₡1.350, el cliente ahorra ₡350. Ej.: figura de ₡850 → combo ₡2.200; figura de ₡1.200 → combo ₡2.550.";
+    var c = P.combo || {}, s = c.suma != null ? c.suma : 1350, sp = c.suma_pieza != null ? c.suma_pieza : 2500; AV.comboAjuste = { on: !!c.on, suma: s, suma_pieza: sp };
+    $("cb-on").checked = !!c.on; $("cb-precio").value = s; $("cb-pieza").value = sp; $("cb-msg").textContent = "";
+    $("cb-ref").textContent = "Figuras: pincel ₡500 + 3 tarritos ₡1.200 = ₡1.700; sumando ₡1.350 el cliente ahorra ₡350 (figura ₡850 → combo ₡2.200). Piezas: 2 pinceles ₡1.000 + 5 tarritos ₡2.000 = ₡3.000; sumando ₡2.500 ahorra ₡500 (pieza ₡3.000 → combo ₡5.500).";
   }
   $("cb-guardar").onclick = async function () {
-    var M = $("cb-msg"), B = this, on = $("cb-on").checked, pr = AV.tienda.validarPrecio($("cb-precio").value.trim(), true);
+    var M = $("cb-msg"), B = this, on = $("cb-on").checked, pr = AV.tienda.validarPrecio($("cb-precio").value.trim(), true), pp = AV.tienda.validarPrecio($("cb-pieza").value.trim(), true);
     M.textContent = "";
-    if (pr.error) { M.textContent = "Monto que se suma: " + pr.error.charAt(0).toLowerCase() + pr.error.slice(1); return; }
-    var valor = { on: on, suma: pr.v };
+    if (pr.error) { M.textContent = "Se suma a figuras: " + pr.error.charAt(0).toLowerCase() + pr.error.slice(1); return; }
+    if (pp.error) { M.textContent = "Se suma a piezas y macetas: " + pp.error.charAt(0).toLowerCase() + pp.error.slice(1); return; }
+    var valor = { on: on, suma: pr.v, suma_pieza: pp.v };
     B.disabled = true;
     try { await guardaAjuste("combo", valor); P.combo = valor; AV.comboAjuste = valor; huellaA = ""; toast(on ? "Combo guardado" : "Combo apagado"); }
     catch (e) { if (e.status !== 401) M.textContent = AV.errorTxt(e); }
