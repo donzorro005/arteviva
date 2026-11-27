@@ -41,7 +41,7 @@
       var aj = r[0] || [], h = JSON.stringify(r);
       P.ban = r[1]; P.tar = r[2]; P.des = r[3];
       var fr = ajuste(aj, "franja"), mv = ajuste(aj, "mas_vendidos");
-      if (h !== huellaA || !hay) { huellaA = h; hay = true; P.franja = fr; P.mv = mv; P.kit = ajuste(aj, "kit_fotos"); pintarFranja(); pintarMv(); pintarKit(); }
+      if (h !== huellaA || !hay) { huellaA = h; hay = true; P.franja = fr; P.mv = mv; P.kit = ajuste(aj, "kit_fotos"); P.combo = ajuste(aj, "combo"); pintarCombo(); pintarFranja(); pintarMv(); pintarKit(); }
       pintarListas();
     } catch (e) {
       if (e.status !== 401) {
@@ -87,6 +87,23 @@
     var valor = { on: on, t: t, envioMin: min, prov: $("fr-prov").value || null, hasta: fe.v };
     B.disabled = true;
     try { await guardaAjuste("franja", valor); P.franja = valor; huellaA = ""; toast("Franja guardada"); await cargarPromos(); }
+    catch (e) { if (e.status !== 401) M.textContent = AV.errorTxt(e); }
+    B.disabled = false;
+  };
+
+  /* ---------- combo de figura (ajuste «combo»: la tienda y crear_pedido usan este precio; etapa14-combo.sql) ---------- */
+  function pintarCombo() {
+    var c = P.combo || {}; $("cb-on").checked = !!c.on; $("cb-precio").value = c.precio != null ? c.precio : ""; $("cb-msg").textContent = "";
+    $("cb-ref").textContent = "Por separado: figura ₡850 + pincel ₡500 + 3 tarritos de ₡400 = ₡2.550. Con ₡2.200 el cliente ahorra ₡350.";
+  }
+  $("cb-guardar").onclick = async function () {
+    var M = $("cb-msg"), B = this, on = $("cb-on").checked, pr = AV.tienda.validarPrecio($("cb-precio").value.trim(), on);
+    M.textContent = "";
+    if (pr.error) { M.textContent = "Precio del combo: " + pr.error.charAt(0).toLowerCase() + pr.error.slice(1); return; }
+    if (on && !pr.v) { M.textContent = "El precio del combo debe ser mayor a 0."; return; }
+    var valor = { on: on, precio: pr.v };
+    B.disabled = true;
+    try { await guardaAjuste("combo", valor); P.combo = valor; huellaA = ""; toast(on ? "Combo guardado" : "Combo apagado"); }
     catch (e) { if (e.status !== 401) M.textContent = AV.errorTxt(e); }
     B.disabled = false;
   };

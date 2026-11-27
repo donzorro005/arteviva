@@ -347,7 +347,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 .el-top{padding:1.1rem 1.25rem .7rem;border-bottom:1px solid var(--line)}
 .el-top h3{margin:0;font:700 var(--t3)/1.1 "Cormorant Garamond",Georgia,serif}
 .el-top p{margin:.35rem 0 0;color:var(--muted);font-size:var(--t1)}
-#el-lista{flex:1;overflow:auto;padding:.25rem 1.25rem 1rem;overscroll-behavior:contain}
+#el-lista,#cb-lista{flex:1;overflow:auto;padding:.25rem 1.25rem 1rem;overscroll-behavior:contain}#cb-lista{padding-top:1rem}
 #el-lista h4{margin:1rem 0 .5rem;font-size:var(--t1);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .el-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:.5rem}
 .el-f{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:.35rem;padding:.45rem;border:2px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font:inherit;font-size:.86rem;line-height:1.2;cursor:pointer;text-align:center}
@@ -357,13 +357,17 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 .el-f:disabled{opacity:.45;cursor:not-allowed}
 .el-n{position:absolute;top:.3rem;right:.3rem;min-width:1.6rem;height:1.6rem;padding:0 .3rem;border-radius:999px;background:var(--ink);color:var(--bg);font-size:.8rem;font-weight:600;display:flex;align-items:center;justify-content:center}
 .el-n[hidden]{display:none}
+.cb-sw{display:block;width:100%;height:2.6rem;border-radius:8px;border:1px solid var(--line)}
+.cmb{display:flex;gap:.45rem;align-items:flex-start;margin:.35rem 0 .1rem;padding:.45rem .55rem;border:1.5px dashed var(--line);border-radius:10px;font-size:.8rem;line-height:1.25;cursor:pointer;text-align:left}
+.cmb[hidden]{display:none}.cmb.on{border-style:solid;border-color:var(--ink);background:var(--surface)}
+.cmb input{width:18px;height:18px;margin:.05rem 0 0;flex:none;accent-color:var(--ink)}.cmb b{font-weight:600}.cmb em{display:block;font-style:normal;color:var(--green,#4f8a3a);font-weight:600}
 .el-pie{border-top:1px solid var(--line);padding:.7rem 1.25rem 1rem}
-#el-sel{display:flex;flex-wrap:wrap;gap:.4rem}
+#el-sel,#cb-sel{display:flex;flex-wrap:wrap;gap:.4rem}
 .el-chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.35rem .75rem;font:inherit;font-size:.88rem;cursor:pointer}
 .el-pie .falta{margin:.4rem 0 0}
 .el-acc{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:.6rem}
 .el-no{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;cursor:pointer;padding:.5rem 0}
-#el-ok:disabled{opacity:.5;cursor:not-allowed}
+#el-ok:disabled,#cb-ok:disabled{opacity:.5;cursor:not-allowed}
 .confianza{margin-top:1.1rem;color:var(--muted);font-size:.95rem}
 .pagoalr{margin:1rem 0 .5rem;text-align:center;color:var(--muted);font-size:.92rem}
 #f-sinpenota{display:block;margin-top:.3rem}
@@ -577,6 +581,7 @@ footer{padding:var(--gap) 0 clamp(2rem,4vw,3rem);background:var(--surface)}
 </div>
 <p class="pagoalr">Puedes pagar en efectivo al retirar o al recibir por mensajería.</p><a class="btn wa" id="wa" target="_blank" rel="noopener" aria-disabled="true">Comprar por WhatsApp</a><p class="falta" id="falta" role="status"></p><p class="vaciar" id="vaciar-box" hidden><button type="button" id="vaciar">Vaciar carrito</button></p></div>
 </div></section></main>
+<dialog id="combo-dlg" class="eleg" aria-labelledby="cb-tit"><div class="el-top"><h3 id="cb-tit"></h3><p id="cb-sub"></p></div><div id="cb-lista" class="el-lista"></div><div class="el-pie"><div id="cb-sel" aria-live="polite"></div><p class="falta" id="cb-falta" role="status"></p><div class="el-acc"><button type="button" class="el-no" id="cb-no">Cancelar</button><button type="button" class="btn sm" id="cb-ok" disabled>Agregar combo</button></div></div></dialog>
 <dialog id="elegir" class="eleg" aria-labelledby="el-tit"><div class="el-top"><h3 id="el-tit"></h3><p id="el-sub"></p></div><div id="el-lista"></div><div class="el-pie"><div id="el-sel" aria-live="polite"></div><p class="falta" id="el-falta" role="status"></p><div class="el-acc"><button type="button" class="el-no" id="el-no">Cancelar</button><button type="button" class="btn sm" id="el-ok" disabled>Agregar al carrito</button></div></div></dialog>
 
 <footer class="rev" aria-labelledby="t-cierre"><div class="wrap">
@@ -609,7 +614,7 @@ var WA="50660319306",MONEDA="₡";
    Si Supabase no responde en 3 s (o responde sin ningún producto, p. ej. antes de importar) se usa la última
    copia guardada en este navegador y, si no hay, catalogo.js. Con ?demo se piden también las promociones
    apagadas o vencidas, y esa respuesta no se guarda como copia. */
-var CATS=[],IMGS={},FRANJA=null,BANNERS=[],TARJETAS=[],DESCUENTOS=[],MAS_VENDIDOS=[],NUEVOS=[],AGOTADOS=[],PRODUCTS=[],TIENDA_LISTA=false;
+var COMBO={on:false,precio:0},CMB=null,CATS=[],IMGS={},FRANJA=null,BANNERS=[],TARJETAS=[],DESCUENTOS=[],MAS_VENDIDOS=[],NUEVOS=[],AGOTADOS=[],PRODUCTS=[],TIENDA_LISTA=false;
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return"&#"+c.charCodeAt(0)+";"})}
 function catalogoOk(j){return!!j&&typeof j==="object"&&Array.isArray(j.categorias)&&j.categorias.some(function(C){return!!C&&Array.isArray(C.g)&&C.g.some(function(G){return!!G&&Array.isArray(G.l)&&G.l.length>0})})}
 function catalogoGuardado(){try{var j=JSON.parse(localStorage.getItem("av-catalogo")||"null");if(catalogoOk(j))return j}catch(e){}
@@ -631,14 +636,14 @@ if(g.sz){o.z=(P.v||[]).map(function(V){var x={id:o.id+"v"+V.id,n:n+" – "+tx(V.
 g.l.push(o)});c.g.push(g)});CATS.push(c)});
 FRANJA=J.franja&&typeof J.franja==="object"?J.franja:null;BANNERS=J.banners||[];TARJETAS=J.tarjetas||[];DESCUENTOS=J.descuentos||[];MAS_VENDIDOS=J.mas_vendidos||[];
 var S=document.getElementById("shop");S.textContent="";cart={};TIENDA_LISTA=true;
-drawPromos();drawShop();drawInicio();cargarCarrito();YS.sinFiesta=true;try{drawCart()}finally{YS.sinFiesta=false}
+drawPromos();drawShop();pintaCombos();drawInicio();cargarCarrito();YS.sinFiesta=true;try{drawCart()}finally{YS.sinFiesta=false}
 if(window.avPideLogo)avPideLogo();if(location.hash==="#carrito"){var ca=document.getElementById("carrito");if(ca)ca.scrollIntoView()}}
 function arrancarTienda(){var S=document.getElementById("shop");S.textContent="Cargando tienda…";
 cargarCatalogo().then(function(j){try{usarCatalogo(j)}catch(e){var r=window.CATALOGO_RESPALDO;if(j===r||!catalogoOk(r))throw e;usarCatalogo(r)}})
 .catch(function(){TIENDA_LISTA=false;S.textContent="No pudimos cargar la tienda. Recarga la página."})}
 var cart={};
 function money(n){return MONEDA+n.toLocaleString("es-CR")}
-function find(id){var k=String(id).split("~"),b=PRODUCTS.filter(function(x){return x.id===k[0]})[0];if(!b||k.length<2)return b;var f=k[1].split(".").map(function(i){return PRODUCTS.filter(function(x){return x.id===i})[0]});if(f.some(function(x){return!x}))return undefined;return Object.assign({},b,{id:String(id),n:b.n+" · Figuras: "+f.map(function(x){return x.d}).join(", "),figs:f})}
+function find(id){if(String(id).charAt(0)==="k")return findCombo(String(id));var k=String(id).split("~"),b=PRODUCTS.filter(function(x){return x.id===k[0]})[0];if(!b||k.length<2)return b;var f=k[1].split(".").map(function(i){return PRODUCTS.filter(function(x){return x.id===i})[0]});if(f.some(function(x){return!x}))return undefined;return Object.assign({},b,{id:String(id),n:b.n+" · Figuras: "+f.map(function(x){return x.d}).join(", "),figs:f})}
 function setQty(id,q){if(q>(cart[id]||0)&&agotado(find(id)))return;if(q<=0)delete cart[id];else cart[id]=q;drawCart()}
 /*ART*/
 var AT='fill="#f6f1e7" stroke="#a89b86" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"';
@@ -741,8 +746,9 @@ var it=document.createElement("div");it.className="items"+(G.im?" withimg":"")+(
 G.l.forEach(function(o){if(G.sz){it.appendChild(tarjetaTamanos(o));return}var r=document.createElement("div");r.className="item"+(G.im?" card":"");
 if(G.im){var ph=document.createElement("div");ph.className="ph";if(IMGS[o.n]){var im=document.createElement("img");im.src=IMGS[o.n];im.alt=o.n;ph.appendChild(im)}else{var sv=artFor(o,G);if(sv){ph.className="ph art";ph.innerHTML=sv}else{ph.textContent="Foto"}}r.appendChild(ph)}else{var sw=document.createElement("span");sw.className="sw2";sw.style.background=o.c;r.appendChild(sw)}
 var nm=document.createElement("span");nm.className="nm";nm.textContent=o.d;r.appendChild(nm);if(SUB&&o.cm){var cm=document.createElement("span");cm.className="cm";cm.textContent="Tamaño: "+o.cm+" cm";r.appendChild(cm)}ponPrecio(r,o);
+if(SUB&&G.k==="Figura: "){var cbx=document.createElement("label");cbx.className="cmb";cbx.hidden=true;cbx.dataset.id=o.id;r.appendChild(cbx)}
 var b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent=pideFiguras(o)?"Elegir figuras":"Agregar";b.setAttribute("aria-label",(pideFiguras(o)?"Elegir figuras de ":"Agregar ")+o.n);
-b.onclick=function(){if(pideFiguras(o)){abrirElegir(o);return}setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar"},900)};
+b.onclick=function(){var ck=r.querySelector(".cmb input");if(ck&&ck.checked&&COMBO.on){abrirCombo(o);return}if(pideFiguras(o)){abrirElegir(o);return}setQty(o.id,(cart[o.id]||0)+1);b.textContent="Agregado";setTimeout(function(){b.textContent="Agregar"},900)};
 marca(r,b,o);r.appendChild(b);it.appendChild(r)});dst.appendChild(it)});
 d.appendChild(bd);s.appendChild(d)})}
 function drawCart(){if(!TIENDA_LISTA)return;var L=document.getElementById("lines"),T=document.getElementById("total"),W=document.getElementById("wa"),B=document.getElementById("cartbar"),EG=document.getElementById("envg");
@@ -858,6 +864,41 @@ if(!s)setTimeout(function(){ysSaluda();ysDice(ysFalta(),3600)},1800);
 document.getElementById("ys-fig").addEventListener("click",function(){ysSaluda();ysBrinca(1);ysDice(ysFalta())});
 document.getElementById("ys-x").addEventListener("click",function(){Y.hidden=true});
 if(!YS.rm)setInterval(function(){if(document.hidden)return;[].forEach.call(Y.querySelectorAll(".ys-ojo"),function(o){if(o.animate)o.animate([{transform:"scaleY(1)"},{transform:"scaleY(.1)"},{transform:"scaleY(1)"}],{duration:180})})},3600)})();
+/* COMBO DE FIGURA: figura suelta + pincel fino + 3 tarritos de pintura (colores a elegir), a un precio menor que por separado.
+   Precio y encendido en el ajuste público «combo» (panel → Tienda → Promociones). El servidor (crear_pedido) cobra ese mismo precio. */
+try{var cc=JSON.parse(localStorage.getItem("av-combo")||"null");if(cc&&cc.on&&+cc.precio>0)COMBO={on:true,precio:Math.round(+cc.precio)}}catch(e){}
+function coloresCombo(){var r=[];CATS.forEach(function(C){if(C.n!=="Pinturas")return;C.g.forEach(function(G){G.l.forEach(function(o){var x=(o.z||[]).filter(function(v){return v.p!=null}).sort(function(a,b){return a.p-b.p})[0];if(x)r.push({id:o.id,d:o.d,c:o.c,x:x})})})});return r}
+function colorPorId(i){return coloresCombo().filter(function(c){return c.id===i})[0]}
+function findCombo(id){var k=id.slice(1).split("~"),f=PRODUCTS.filter(function(x){return x.id===k[0]})[0];if(!f||!COMBO.on||f.n.indexOf("Figura: ")!==0||!k[1])return undefined;
+var cs=k[1].split(".").map(colorPorId);if(cs.length!==3||cs.some(function(c){return!c}))return undefined;
+return{id:id,n:"Combo: "+f.n+" · Pincel fino · Pinturas: "+cs.map(function(c){return c.d}).join(", "),d:"Combo "+f.d,p:COMBO.precio,c:f.c,cat:"Combos",grp:"Combo",base:"Combo: "+f.n,figs:[f].concat(cs.map(function(c){return c.x})),combo:true}}
+function ahorroCombo(f){var pin=PRODUCTS.filter(function(x){return/^Pincel: .*fin/i.test(x.n)&&x.p!=null})[0],cs=coloresCombo();if(!pin||!cs.length||f.p==null)return 0;
+var tar=Math.min.apply(null,cs.map(function(c){return c.x.p}));return f.p+pin.p+3*tar-COMBO.precio}
+function pintaCombos(){[].forEach.call(document.querySelectorAll(".cmb"),function(L){var f=PRODUCTS.filter(function(x){return x.id===L.dataset.id})[0],B=L.parentNode.querySelector("button.btn");
+if(!COMBO.on||!f||!coloresCombo().length||agotado(f)){L.hidden=true;L.textContent="";if(B&&!agotado(f))B.textContent="Agregar";return}
+var ah=ahorroCombo(f);L.hidden=false;L.textContent="";var ck=document.createElement("input");ck.type="checkbox";ck.setAttribute("aria-label","Llevar "+f.d+" en combo");
+var tx=document.createElement("span");tx.innerHTML='<b>En combo '+money(COMBO.precio)+'</b> con pincel fino y 3 pinturas'+(ah>0?' <em>Ahorrás '+money(ah)+'</em>':'');
+ck.onchange=function(){L.classList.toggle("on",ck.checked);if(B){B.textContent=ck.checked?"Elegir colores":"Agregar";B.setAttribute("aria-label",(ck.checked?"Elegir colores del combo de ":"Agregar ")+f.n)}};
+L.appendChild(ck);L.appendChild(tx)})}
+function abrirCombo(f){CMB={f:f,sel:[]};var D=document.getElementById("combo-dlg");document.getElementById("cb-tit").textContent="Combo: "+f.d;
+var L=document.getElementById("cb-lista");L.textContent="";var g=document.createElement("div");g.className="el-g";
+coloresCombo().forEach(function(c){var b=document.createElement("button");b.type="button";b.className="el-f";b.dataset.id=c.id;
+var ph=document.createElement("span");ph.className="cb-sw";ph.style.background=c.c||"#ccc";var nm=document.createElement("span");nm.className="el-nm";nm.textContent=c.d;var n=document.createElement("span");n.className="el-n";n.hidden=true;
+b.appendChild(ph);b.appendChild(nm);b.appendChild(n);if(agotado(c.x)){b.disabled=true;nm.textContent=c.d+" (agotado)"}
+b.onclick=function(){if(CMB.sel.length>=3){document.getElementById("cb-falta").textContent="Ya elegiste 3. Quita uno abajo para cambiarlo.";return}CMB.sel.push(c.id);pintaCombo()};g.appendChild(b)});
+L.appendChild(g);pintaCombo();if(D.showModal)D.showModal();else D.setAttribute("open","")}
+function pintaCombo(){var s=CMB.sel,cu={};s.forEach(function(i){cu[i]=(cu[i]||0)+1});
+document.getElementById("cb-sub").textContent="Incluye la figura, un pincel fino y 3 tarritos de pintura. Elige 3 colores (puedes repetir). Llevas "+s.length+" de 3.";
+[].forEach.call(document.querySelectorAll("#cb-lista .el-f"),function(b){var k=cu[b.dataset.id]||0,c=b.querySelector(".el-n");c.hidden=!k;c.textContent=k>1?"×"+k:"✓";b.setAttribute("aria-pressed",k?"true":"false")});
+var Q=document.getElementById("cb-sel");Q.textContent="";s.forEach(function(i,j){var c=colorPorId(i),x=document.createElement("button");x.type="button";x.className="el-chip";x.textContent=c.d+" ✕";x.setAttribute("aria-label","Quitar "+c.d);x.onclick=function(){CMB.sel.splice(j,1);pintaCombo()};Q.appendChild(x)});
+document.getElementById("cb-falta").textContent="";var ok=document.getElementById("cb-ok");ok.disabled=s.length!==3;ok.textContent=s.length===3?"Agregar combo · "+money(COMBO.precio):"Faltan "+(3-s.length)}
+function cierraCombo(){var D=document.getElementById("combo-dlg");if(D.close)D.close();else D.removeAttribute("open")}
+document.getElementById("cb-ok").addEventListener("click",function(){if(!CMB||CMB.sel.length!==3)return;var k="k"+CMB.f.id+"~"+CMB.sel.slice().sort().join(".");
+setQty(k,(cart[k]||0)+1);cierraCombo();var B=document.getElementById("cartbar");if(B)B.focus()});
+document.getElementById("cb-no").addEventListener("click",cierraCombo);
+setTimeout(function(){if(window.SUPA&&SUPA.url&&SUPA.key&&window.fetch)fetch(SUPA.url+"/rest/v1/ajustes?clave=eq.combo&select=valor",{headers:hdr()}).then(function(r){return r.ok?r.json():null}).then(function(f){if(!f)return;var v=f[0]&&f[0].valor,on=!!(v&&v.on&&+v.precio>0);
+COMBO=on?{on:true,precio:Math.round(+v.precio)}:{on:false,precio:0};try{localStorage.setItem("av-combo",JSON.stringify(COMBO))}catch(e){}
+if(!on)Object.keys(cart).forEach(function(k){if(k.charAt(0)==="k")delete cart[k]});if(TIENDA_LISTA){pintaCombos();drawCart()}}).catch(function(){})},0);
 /* PEDIDOS AL PANEL: al tocar "Comprar por WhatsApp" el pedido se guarda como pendiente. Si falla, WhatsApp abre igual. */
 var ultimoPedido={k:"",t:0};
 function guardarPedido(){if(!SUPA.url||!SUPA.key)return;var ids=Object.keys(cart);if(!ids.length)return;var K=cuenta(),F=readForm();
